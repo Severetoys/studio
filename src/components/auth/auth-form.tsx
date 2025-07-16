@@ -27,7 +27,7 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
   };
 
   return (
-    <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
+    <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Welcome Back</CardTitle>
         <CardDescription>
