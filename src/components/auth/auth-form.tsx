@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppleIcon, GoogleIcon } from "./icons";
 import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,10 +30,26 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+
   const { toast } = useToast();
   const auth = getAuth(app);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const setupRecaptcha = () => {
+    if (!auth) return;
+    if (!(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+      });
+    }
+  }
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -44,7 +60,7 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
           title: "Registration Successful!",
           description: "Please complete your profile.",
         });
-        onLoginClick(); // Open KYC form after successful signup
+        onLoginClick();
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         toast({
@@ -52,7 +68,6 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
           description: "Welcome back.",
           className: "bg-accent text-accent-foreground border-accent",
         });
-        // Here you would typically redirect the user to a dashboard
       }
     } catch (error: any) {
       toast({
@@ -65,14 +80,69 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
     }
   };
   
-  const handleSocialOrSmsLogin = () => {
-    // For now, these buttons will open the KYC form as a placeholder
-    // In a real app, they would trigger their respective Firebase auth flows
+  const handleSmsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setupRecaptcha();
+    
+    const appVerifier = (window as any).recaptchaVerifier;
+
+    try {
+      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      setConfirmationResult(result);
+      toast({
+        title: "Verification Code Sent",
+        description: "Please check your phone for the code.",
+      });
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: "SMS Sending Failed",
+        description: error.message,
+      });
+      // Reset reCAPTCHA
+       if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.render().then((widgetId: any) => {
+          grecaptcha.reset(widgetId);
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleVerificationCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!confirmationResult) return;
+    
+    setIsLoading(true);
+
+    try {
+      await confirmationResult.confirm(verificationCode);
+      toast({
+        title: "Login Successful!",
+        description: "Welcome!",
+        className: "bg-accent text-accent-foreground border-accent",
+      });
+      onLoginClick();
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: "Verification Failed",
+        description: "The code you entered is incorrect. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = () => {
     onLoginClick();
   }
 
   return (
     <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
+      <div id="recaptcha-container"></div>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">{authMode === 'login' ? 'Welcome Back' : 'Create an Account'}</CardTitle>
         <CardDescription>
@@ -81,11 +151,11 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button variant="outline" className="h-12 text-base" onClick={handleSocialOrSmsLogin}>
+          <Button variant="outline" className="h-12 text-base" onClick={handleSocialLogin}>
             <GoogleIcon className="mr-2 h-5 w-5" />
             Google
           </Button>
-          <Button variant="outline" className="h-12 text-base" onClick={handleSocialOrSmsLogin}>
+          <Button variant="outline" className="h-12 text-base" onClick={handleSocialLogin}>
             <AppleIcon className="mr-2 h-5 w-5 fill-current" />
             Apple
           </Button>
@@ -105,12 +175,12 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
             <TabsTrigger value="email" className="text-base">
               <Mail className="mr-2 h-4 w-4" /> Email
             </TabsTrigger>
-            <TabsTrigger value="sms" className="text-base" onClick={handleSocialOrSmsLogin}>
+            <TabsTrigger value="sms" className="text-base">
               <MessageCircle className="mr-2 h-4 w-4" /> SMS
             </TabsTrigger>
           </TabsList>
           <TabsContent value="email">
-            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+            <form onSubmit={handleEmailSubmit} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading} />
@@ -124,6 +194,29 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
                 {authMode === 'login' ? 'Sign In' : 'Sign Up'} with Email
               </Button>
             </form>
+          </TabsContent>
+          <TabsContent value="sms">
+            {!confirmationResult ? (
+              <form onSubmit={handleSmsSubmit} className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input id="phone" type="tel" placeholder="+1 555-555-5555" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
+                </div>
+                <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerificationCodeSubmit} className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="code">Verification Code</Label>
+                  <Input id="code" type="text" placeholder="123456" required value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} disabled={isLoading} />
+                </div>
+                <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify and Sign In'}
+                </Button>
+              </form>
+            )}
           </TabsContent>
         </Tabs>
         <Button variant="secondary" className="w-full h-12 text-base" onClick={onFaceAuthClick}>
