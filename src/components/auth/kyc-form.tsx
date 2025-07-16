@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, UploadCloud } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,7 +33,6 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Label } from "@/components/ui/label";
 
 const kycFormSchema = z.object({
   fullName: z.string().min(2, {
@@ -46,13 +44,6 @@ const kycFormSchema = z.object({
   address: z.string().min(10, {
     message: "Address must be at least 10 characters.",
   }),
-  document: z.any()
-    .refine((files) => files?.length == 1, "ID document is required.")
-    .refine((files) => files?.[0]?.size <= 5000000, `Max file size is 5MB.`)
-    .refine(
-      (files) => ["image/jpeg", "image/png", "application/pdf"].includes(files?.[0]?.type),
-      "Only .jpg, .png, and .pdf formats are supported."
-    ),
 });
 
 type KycFormValues = z.infer<typeof kycFormSchema>;
@@ -74,8 +65,6 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
     defaultValues,
     mode: "onChange",
   });
-  
-  const documentRef = form.register("document");
 
   function onSubmit(data: KycFormValues) {
     toast({
@@ -165,36 +154,6 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
                       className="resize-none"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="document"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ID Document</FormLabel>
-                   <FormControl>
-                    <div className="relative flex items-center justify-center w-full">
-                       <Label htmlFor="document-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50 transition-colors">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                            {field.value?.[0]?.name ? (
-                               <p className="font-semibold text-primary">{field.value[0].name}</p>
-                            ) : (
-                              <>
-                                <p className="mb-2 text-sm text-muted-foreground">
-                                  <span className="font-semibold">Click to upload</span> or drag and drop
-                                </p>
-                                <p className="text-xs text-muted-foreground">PNG, JPG or PDF (MAX. 5MB)</p>
-                              </>
-                            )}
-                          </div>
-                          <Input id="document-upload" type="file" className="hidden" {...documentRef} />
-                       </Label>
-                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
