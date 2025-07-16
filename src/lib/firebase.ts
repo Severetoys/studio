@@ -8,14 +8,15 @@ import { getAnalytics, isSupported } from "firebase/analytics";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAhNhB9DeJabhs8cVIz1ibBcgqcQjOi28w",
-  authDomain: "merchant-center-1724425392968.firebaseapp.com",
-  projectId: "merchant-center-1724425392968",
-  storageBucket: "merchant-center-1724425392968.firebasestorage.app",
-  messagingSenderId: "148496303720",
-  appId: "1:148496303720:web:5a967a03c9bd7041511ddd",
-  measurementId: "G-SCQ5NQ2JGN"
+  apiKey: "AIzaSyC7yaXjEFWFORvyLyHh1O5SPYjRCzptTg8",
+  authDomain: "authkit-y9vjx.firebaseapp.com",
+  projectId: "authkit-y9vjx",
+  storageBucket: "authkit-y9vjx.appspot.com",
+  messagingSenderId: "308487499277",
+  appId: "1:308487499277:web:3fde6468b179432e9f2f44",
+  measurementId: "G-XKJWPXDPZS"
 };
+
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
