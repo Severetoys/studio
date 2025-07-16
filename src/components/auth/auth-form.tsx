@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppleIcon, GoogleIcon } from "./icons";
 import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -136,9 +136,37 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
     }
   };
 
-  const handleSocialLogin = () => {
-    onLoginClick();
-  }
+  const handleSocialLogin = async (providerName: 'google' | 'apple') => {
+    setIsLoading(true);
+    let provider;
+
+    if (providerName === 'google') {
+      provider = new GoogleAuthProvider();
+    } else if (providerName === 'apple') {
+      provider = new OAuthProvider('apple.com');
+    } else {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await signInWithPopup(auth, provider);
+      toast({
+        title: "Login Successful!",
+        description: "Welcome!",
+        className: "bg-accent text-accent-foreground border-accent",
+      });
+      onLoginClick(); // Open KYC form after successful social login
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: "Authentication Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
@@ -151,12 +179,12 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button variant="outline" className="h-12 text-base" onClick={handleSocialLogin}>
-            <GoogleIcon className="mr-2 h-5 w-5" />
+          <Button variant="outline" className="h-12 text-base" onClick={() => handleSocialLogin('google')} disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
             Google
           </Button>
-          <Button variant="outline" className="h-12 text-base" onClick={handleSocialLogin}>
-            <AppleIcon className="mr-2 h-5 w-5 fill-current" />
+          <Button variant="outline" className="h-12 text-base" onClick={() => handleSocialLogin('apple')} disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
             Apple
           </Button>
         </div>
