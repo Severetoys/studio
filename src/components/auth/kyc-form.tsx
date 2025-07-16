@@ -25,7 +25,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
@@ -35,6 +34,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 
 const kycFormSchema = z.object({
   fullName: z.string().min(2, {
@@ -74,6 +74,8 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
     defaultValues,
     mode: "onChange",
   });
+  
+  const documentRef = form.register("document");
 
   function onSubmit(data: KycFormValues) {
     toast({
@@ -171,7 +173,7 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
             <FormField
               control={form.control}
               name="document"
-              render={({ field: { onChange, value, ...rest } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>ID Document</FormLabel>
                    <FormControl>
@@ -179,13 +181,18 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
                        <Label htmlFor="document-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                            <p className="mb-2 text-sm text-muted-foreground">
-                              <span className="font-semibold">Click to upload</span> or drag and drop
-                            </p>
-                            <p className="text-xs text-muted-foreground">PNG, JPG or PDF (MAX. 5MB)</p>
-                             {value?.[0] && <p className="text-xs text-primary mt-2">{value[0].name}</p>}
+                            {field.value?.[0]?.name ? (
+                               <p className="font-semibold text-primary">{field.value[0].name}</p>
+                            ) : (
+                              <>
+                                <p className="mb-2 text-sm text-muted-foreground">
+                                  <span className="font-semibold">Click to upload</span> or drag and drop
+                                </p>
+                                <p className="text-xs text-muted-foreground">PNG, JPG or PDF (MAX. 5MB)</p>
+                              </>
+                            )}
                           </div>
-                          <Input id="document-upload" type="file" className="hidden" onChange={(e) => onChange(e.target.files)} {...rest} />
+                          <Input id="document-upload" type="file" className="hidden" {...documentRef} />
                        </Label>
                     </div>
                   </FormControl>
