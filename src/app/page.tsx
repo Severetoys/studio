@@ -4,14 +4,20 @@ import { useState } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 import { KycForm } from "@/components/auth/kyc-form";
 import { AuthKitLogo } from "@/components/auth/icons";
+import { FaceAuthModal } from "@/components/auth/face-auth-modal";
 
 export default function Home() {
   const [isKycOpen, setIsKycOpen] = useState(false);
+  const [isFaceAuthOpen, setIsFaceAuthOpen] = useState(false);
 
   const handleLoginSuccess = () => {
     // In a real app, this would be called after successful auth
     setIsKycOpen(true);
   };
+  
+  const handleFaceAuthClick = () => {
+    setIsFaceAuthOpen(true);
+  }
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
@@ -25,9 +31,10 @@ export default function Home() {
         </p>
       </div>
       <div className="w-full max-w-md mt-8">
-        <AuthForm onLoginSuccess={handleLoginSuccess} />
+        <AuthForm onLoginSuccess={handleLoginSuccess} onFaceAuthClick={handleFaceAuthClick} />
       </div>
       <KycForm isOpen={isKycOpen} onOpenChange={setIsKycOpen} />
+      <FaceAuthModal isOpen={isFaceAuthOpen} onOpenChange={setIsFaceAuthOpen} />
     </main>
   );
 }

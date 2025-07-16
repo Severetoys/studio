@@ -4,28 +4,11 @@
  *
  * - registerFace - Registers a user's face for future authentication.
  * - verifyFace - Verifies a user's face against their registered photo.
- * - FaceAuthInput - The input type for both registration and verification.
- * - FaceAuthOutput - The return type for the verification process.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-export const FaceAuthInputSchema = z.object({
-  userId: z.string().describe('A unique identifier for the user.'),
-  photoDataUri: z
-    .string()
-    .describe(
-      "A photo of the user's face, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type FaceAuthInput = z.infer<typeof FaceAuthInputSchema>;
-
-export const FaceAuthOutputSchema = z.object({
-  isMatch: z.boolean().describe('Whether the face in the photo matches the registered face.'),
-  reason: z.string().describe('The reasoning behind the match decision.')
-});
-export type FaceAuthOutput = z.infer<typeof FaceAuthOutputSchema>;
+import { FaceAuthInput, FaceAuthInputSchema, FaceAuthOutput, FaceAuthOutputSchema } from './face-auth';
+import { z } from 'zod';
 
 
 // In a real application, you would store this in a secure database.

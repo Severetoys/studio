@@ -17,9 +17,10 @@ import { Mail, MessageCircle, ScanFace } from "lucide-react";
 
 interface AuthFormProps {
   onLoginSuccess: () => void;
+  onFaceAuthClick: () => void;
 }
 
-export function AuthForm({ onLoginSuccess }: AuthFormProps) {
+export function AuthForm({ onLoginSuccess, onFaceAuthClick }: AuthFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onLoginSuccess();
@@ -90,7 +91,7 @@ export function AuthForm({ onLoginSuccess }: AuthFormProps) {
             </form>
           </TabsContent>
         </Tabs>
-        <Button variant="secondary" className="w-full h-12 text-base" onClick={onLoginSuccess}>
+        <Button variant="secondary" className="w-full h-12 text-base" onClick={onFaceAuthClick}>
           <ScanFace className="mr-2 h-5 w-5" />
           Authenticate with FaceID
         </Button>
