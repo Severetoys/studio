@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -21,11 +22,11 @@ import { app } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthFormProps {
-  onLoginClick: () => void;
+  onAuthSuccess: () => void;
   onFaceAuthClick: () => void;
 }
 
-export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
+export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -35,6 +36,7 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const { toast } = useToast();
+  const router = useRouter();
   const auth = getAuth(app);
 
   const setupRecaptcha = () => {
@@ -49,6 +51,16 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
     }
   }
 
+  const handleAuthSuccess = () => {
+    toast({
+      title: "Authentication Successful!",
+      description: "Redirecting to your dashboard...",
+      className: "bg-accent text-accent-foreground border-accent",
+    });
+    router.push('/dashboard');
+    onAuthSuccess();
+  }
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -56,18 +68,10 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
     try {
       if (authMode === 'signup') {
         await createUserWithEmailAndPassword(auth, email, password);
-        toast({
-          title: "Registration Successful!",
-          description: "Please complete your profile.",
-        });
-        onLoginClick();
+        // onAuthStateChanged will redirect
       } else {
         await signInWithEmailAndPassword(auth, email, password);
-        toast({
-          title: "Login Successful!",
-          description: "Welcome back.",
-          className: "bg-accent text-accent-foreground border-accent",
-        });
+        // onAuthStateChanged will redirect
       }
     } catch (error: any) {
       toast({
@@ -101,10 +105,9 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
         description: error.message,
       });
       // Reset reCAPTCHA
-       if ((window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier.render().then((widgetId: any) => {
-          grecaptcha.reset(widgetId);
-        });
+      const recaptcha = (window as any).recaptchaVerifier;
+      if (recaptcha) {
+          recaptcha.clear();
       }
     } finally {
       setIsLoading(false);
@@ -119,12 +122,7 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
 
     try {
       await confirmationResult.confirm(verificationCode);
-      toast({
-        title: "Login Successful!",
-        description: "Welcome!",
-        className: "bg-accent text-accent-foreground border-accent",
-      });
-      onLoginClick();
+      // onAuthStateChanged will redirect
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -151,12 +149,7 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
 
     try {
       await signInWithPopup(auth, provider);
-      toast({
-        title: "Login Successful!",
-        description: "Welcome!",
-        className: "bg-accent text-accent-foreground border-accent",
-      });
-      onLoginClick(); // Open KYC form after successful social login
+      // onAuthStateChanged will redirect
     } catch (error: any) {
       toast({
         variant: 'destructive',

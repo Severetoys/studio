@@ -1,21 +1,52 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { app } from "@/lib/firebase";
+
 import { AuthForm } from "@/components/auth/auth-form";
 import { KycForm } from "@/components/auth/kyc-form";
 import { AuthKitLogo } from "@/components/auth/icons";
 import { FaceAuthModal } from "@/components/auth/face-auth-modal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
   const [isKycOpen, setIsKycOpen] = useState(false);
   const [isFaceAuthOpen, setIsFaceAuthOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleLoginClick = () => {
-    setIsKycOpen(true);
+  const router = useRouter();
+  const auth = getAuth(app);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push('/dashboard');
+      } else {
+        setLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, [auth, router]);
+  
+  const handleSuccessfulAuth = () => {
+    // KYC form can be triggered here if needed, or redirect directly
+    // For now, onAuthStateChanged will handle the redirect.
+    // To open KYC form: setIsKycOpen(true);
   };
   
   const handleFaceAuthClick = () => {
     setIsFaceAuthOpen(true);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center">
+        <Skeleton className="h-[550px] w-full max-w-md" />
+      </div>
+    );
   }
 
   return (
@@ -26,11 +57,11 @@ export default function Home() {
           <h1 className="text-4xl font-bold tracking-tighter text-foreground">AuthKit</h1>
         </div>
         <p className="max-w-md text-muted-foreground">
-          A beautifully designed, world-class authentication page. Click any login method to open the KYC form.
+          A beautifully designed, world-class authentication page.
         </p>
       </div>
       <div className="w-full max-w-md mt-8">
-        <AuthForm onLoginClick={handleLoginClick} onFaceAuthClick={handleFaceAuthClick} />
+        <AuthForm onAuthSuccess={handleSuccessfulAuth} onFaceAuthClick={handleFaceAuthClick} />
       </div>
       <KycForm isOpen={isKycOpen} onOpenChange={setIsKycOpen} />
       <FaceAuthModal isOpen={isFaceAuthOpen} onOpenChange={setIsFaceAuthOpen} />

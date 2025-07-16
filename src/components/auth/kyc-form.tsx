@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,12 +68,14 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
   });
 
   function onSubmit(data: KycFormValues) {
+    // Here you would typically send the KYC data to your backend
+    // and update the Firebase user's profile.
+    console.log(data);
     toast({
-      title: "KYC Submitted!",
-      description: "Your information has been submitted for verification.",
+      title: "Profile Updated!",
+      description: "Your information has been saved.",
       className: "bg-accent text-accent-foreground border-accent",
     });
-    console.log(data);
     onOpenChange(false);
     form.reset();
   }
@@ -161,7 +164,7 @@ export function KycForm({ isOpen, onOpenChange }: KycFormProps) {
             />
             <DialogFooter className="pt-4">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90">Submit for Verification</Button>
+              <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90">Save Profile</Button>
             </DialogFooter>
           </form>
         </Form>
