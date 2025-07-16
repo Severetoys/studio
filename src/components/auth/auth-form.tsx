@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,7 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppleIcon, GoogleIcon } from "./icons";
-import { Mail, MessageCircle, ScanFace } from "lucide-react";
+import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { app } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthFormProps {
   onLoginClick: () => void;
@@ -21,26 +26,66 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { toast } = useToast();
+  const auth = getAuth(app);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginClick();
+    setIsLoading(true);
+
+    try {
+      if (authMode === 'signup') {
+        await createUserWithEmailAndPassword(auth, email, password);
+        toast({
+          title: "Registration Successful!",
+          description: "Please complete your profile.",
+        });
+        onLoginClick(); // Open KYC form after successful signup
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        toast({
+          title: "Login Successful!",
+          description: "Welcome back.",
+          className: "bg-accent text-accent-foreground border-accent",
+        });
+        // Here you would typically redirect the user to a dashboard
+      }
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: "Authentication Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+  
+  const handleSocialOrSmsLogin = () => {
+    // For now, these buttons will open the KYC form as a placeholder
+    // In a real app, they would trigger their respective Firebase auth flows
+    onLoginClick();
+  }
 
   return (
     <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl">{authMode === 'login' ? 'Welcome Back' : 'Create an Account'}</CardTitle>
         <CardDescription>
-          Choose your preferred method to sign in.
+          {authMode === 'login' ? 'Choose your preferred method to sign in.' : 'Fill in your details to get started.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button variant="outline" className="h-12 text-base" onClick={onLoginClick}>
+          <Button variant="outline" className="h-12 text-base" onClick={handleSocialOrSmsLogin}>
             <GoogleIcon className="mr-2 h-5 w-5" />
             Google
           </Button>
-          <Button variant="outline" className="h-12 text-base" onClick={onLoginClick}>
+          <Button variant="outline" className="h-12 text-base" onClick={handleSocialOrSmsLogin}>
             <AppleIcon className="mr-2 h-5 w-5 fill-current" />
             Apple
           </Button>
@@ -60,7 +105,7 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
             <TabsTrigger value="email" className="text-base">
               <Mail className="mr-2 h-4 w-4" /> Email
             </TabsTrigger>
-            <TabsTrigger value="sms" className="text-base">
+            <TabsTrigger value="sms" className="text-base" onClick={handleSocialOrSmsLogin}>
               <MessageCircle className="mr-2 h-4 w-4" /> SMS
             </TabsTrigger>
           </TabsList>
@@ -68,25 +113,15 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
             <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} />
               </div>
-              <Button type="submit" className="w-full h-11 text-base bg-primary hover:bg-primary/90">
-                Sign In with Email
-              </Button>
-            </form>
-          </TabsContent>
-          <TabsContent value="sms">
-            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" required />
-              </div>
-              <Button type="submit" className="w-full h-11 text-base bg-primary hover:bg-primary/90">
-                Send Code
+              <Button type="submit" className="w-full h-11 text-base bg-primary hover:bg-primary/90" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {authMode === 'login' ? 'Sign In' : 'Sign Up'} with Email
               </Button>
             </form>
           </TabsContent>
@@ -96,13 +131,22 @@ export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
           Authenticate with FaceID
         </Button>
       </CardContent>
-      <CardFooter className="flex justify-between text-sm">
-        <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-          Forgot password?
-        </a>
-        <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-          Sign Up
-        </a>
+      <CardFooter className="flex justify-center text-sm">
+        {authMode === 'login' ? (
+          <p className="text-muted-foreground">
+            Don't have an account?{' '}
+            <button onClick={() => setAuthMode('signup')} className="text-primary hover:underline font-semibold">
+              Sign Up
+            </button>
+          </p>
+        ) : (
+          <p className="text-muted-foreground">
+            Already have an account?{' '}
+            <button onClick={() => setAuthMode('login')} className="text-primary hover:underline font-semibold">
+              Sign In
+            </button>
+          </p>
+        )}
       </CardFooter>
     </Card>
   );
