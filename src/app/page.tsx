@@ -10,8 +10,7 @@ export default function Home() {
   const [isKycOpen, setIsKycOpen] = useState(false);
   const [isFaceAuthOpen, setIsFaceAuthOpen] = useState(false);
 
-  const handleLoginSuccess = () => {
-    // In a real app, this would be called after successful auth
+  const handleLoginClick = () => {
     setIsKycOpen(true);
   };
   
@@ -31,7 +30,7 @@ export default function Home() {
         </p>
       </div>
       <div className="w-full max-w-md mt-8">
-        <AuthForm onLoginSuccess={handleLoginSuccess} onFaceAuthClick={handleFaceAuthClick} />
+        <AuthForm onLoginClick={handleLoginClick} onFaceAuthClick={handleFaceAuthClick} />
       </div>
       <KycForm isOpen={isKycOpen} onOpenChange={setIsKycOpen} />
       <FaceAuthModal isOpen={isFaceAuthOpen} onOpenChange={setIsFaceAuthOpen} />

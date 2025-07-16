@@ -16,14 +16,14 @@ import { AppleIcon, GoogleIcon } from "./icons";
 import { Mail, MessageCircle, ScanFace } from "lucide-react";
 
 interface AuthFormProps {
-  onLoginSuccess: () => void;
+  onLoginClick: () => void;
   onFaceAuthClick: () => void;
 }
 
-export function AuthForm({ onLoginSuccess, onFaceAuthClick }: AuthFormProps) {
+export function AuthForm({ onLoginClick, onFaceAuthClick }: AuthFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginSuccess();
+    onLoginClick();
   };
 
   return (
@@ -36,11 +36,11 @@ export function AuthForm({ onLoginSuccess, onFaceAuthClick }: AuthFormProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button variant="outline" className="h-12 text-base" onClick={onLoginSuccess}>
+          <Button variant="outline" className="h-12 text-base" onClick={onLoginClick}>
             <GoogleIcon className="mr-2 h-5 w-5" />
             Google
           </Button>
-          <Button variant="outline" className="h-12 text-base" onClick={onLoginSuccess}>
+          <Button variant="outline" className="h-12 text-base" onClick={onLoginClick}>
             <AppleIcon className="mr-2 h-5 w-5 fill-current" />
             Apple
           </Button>
