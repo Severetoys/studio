@@ -9,31 +9,29 @@
 import {ai} from '@/ai/genkit';
 import { FaceAuthInput, FaceAuthInputSchema, FaceAuthOutput, FaceAuthOutputSchema } from './face-auth';
 import { z } from 'zod';
+import { app } from '@/lib/firebase';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 
-// In a real application, you would store this in a secure database.
-// For this demo, we'll store the registered faces in memory.
-const registeredFaces: Map<string, string> = new Map();
+// Initialize Firestore
+const db = getFirestore(app);
 
 
 /**
- * Registers a user's face.
- * For this demo, we are storing the face data URI in memory.
- * In a real-world scenario, you should store this in a secure user database.
+ * Registers a user's face in Firestore.
  * @param input The user ID and their photo data URI.
  * @returns A promise that resolves when registration is complete.
  */
 export async function registerFace(input: FaceAuthInput): Promise<void> {
-  // A simple check to see if the image contains a face could be added here
-  // by calling the model before storing. For simplicity, we'll skip that for now.
   console.log(`Registering face for user: ${input.userId}`);
-  registeredFaces.set(input.userId, input.photoDataUri);
-  return Promise.resolve();
+  const userDocRef = doc(db, "face_registrations", input.userId);
+  await setDoc(userDocRef, { photoDataUri: input.photoDataUri });
+  console.log(`Face registered and saved to Firestore for user: ${input.userId}`);
 }
 
 
 /**
- * Verifies a user's face against their registered photo.
+ * Verifies a user's face against their registered photo from Firestore.
  * @param input The user ID and a new photo data URI to verify.
  * @returns A promise that resolves with the verification result.
  */
@@ -74,10 +72,17 @@ const verifyFaceFlow = ai.defineFlow(
     outputSchema: FaceAuthOutputSchema,
   },
   async (input) => {
-    const registeredPhoto = registeredFaces.get(input.userId);
+    const userDocRef = doc(db, "face_registrations", input.userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      throw new Error(`User with ID ${input.userId} is not registered.`);
+    }
+
+    const registeredPhoto = userDoc.data()?.photoDataUri;
 
     if (!registeredPhoto) {
-      throw new Error(`User with ID ${input.userId} is not registered.`);
+        throw new Error(`No registered photo found for user ${input.userId}.`);
     }
 
     const { output } = await verifyFacePrompt({
