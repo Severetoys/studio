@@ -34,7 +34,7 @@ export default function Home() {
   const handleSuccessfulAuth = () => {
     // KYC form can be triggered here if needed, or redirect directly
     // For now, onAuthStateChanged will handle the redirect.
-    // To open KYC form: setIsKycOpen(true);
+     setIsKycOpen(true);
   };
   
   const handleFaceAuthClick = () => {
@@ -54,7 +54,7 @@ export default function Home() {
        <div className="flex flex-col items-center justify-center text-center space-y-6">
         <div className="flex items-center space-x-3">
           <AuthKitLogo className="h-10 w-10 text-primary" />
-          <h1 className="text-4xl font-bold tracking-tighter text-foreground">AuthKit</h1>
+          <h1 className="text-4xl font-bold tracking-tighter text-foreground">Italo SantoS</h1>
         </div>
         <p className="max-w-md text-muted-foreground">
           A beautifully designed, world-class authentication page.
