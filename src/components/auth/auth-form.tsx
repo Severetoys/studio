@@ -40,15 +40,22 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const auth = getAuth(app);
 
   const setupRecaptcha = () => {
-    if (!auth) return;
-    if (!(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        }
-      });
+    // Clean up previous verifier
+    if ((window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier.clear();
+      const container = document.getElementById('recaptcha-container');
+      if (container) {
+          container.innerHTML = '';
+      }
     }
+    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response: any) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+      }
+    });
+    (window as any).recaptchaVerifier = recaptchaVerifier;
+    return recaptchaVerifier;
   }
 
   const handleAuthSuccess = () => {
@@ -59,7 +66,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     });
     router.push('/dashboard');
     onAuthSuccess();
-  }
+  };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,11 +94,9 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const handleSmsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setupRecaptcha();
     
-    const appVerifier = (window as any).recaptchaVerifier;
-
     try {
+      const appVerifier = setupRecaptcha();
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
       toast({
@@ -104,11 +109,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
         title: "SMS Sending Failed",
         description: error.message,
       });
-      // Reset reCAPTCHA
-      const recaptcha = (window as any).recaptchaVerifier;
-      if (recaptcha) {
-          recaptcha.clear();
-      }
     } finally {
       setIsLoading(false);
     }
