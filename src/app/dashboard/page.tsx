@@ -12,26 +12,6 @@ import { LogOut, Mail, User as UserIcon, CheckCircle } from 'lucide-react';
 import { AuthKitLogo } from '@/components/auth/icons';
 import { Skeleton } from '@/components/ui/skeleton';
 
-function VerifiedBadge(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="#25D366" 
-      stroke="var(--background)" 
-      strokeWidth="1.5"
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
-      <path d="M8 12.5L10.5 15L16 9" />
-    </svg>
-  );
-}
-
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,8 +100,8 @@ export default function DashboardPage() {
        <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-3 mb-4">
-            <CardTitle className="text-3xl flex items-center gap-2">
-                Italo Santos <VerifiedBadge className="h-7 w-7" />
+            <CardTitle className="text-3xl">
+                Italo Santos
             </CardTitle>
           </div>
           <CardDescription>You are successfully logged in.</CardDescription>
