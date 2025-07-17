@@ -5,7 +5,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { initializeApp, cert, getApps, App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as fs from 'fs';
@@ -14,29 +14,46 @@ import * as path from 'path';
 // --- INÍCIO DA CONFIGURAÇÃO DO FIREBASE ADMIN SDK ---
 
 // Caminho para o arquivo de credenciais de serviço.
-// IMPORTANTE: Você deve baixar este arquivo do seu console do Firebase e colocá-lo em um local seguro.
-// Console > Configurações do Projeto > Contas de serviço > Gerar nova chave privada.
-// NÃO inclua este arquivo no controle de versão (adicione-o ao .gitignore).
 const serviceAccountPath = path.resolve('./serviceAccountKey.json');
 
 // Inicializa o Firebase Admin SDK, mas apenas se ainda não foi inicializado.
 function initializeFirebaseAdmin(): App {
+  console.log(`[Admin SDK] Tentando inicializar...`);
+  console.log(`[Admin SDK] Caminho esperado para serviceAccountKey.json: ${serviceAccountPath}`);
+  
   if (getApps().length) {
+    console.log(`[Admin SDK] Uma instância do Firebase Admin já existe. Reutilizando-a.`);
     return getApps()[0];
   }
 
   if (!fs.existsSync(serviceAccountPath)) {
-    console.error(`ERRO: Arquivo de conta de serviço não encontrado em: ${serviceAccountPath}`);
-    console.error("Faça o download do seu arquivo 'serviceAccountKey.json' do console do Firebase e coloque-o na raiz do seu projeto.");
+    console.error(`[Admin SDK] ERRO: Arquivo de conta de serviço não encontrado em: ${serviceAccountPath}`);
+    console.error("[Admin SDK] Verifique se o arquivo 'serviceAccountKey.json' foi incluído no deploy para o App Hosting.");
     throw new Error("Missing Firebase service account key.");
   }
-  
-  const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
-  // A função initializeApp() do 'firebase-admin/app' é chamada aqui.
-  return initializeApp({
-    credential: cert(serviceAccount),
-  });
+  try {
+    const serviceAccountFile = fs.readFileSync(serviceAccountPath, 'utf8');
+    console.log("[Admin SDK] Arquivo serviceAccountKey.json lido com sucesso.");
+    
+    const serviceAccount = JSON.parse(serviceAccountFile);
+    console.log("[Admin SDK] JSON do arquivo de serviço parseado com sucesso.");
+
+    const app = initializeApp({
+      credential: cert(serviceAccount),
+    });
+    console.log(`[Admin SDK] Firebase Admin SDK inicializado com sucesso para o projeto: ${app.options.projectId}`);
+    return app;
+
+  } catch (error: any) {
+    console.error('[Admin SDK] ERRO CRÍTICO durante a inicialização do Firebase Admin:', error);
+    if (error.code === 'ENOENT') {
+      console.error('[Admin SDK] Detalhe: O sistema não encontrou o arquivo no caminho especificado.');
+    } else if (error instanceof SyntaxError) {
+      console.error('[Admin SDK] Detalhe: O arquivo serviceAccountKey.json parece estar corrompido ou não é um JSON válido.');
+    }
+    throw new Error(`Falha ao inicializar Firebase Admin SDK: ${error.message}`);
+  }
 }
 
 // --- FIM DA CONFIGURAÇÃO DO FIREBASE ADMIN SDK ---
@@ -72,15 +89,14 @@ const generateCustomTokenFlow = ai.defineFlow(
     };
     
     try {
-      // A função auth.createCustomToken() é chamada aqui.
       const customToken = await getAuth().createCustomToken(uid, additionalClaims);
       
-      console.log(`Token personalizado gerado com sucesso para o UID: ${uid}`);
+      console.log(`[generateCustomTokenFlow] Token personalizado gerado com sucesso para o UID: ${uid}`);
       
       return { customToken };
 
     } catch (error: any) {
-      console.error('Erro ao gerar o token personalizado:', error.message);
+      console.error('[generateCustomTokenFlow] Erro ao gerar o token personalizado:', error.message);
       throw new Error(`Falha ao gerar token: ${error.message}`);
     }
   }
