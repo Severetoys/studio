@@ -22,11 +22,18 @@ const db = getFirestore(app);
  * @param input The user ID and their photo data URI.
  * @returns A promise that resolves when registration is complete.
  */
-export async function registerFace(input: FaceAuthInput): Promise<void> {
+export async function registerFace(input: FaceAuthInput): Promise<{success: boolean}> {
   console.log(`Registering face for user: ${input.userId}`);
-  const userDocRef = doc(db, "face_registrations", input.userId);
-  await setDoc(userDocRef, { photoDataUri: input.photoDataUri });
-  console.log(`Face registered and saved to Firestore for user: ${input.userId}`);
+  try {
+    const userDocRef = doc(db, "face_registrations", input.userId);
+    await setDoc(userDocRef, { photoDataUri: input.photoDataUri });
+    console.log(`Face registered and saved to Firestore for user: ${input.userId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error during face registration in Firestore:", error);
+    // Re-throw the error to be caught by the calling function
+    throw new Error("Failed to save face registration data.");
+  }
 }
 
 
