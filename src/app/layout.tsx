@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Italo SantoS',
+  title: 'Italo Santos',
   description: 'Secure and simple authentication for modern applications.',
 };
 

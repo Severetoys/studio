@@ -12,6 +12,27 @@ import { AuthKitLogo } from "@/components/auth/icons";
 import { FaceAuthModal } from "@/components/auth/face-auth-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function VerifiedBadge(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="#25D366" 
+      stroke="var(--background)" 
+      strokeWidth="1.5"
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
+      <path d="M8 12.5L10.5 15L16 9" />
+    </svg>
+  );
+}
+
+
 export default function Home() {
   const [isKycOpen, setIsKycOpen] = useState(false);
   const [isFaceAuthOpen, setIsFaceAuthOpen] = useState(false);
@@ -54,7 +75,9 @@ export default function Home() {
        <div className="flex flex-col items-center justify-center text-center space-y-6">
         <div className="flex items-center space-x-3">
           <AuthKitLogo className="h-10 w-10 text-primary" />
-          <h1 className="text-4xl font-bold tracking-tighter text-foreground">Italo SantoS</h1>
+          <h1 className="text-4xl font-bold tracking-tighter text-foreground flex items-center gap-2">
+            Italo Santos <VerifiedBadge className="h-7 w-7" />
+          </h1>
         </div>
         <p className="max-w-md text-muted-foreground">
           A beautifully designed, world-class authentication page.
@@ -68,3 +91,4 @@ export default function Home() {
     </main>
   );
 }
+
