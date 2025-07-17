@@ -1,2 +1,3 @@
 // Flows will be imported for their side effects in this file.
 import './flows/face-auth-flow';
+import './flows/custom-token-flow';
