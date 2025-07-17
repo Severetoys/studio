@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
+import { getMessaging } from "firebase/messaging";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,5 +24,7 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+const messaging = isSupported().then(yes => yes ? getMessaging(app) : null);
 
-export { app, auth, analytics };
+
+export { app, auth, analytics, messaging, firebaseConfig };

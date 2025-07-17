@@ -4,19 +4,22 @@
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { app } from '@/lib/firebase';
+import { app, messaging as getMessagingInstance } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, Mail, User as UserIcon, CheckCircle } from 'lucide-react';
-import { AuthKitLogo } from '@/components/auth/icons';
+import { LogOut, User as UserIcon, CheckCircle, BellRing } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from "@/hooks/use-toast";
+import { getToken } from "firebase/messaging";
+
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const auth = getAuth(app);
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -39,6 +42,64 @@ export default function DashboardPage() {
       console.error('Logout failed', error);
     }
   };
+
+  const handleNotificationPermission = async () => {
+    try {
+      const messaging = await getMessagingInstance;
+      if (!messaging) {
+        toast({
+            variant: "destructive",
+            title: "Messaging not supported",
+            description: "Firebase Messaging is not supported in this browser.",
+        });
+        return;
+      }
+      
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        toast({
+          title: "Permission Granted!",
+          description: "You will now receive notifications.",
+          className: "bg-accent text-accent-foreground border-accent",
+        });
+
+        // IMPORTANT: Replace with your VAPID key from Firebase Console
+        const vapidKey = "SUA_VAPID_KEY_AQUI"; 
+        const currentToken = await getToken(messaging, { vapidKey });
+        
+        if (currentToken) {
+          console.log('FCM Token:', currentToken);
+           toast({
+            title: "FCM Token Obtained",
+            description: "Check the console for your device token.",
+          });
+          // Send this token to your server
+        } else {
+          console.log('No registration token available. Request permission to generate one.');
+           toast({
+            variant: "destructive",
+            title: "Could not get token",
+            description: "Permission was granted, but token could not be obtained.",
+          });
+        }
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Permission Denied",
+          description: "You will not receive notifications.",
+        });
+      }
+    } catch(err) {
+      console.error('An error occurred while getting token. ', err);
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      toast({
+        variant: "destructive",
+        title: "Error requesting permission",
+        description: errorMessage,
+      });
+    }
+  };
+
 
   const getProviderName = (providerId: string) => {
     switch (providerId) {
@@ -134,6 +195,11 @@ export default function DashboardPage() {
                 </p>
             </div>
           </div>
+
+          <Button onClick={handleNotificationPermission} className="w-full h-11 text-base" variant="outline">
+            <BellRing className="mr-2" />
+            Enable Notifications
+          </Button>
 
           <Button onClick={handleLogout} className="w-full h-11 text-base" variant="secondary">
             <LogOut className="mr-2" />
