@@ -97,7 +97,7 @@ export default function DashboardPage() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
-       <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
+       <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-3 mb-4">
             <CardTitle className="text-3xl">

@@ -162,7 +162,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   };
 
   return (
-    <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_theme(colors.accent/0.5)]">
+    <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
       <div id="recaptcha-container"></div>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">{authMode === 'login' ? 'Welcome Back' : 'Create an Account'}</CardTitle>
