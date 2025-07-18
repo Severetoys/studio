@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef }from "react";
+import { useState }from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -17,9 +17,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppleIcon, GoogleIcon } from "./icons";
 import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, GoogleAuthProvider, OAuthProvider, signInWithPopup, Auth } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { SmsAuthForm } from "./sms-auth-form";
 
 interface AuthFormProps {
   onAuthSuccess: () => void;
@@ -31,50 +32,10 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  const [isVerifierReady, setIsVerifierReady] = useState(false);
-
+  
   const { toast } = useToast();
   const router = useRouter();
   const auth = getAuth(app);
-  
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-
-  const setupRecaptcha = () => {
-    if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
-    }
-      
-    // The verifier is created only when this function is called.
-    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'normal',
-      'callback': () => {
-        setIsVerifierReady(true);
-      },
-      'expired-callback': () => {
-        toast({
-          variant: 'destructive',
-          title: "reCAPTCHA Expired",
-          description: "Please solve the reCAPTCHA again.",
-        });
-        setIsVerifierReady(false);
-      }
-    });
-
-    recaptchaVerifierRef.current = verifier;
-    verifier.render();
-  };
-  
-  const handleTabChange = (value: string) => {
-    if (value === 'sms' && !recaptchaVerifierRef.current) {
-        // We delay the setup slightly to ensure the container is in the DOM.
-        setTimeout(() => {
-            setupRecaptcha();
-        }, 100);
-    }
-  }
 
   const handleAuthSuccess = () => {
     toast({
@@ -102,59 +63,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
         variant: 'destructive',
         title: "Authentication Failed",
         description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleSmsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    if (!recaptchaVerifierRef.current) {
-        toast({
-            variant: 'destructive',
-            title: 'reCAPTCHA not ready',
-            description: 'Please wait a moment and try again.'
-        });
-        setIsLoading(false);
-        return;
-    }
-
-    try {
-      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifierRef.current);
-      setConfirmationResult(result);
-      toast({
-        title: "Verification Code Sent",
-        description: "Please check your phone for the code.",
-      });
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: "SMS Sending Failed",
-        description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-
-  const handleVerificationCodeSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!confirmationResult) return;
-    
-    setIsLoading(true);
-
-    try {
-      await confirmationResult.confirm(verificationCode);
-      // onAuthStateChanged will handle the redirect
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: "Verification Failed",
-        description: "The code you entered is incorrect. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -217,7 +125,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
             </span>
           </div>
         </div>
-        <Tabs defaultValue="email" className="w-full" onValueChange={handleTabChange}>
+        <Tabs defaultValue="email" className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-11">
             <TabsTrigger value="email" className="text-base">
               <Mail className="mr-2 h-4 w-4" /> Email
@@ -243,29 +151,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
             </form>
           </TabsContent>
           <TabsContent value="sms">
-            {!confirmationResult ? (
-              <form onSubmit={handleSmsSubmit} className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="+1 555-555-5555" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
-                </div>
-                {/* The RecaptchaVerifier will render here */}
-                <div id="recaptcha-container" className="flex justify-center my-4"></div>
-                <Button type="submit" className="w-full h-11 text-base" disabled={!isVerifierReady || isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
-                </Button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerificationCodeSubmit} className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="code">Verification Code</Label>
-                  <Input id="code" type="text" placeholder="123456" required value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} disabled={isLoading} />
-                </div>
-                <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify and Sign In'}
-                </Button>
-              </form>
-            )}
+            <SmsAuthForm />
           </TabsContent>
         </Tabs>
         <Button variant="secondary" className="w-full h-12 text-base" onClick={onFaceAuthClick}>
