@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -39,24 +39,25 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const router = useRouter();
   const auth = getAuth(app);
 
-  const setupRecaptcha = () => {
-    // Clean up previous verifier
+  useEffect(() => {
     if ((window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier.clear();
-      const container = document.getElementById('recaptcha-container');
-      if (container) {
-          container.innerHTML = '';
-      }
+      return;
     }
-    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    
+    (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
       'size': 'invisible',
       'callback': (response: any) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
+        // reCAPTCHA solved.
       }
     });
-    (window as any).recaptchaVerifier = recaptchaVerifier;
-    return recaptchaVerifier;
-  }
+
+    return () => {
+      if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.clear();
+      }
+    };
+  }, [auth]);
+
 
   const handleAuthSuccess = () => {
     toast({
@@ -96,7 +97,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     setIsLoading(true);
     
     try {
-      const appVerifier = setupRecaptcha();
+      const appVerifier = (window as any).recaptchaVerifier;
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
       toast({
