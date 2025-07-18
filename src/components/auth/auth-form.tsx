@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect }from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -34,18 +34,19 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
 
   const { toast } = useToast();
   const router = useRouter();
   const auth = getAuth(app);
 
+  // This is a global verifier for the window object, to avoid re-rendering issues
   useEffect(() => {
-    // Cleanup a verifier se o componente for desmontado
     return () => {
-      recaptchaVerifier?.clear();
+      if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.clear();
+      }
     };
-  }, [recaptchaVerifier]);
+  }, []);
 
 
   const handleAuthSuccess = () => {
@@ -81,38 +82,45 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     }
   };
   
-  const setupRecaptcha = () => {
-    if (!recaptchaVerifier) {
+  const handleSmsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Create verifier on the fly
       const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'normal', // Mudado para 'normal' (visível)
-        'callback': (response: any) => {
-          // reCAPTCHA resolvido, agora pode enviar o SMS
-          handleSmsSubmit(verifier);
+        'size': 'normal',
+        'callback': async () => {
+          try {
+            const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+            setConfirmationResult(result);
+            toast({
+              title: "Verification Code Sent",
+              description: "Please check your phone for the code.",
+            });
+          } catch (error: any) {
+            toast({
+              variant: 'destructive',
+              title: "SMS Sending Failed",
+              description: error.message,
+            });
+          } finally {
+            setIsLoading(false);
+          }
         },
         'expired-callback': () => {
-          // A resposta expirou. O usuário precisa resolver o reCAPTCHA novamente.
           toast({
             variant: 'destructive',
             title: "reCAPTCHA Expired",
-            description: "Please solve the reCAPTCHA again.",
+            description: "Please try sending the code again.",
           });
-          recaptchaVerifier?.clear();
-          setRecaptchaVerifier(null);
+          setIsLoading(false);
         }
       });
-      setRecaptchaVerifier(verifier);
-      return verifier;
-    }
-    return recaptchaVerifier;
-  }
-
-  const handleRecaptchaAndSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const verifier = setupRecaptcha();
-      // Renderiza o reCAPTCHA. O callback 'callback' chamará handleSmsSubmit
+      
+      // Render the reCAPTCHA
       await verifier.render();
+
     } catch(error: any) {
       toast({
         variant: 'destructive',
@@ -123,24 +131,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     }
   }
 
-  const handleSmsSubmit = async (verifier: RecaptchaVerifier) => {
-    try {
-      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-      setConfirmationResult(result);
-      toast({
-        title: "Verification Code Sent",
-        description: "Please check your phone for the code.",
-      });
-    } catch (error: any) {
-       toast({
-        variant: 'destructive',
-        title: "SMS Sending Failed",
-        description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   const handleVerificationCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,12 +235,12 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
           </TabsContent>
           <TabsContent value="sms">
             {!confirmationResult ? (
-              <form onSubmit={handleRecaptchaAndSend} className="space-y-4 pt-4">
+              <form onSubmit={handleSmsSubmit} className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input id="phone" type="tel" placeholder="+1 555-555-5555" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
                 </div>
-                <div id="recaptcha-container" className="flex justify-center"></div>
+                <div id="recaptcha-container" className="flex justify-center my-2"></div>
                 <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
                 </Button>
@@ -293,3 +283,5 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     </Card>
   );
 }
+
+    
