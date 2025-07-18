@@ -42,19 +42,18 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
-
-  useEffect(() => {
-    // This effect runs only on the client, once, after the component mounts.
-    // It creates the RecaptchaVerifier instance and stores it in a ref.
-    // This is the most stable way to handle it.
+  const setupRecaptcha = () => {
+    if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+    }
+      
+    // The verifier is created only when this function is called.
     const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
       'size': 'normal',
       'callback': () => {
-        // reCAPTCHA solved, allow sending SMS
         setIsVerifierReady(true);
       },
       'expired-callback': () => {
-        // Response expired. User needs to solve reCAPTCHA again.
         toast({
           variant: 'destructive',
           title: "reCAPTCHA Expired",
@@ -65,16 +64,17 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     });
 
     recaptchaVerifierRef.current = verifier;
-
-    // This renders the reCAPTCHA widget.
     verifier.render();
-
-    // Cleanup function to clear the verifier when the component unmounts.
-    return () => {
-      verifier.clear();
-    };
-  }, [auth, toast]);
-
+  };
+  
+  const handleTabChange = (value: string) => {
+    if (value === 'sms' && !recaptchaVerifierRef.current) {
+        // We delay the setup slightly to ensure the container is in the DOM.
+        setTimeout(() => {
+            setupRecaptcha();
+        }, 100);
+    }
+  }
 
   const handleAuthSuccess = () => {
     toast({
@@ -217,7 +217,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
             </span>
           </div>
         </div>
-        <Tabs defaultValue="email" className="w-full">
+        <Tabs defaultValue="email" className="w-full" onValueChange={handleTabChange}>
           <TabsList className="grid w-full grid-cols-2 h-11">
             <TabsTrigger value="email" className="text-base">
               <Mail className="mr-2 h-4 w-4" /> Email
