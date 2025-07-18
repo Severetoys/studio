@@ -30,7 +30,7 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // Você pode obtê-la no Console do Google Cloud > Segurança > reCAPTCHA Enterprise
 if (typeof window !== 'undefined') {
   // COLE SUA CHAVE DO RECAPTCHA V3 AQUI:
-  const reCaptchaV3SiteKey = "SUA_RECAPTCHA_V3_SITE_KEY_AQUI";
+  const reCaptchaV3SiteKey = "6LcH3IYrAAAAAB2TnGPZgFaQIHHmTnk2AbDEpSoJ";
 
   if (reCaptchaV3SiteKey && reCaptchaV3SiteKey !== "SUA_RECAPTCHA_V3_SITE_KEY_AQUI") {
       try {
