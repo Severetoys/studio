@@ -34,29 +34,18 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
 
   const { toast } = useToast();
   const router = useRouter();
   const auth = getAuth(app);
 
   useEffect(() => {
-    if ((window as any).recaptchaVerifier) {
-      return;
-    }
-    
-    (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'invisible',
-      'callback': (response: any) => {
-        // reCAPTCHA solved.
-      }
-    });
-
+    // Cleanup a verifier se o componente for desmontado
     return () => {
-      if ((window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier.clear();
-      }
+      recaptchaVerifier?.clear();
     };
-  }, [auth]);
+  }, [recaptchaVerifier]);
 
 
   const handleAuthSuccess = () => {
@@ -92,13 +81,51 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     }
   };
   
-  const handleSmsSubmit = async (e: React.FormEvent) => {
+  const setupRecaptcha = () => {
+    if (!recaptchaVerifier) {
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'normal', // Mudado para 'normal' (visível)
+        'callback': (response: any) => {
+          // reCAPTCHA resolvido, agora pode enviar o SMS
+          handleSmsSubmit(verifier);
+        },
+        'expired-callback': () => {
+          // A resposta expirou. O usuário precisa resolver o reCAPTCHA novamente.
+          toast({
+            variant: 'destructive',
+            title: "reCAPTCHA Expired",
+            description: "Please solve the reCAPTCHA again.",
+          });
+          recaptchaVerifier?.clear();
+          setRecaptchaVerifier(null);
+        }
+      });
+      setRecaptchaVerifier(verifier);
+      return verifier;
+    }
+    return recaptchaVerifier;
+  }
+
+  const handleRecaptchaAndSend = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
-      const appVerifier = (window as any).recaptchaVerifier;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      const verifier = setupRecaptcha();
+      // Renderiza o reCAPTCHA. O callback 'callback' chamará handleSmsSubmit
+      await verifier.render();
+    } catch(error: any) {
+      toast({
+        variant: 'destructive',
+        title: "reCAPTCHA Error",
+        description: error.message,
+      });
+      setIsLoading(false);
+    }
+  }
+
+  const handleSmsSubmit = async (verifier: RecaptchaVerifier) => {
+    try {
+      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       setConfirmationResult(result);
       toast({
         title: "Verification Code Sent",
@@ -164,7 +191,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
 
   return (
     <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
-      <div id="recaptcha-container"></div>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">{authMode === 'login' ? 'Welcome Back' : 'Create an Account'}</CardTitle>
         <CardDescription>
@@ -219,11 +245,12 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
           </TabsContent>
           <TabsContent value="sms">
             {!confirmationResult ? (
-              <form onSubmit={handleSmsSubmit} className="space-y-4 pt-4">
+              <form onSubmit={handleRecaptchaAndSend} className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input id="phone" type="tel" placeholder="+1 555-555-5555" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
                 </div>
+                <div id="recaptcha-container" className="flex justify-center"></div>
                 <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
                 </Button>
