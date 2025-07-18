@@ -44,60 +44,65 @@ export default function DashboardPage() {
   };
 
   const handleNotificationPermission = async () => {
-    try {
-      const messaging = await getMessagingInstance;
-      if (!messaging) {
-        toast({
-            variant: "destructive",
-            title: "Messaging not supported",
-            description: "Firebase Messaging is not supported in this browser.",
-        });
-        return;
-      }
+    toast({
+        variant: "default",
+        title: "Funcionalidade em Desenvolvimento",
+        description: "A chave VAPID precisa ser configurada para habilitar as notificações.",
+    });
+    // try {
+    //   const messaging = await getMessagingInstance;
+    //   if (!messaging) {
+    //     toast({
+    //         variant: "destructive",
+    //         title: "Messaging not supported",
+    //         description: "Firebase Messaging is not supported in this browser.",
+    //     });
+    //     return;
+    //   }
       
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        toast({
-          title: "Permission Granted!",
-          description: "You will now receive notifications.",
-          className: "bg-accent text-accent-foreground border-accent",
-        });
+    //   const permission = await Notification.requestPermission();
+    //   if (permission === 'granted') {
+    //     toast({
+    //       title: "Permission Granted!",
+    //       description: "You will now receive notifications.",
+    //       className: "bg-accent text-accent-foreground border-accent",
+    //     });
 
-        // IMPORTANT: Replace with your VAPID key from Firebase Console
-        const vapidKey = "SUA_VAPID_KEY_AQUI"; 
-        const currentToken = await getToken(messaging, { vapidKey });
+    //     // IMPORTANTE: Substitua pela sua chave VAPID do Console do Firebase
+    //     const vapidKey = "SUA_VAPID_KEY_AQUI"; 
+    //     const currentToken = await getToken(messaging, { vapidKey });
         
-        if (currentToken) {
-          console.log('FCM Token:', currentToken);
-           toast({
-            title: "FCM Token Obtained",
-            description: "Check the console for your device token.",
-          });
-          // Send this token to your server
-        } else {
-          console.log('No registration token available. Request permission to generate one.');
-           toast({
-            variant: "destructive",
-            title: "Could not get token",
-            description: "Permission was granted, but token could not be obtained.",
-          });
-        }
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Permission Denied",
-          description: "You will not receive notifications.",
-        });
-      }
-    } catch(err) {
-      console.error('An error occurred while getting token. ', err);
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      toast({
-        variant: "destructive",
-        title: "Error requesting permission",
-        description: errorMessage,
-      });
-    }
+    //     if (currentToken) {
+    //       console.log('FCM Token:', currentToken);
+    //        toast({
+    //         title: "FCM Token Obtained",
+    //         description: "Check the console for your device token.",
+    //       });
+    //       // Envie este token para o seu servidor
+    //     } else {
+    //       console.log('No registration token available. Request permission to generate one.');
+    //        toast({
+    //         variant: "destructive",
+    //         title: "Could not get token",
+    //         description: "Permission was granted, but token could not be obtained.",
+    //       });
+    //     }
+    //   } else {
+    //     toast({
+    //       variant: "destructive",
+    //       title: "Permission Denied",
+    //       description: "You will not receive notifications.",
+    //     });
+    //   }
+    // } catch(err) {
+    //   console.error('An error occurred while getting token. ', err);
+    //   const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Error requesting permission",
+    //     description: errorMessage,
+    //   });
+    // }
   };
 
 
