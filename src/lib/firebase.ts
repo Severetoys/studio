@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
@@ -28,16 +29,21 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // IMPORTANTE: Substitua a string abaixo pela sua chave de site do reCAPTCHA v3
 // Você pode obtê-la no Console do Google Cloud > Segurança > reCAPTCHA Enterprise
 if (typeof window !== 'undefined') {
+  // COLE SUA CHAVE DO RECAPTCHA V3 AQUI:
   const reCaptchaV3SiteKey = "SUA_RECAPTCHA_V3_SITE_KEY_AQUI";
 
   if (reCaptchaV3SiteKey && reCaptchaV3SiteKey !== "SUA_RECAPTCHA_V3_SITE_KEY_AQUI") {
-      initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(reCaptchaV3SiteKey),
-        isTokenAutoRefreshEnabled: true
-      });
-      console.log("Firebase App Check inicializado.");
+      try {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaV3Provider(reCaptchaV3SiteKey),
+          isTokenAutoRefreshEnabled: true
+        });
+        console.log("Firebase App Check inicializado com sucesso.");
+      } catch (error) {
+        console.error("Erro ao inicializar Firebase App Check:", error);
+      }
   } else {
-      console.warn("AVISO: A chave do site reCAPTCHA v3 não foi configurada. O App Check não será inicializado.");
+      console.warn("AVISO: A chave do site reCAPTCHA v3 não foi configurada. O App Check não será inicializado, o que pode causar erros de autenticação.");
   }
 }
 // --- FIM DA INICIALIZAÇÃO DO APP CHECK ---
