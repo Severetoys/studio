@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect }from "react";
+import { useState, useEffect, useRef }from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppleIcon, GoogleIcon } from "./icons";
 import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, GoogleAuthProvider, OAuthProvider, signInWithPopup, Auth } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,19 +34,46 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [isVerifierReady, setIsVerifierReady] = useState(false);
 
   const { toast } = useToast();
   const router = useRouter();
   const auth = getAuth(app);
+  
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
-  // This is a global verifier for the window object, to avoid re-rendering issues
+
   useEffect(() => {
-    return () => {
-      if ((window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier.clear();
+    // This effect runs only on the client, once, after the component mounts.
+    // It creates the RecaptchaVerifier instance and stores it in a ref.
+    // This is the most stable way to handle it.
+    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'normal',
+      'callback': () => {
+        // reCAPTCHA solved, allow sending SMS
+        setIsVerifierReady(true);
+      },
+      'expired-callback': () => {
+        // Response expired. User needs to solve reCAPTCHA again.
+        toast({
+          variant: 'destructive',
+          title: "reCAPTCHA Expired",
+          description: "Please solve the reCAPTCHA again.",
+        });
+        setIsVerifierReady(false);
       }
+    });
+
+    recaptchaVerifierRef.current = verifier;
+
+    // This renders the reCAPTCHA widget.
+    verifier.render();
+
+    // Cleanup function to clear the verifier when the component unmounts.
+    return () => {
+      verifier.clear();
     };
-  }, []);
+  }, [auth, toast]);
 
 
   const handleAuthSuccess = () => {
@@ -66,11 +93,10 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     try {
       if (authMode === 'signup') {
         await createUserWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will redirect
       } else {
         await signInWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will redirect
       }
+      // onAuthStateChanged will handle the redirect
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -86,47 +112,30 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      // Create verifier on the fly
-      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'normal',
-        'callback': async () => {
-          try {
-            const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-            setConfirmationResult(result);
-            toast({
-              title: "Verification Code Sent",
-              description: "Please check your phone for the code.",
-            });
-          } catch (error: any) {
-            toast({
-              variant: 'destructive',
-              title: "SMS Sending Failed",
-              description: error.message,
-            });
-          } finally {
-            setIsLoading(false);
-          }
-        },
-        'expired-callback': () => {
-          toast({
+    if (!recaptchaVerifierRef.current) {
+        toast({
             variant: 'destructive',
-            title: "reCAPTCHA Expired",
-            description: "Please try sending the code again.",
-          });
-          setIsLoading(false);
-        }
-      });
-      
-      // Render the reCAPTCHA
-      await verifier.render();
+            title: 'reCAPTCHA not ready',
+            description: 'Please wait a moment and try again.'
+        });
+        setIsLoading(false);
+        return;
+    }
 
-    } catch(error: any) {
+    try {
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifierRef.current);
+      setConfirmationResult(result);
+      toast({
+        title: "Verification Code Sent",
+        description: "Please check your phone for the code.",
+      });
+    } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: "reCAPTCHA Error",
+        title: "SMS Sending Failed",
         description: error.message,
       });
+    } finally {
       setIsLoading(false);
     }
   }
@@ -140,7 +149,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
 
     try {
       await confirmationResult.confirm(verificationCode);
-      // onAuthStateChanged will redirect
+      // onAuthStateChanged will handle the redirect
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -167,7 +176,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
 
     try {
       await signInWithPopup(auth, provider);
-      // onAuthStateChanged will redirect
+      // onAuthStateChanged will handle the redirect
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -240,8 +249,9 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input id="phone" type="tel" placeholder="+1 555-555-5555" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
                 </div>
-                <div id="recaptcha-container" className="flex justify-center my-2"></div>
-                <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                {/* The RecaptchaVerifier will render here */}
+                <div id="recaptcha-container" className="flex justify-center my-4"></div>
+                <Button type="submit" className="w-full h-11 text-base" disabled={!isVerifierReady || isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
                 </Button>
               </form>
@@ -283,5 +293,3 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     </Card>
   );
 }
-
-    
