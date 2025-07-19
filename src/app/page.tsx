@@ -165,7 +165,7 @@ export default function AuthPage() {
   };
 
   const VideoPanel = () => (
-    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
+    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border border-primary/20 shadow-[0_0_20px_hsl(var(--primary))]">
       {isClient ? (
         <>
           <video ref={videoCallbackRef} className="w-full h-full object-cover" autoPlay muted playsInline />
@@ -194,13 +194,13 @@ export default function AuthPage() {
       <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
         {icon} {label}
       </Label>
-      <Input id={id} type={type} value={value} onChange={onChange} required className="h-11" />
+      <Input id={id} type={type} value={value} onChange={onChange} required className="h-11 bg-background/50 border-primary/30 focus:shadow-primary-glow" />
     </div>
   );
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background font-sans">
-      <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl">
+      <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl shadow-primary-glow">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center items-center mb-4">
             <ShieldCheck className="h-12 w-12 text-primary" />
@@ -214,7 +214,7 @@ export default function AuthPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
