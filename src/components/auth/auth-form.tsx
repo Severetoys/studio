@@ -16,8 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppleIcon, GoogleIcon } from "./icons";
-import { Mail, MessageCircle, ScanFace, Loader2, CreditCard } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
+import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { SmsAuthForm } from "./sms-auth-form";
@@ -69,33 +69,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     }
   };
 
-  const handleSocialLogin = async (providerName: 'google' | 'apple') => {
-    setIsLoading(true);
-    let provider;
-
-    if (providerName === 'google') {
-      provider = new GoogleAuthProvider();
-    } else if (providerName === 'apple') {
-      provider = new OAuthProvider('apple.com');
-    } else {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      await signInWithPopup(auth, provider);
-      // onAuthStateChanged will handle the redirect
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: "Authentication Failed",
-        description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handlePaymentClick = (provider: 'Google' | 'Apple') => {
     toast({
       title: "Funcionalidade em Desenvolvimento",
@@ -112,16 +85,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button variant="outline" className="h-12 text-base" onClick={() => handleSocialLogin('google')} disabled={isLoading}>
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
-            Google
-          </Button>
-          <Button variant="outline" className="h-12 text-base" onClick={() => handleSocialLogin('apple')} disabled={isLoading}>
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
-            Apple
-          </Button>
-        </div>
         
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -129,7 +92,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">
-              Ou pague com
+              Pague com
             </span>
           </div>
         </div>
