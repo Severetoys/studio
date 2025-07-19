@@ -86,7 +86,8 @@ const verifyFaceFlow = ai.defineFlow(
     outputSchema: VerifyFaceOutputSchema,
   },
   async ({ liveImage, name, email, phone }) => {
-
+    
+    // Corrige a lógica para identificar corretamente uma tentativa de registro.
     const isRegistering = !!(name && email && phone);
     
     const faceCheckResult = await detectSingleFace(liveImage);
