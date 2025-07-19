@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 interface Product {
   id: number;
@@ -34,6 +35,14 @@ const mockProducts: Product[] = [
 export default function LojaPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const router = useRouter();
+  const { toast } = useToast();
+
+  const handleConnectSocial = (platform: string) => {
+    toast({
+      title: `Integração com ${platform}`,
+      description: `A funcionalidade para conectar com ${platform} está em desenvolvimento e será implementada em breve.`,
+    });
+  };
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -68,9 +77,16 @@ export default function LojaPage() {
   return (
     <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
-        <CardHeader className="text-center flex-row items-center justify-between">
-          <div></div>
-          <CardTitle className="text-3xl text-primary text-shadow-neon-red-light">
+        <CardHeader className="flex-row items-center justify-between border-b border-primary/20 pb-4">
+          <div className="flex gap-2">
+              <Button variant="outline" onClick={() => handleConnectSocial('Facebook')}>
+                  <Facebook className="mr-2 h-4 w-4" /> Conectar com Facebook
+              </Button>
+              <Button variant="outline" onClick={() => handleConnectSocial('Instagram')}>
+                  <Instagram className="mr-2 h-4 w-4" /> Conectar com Instagram
+              </Button>
+          </div>
+          <CardTitle className="text-3xl text-primary text-shadow-neon-red-light text-center flex-1">
             Marketplace
           </CardTitle>
           <Sheet>
@@ -149,7 +165,7 @@ export default function LojaPage() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
           {mockProducts.map(product => (
-            <Card key={product.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col">
+            <Card key={product.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col group">
               <CardHeader className="p-0">
                  <div className="aspect-video bg-muted overflow-hidden">
                     <Image src={product.image} alt={product.name} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={product.aiHint}/>
