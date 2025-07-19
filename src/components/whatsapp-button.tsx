@@ -59,7 +59,6 @@ export default function WhatsAppButton() {
                 >
                     <span className="font-semibold">Fale comigo no WhatsApp</span>
                     <WhatsAppIcon className="h-8 w-8" />
-                    <BadgeCheck className="h-6 w-6 text-blue-300 fill-white" />
                 </a>
             </div>
         )}
@@ -67,12 +66,13 @@ export default function WhatsAppButton() {
         <button 
             onClick={() => setIsOpen(!isOpen)}
             className={cn(
-                "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                "relative flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
                 "bg-green-500 hover:bg-green-600"
             )}
             aria-label={isOpen ? "Fechar opções de chat" : "Abrir opções de chat"}
         >
             {isOpen ? <X className="h-8 w-8" /> : <MessageSquare className="h-8 w-8" />}
+            {!isOpen && <BadgeCheck className="absolute top-0 right-0 h-6 w-6 text-blue-400 fill-white" />}
         </button>
     </div>
   );
