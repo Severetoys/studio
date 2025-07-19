@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MessageSquare, X, BadgeCheck, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
     <svg 
@@ -33,48 +34,74 @@ interface ContactButtonProps {
     bgColor: string;
     text: string;
     Icon: React.ElementType;
+    onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+    isLink: boolean;
 }
 
-const ContactButton = ({ href, bgColor, text, Icon }: ContactButtonProps) => (
-    <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-end gap-3 group animate-in fade-in-0 slide-in-from-bottom-5"
-        aria-label={text}
-    >
-        <div className="bg-background/80 backdrop-blur-sm text-foreground rounded-lg px-4 h-12 flex items-center shadow-lg">
-            <span className="text-base font-semibold">{text}</span>
+const ContactButton = ({ href, bgColor, text, Icon, onClick, isLink }: ContactButtonProps) => {
+    const commonProps = {
+        className: "flex items-center justify-end gap-3 group animate-in fade-in-0 slide-in-from-bottom-5 cursor-pointer",
+        "aria-label": text,
+    };
+
+    const content = (
+        <>
+            <div className="bg-background/80 backdrop-blur-sm text-foreground rounded-lg px-4 h-12 flex items-center shadow-lg">
+                <span className="text-base font-semibold">{text}</span>
+            </div>
+            <div className={cn("flex items-center justify-center text-white rounded-full h-14 w-14 shadow-lg", bgColor)}>
+                 <Icon className="h-8 w-8" />
+            </div>
+        </>
+    );
+
+    if (isLink) {
+        return (
+            <a href={href} target="_blank" rel="noopener noreferrer" {...commonProps}>
+                {content}
+            </a>
+        );
+    }
+
+    return (
+        <div onClick={onClick} {...commonProps}>
+            {content}
         </div>
-        <div className={cn("flex items-center justify-center text-white rounded-full h-14 w-14 shadow-lg", bgColor)}>
-             <Icon className="h-8 w-8" />
-        </div>
-    </a>
-);
+    );
+};
 
 
 export default function WhatsAppButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
   const phoneNumber = "5511999999999";
   const message = "Olá! Gostaria de mais informações.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  const telegramUrl = `https://t.me/seu_usuario_telegram`; 
+
+  const handleChatSecretoClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    router.push('/chat-secreto');
+    setIsOpen(false);
+  };
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
         {isOpen && (
             <div className="flex flex-col items-end gap-4 transition-all duration-300">
                 <ContactButton
-                    href={telegramUrl}
+                    href="/chat-secreto"
                     bgColor="bg-primary"
                     text="Chat Secreto"
                     Icon={TelegramIcon}
+                    onClick={handleChatSecretoClick}
+                    isLink={false}
                 />
                 <ContactButton
                     href={whatsappUrl}
                     bgColor="bg-green-500"
                     text="WhatsApp Business"
                     Icon={WhatsAppIcon}
+                    isLink={true}
                 />
             </div>
         )}
