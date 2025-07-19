@@ -17,7 +17,7 @@ const MainFooter = () => {
         id: i,
         title: `Galeria ${i + 1}`,
         photos: Array.from({ length: 5 }, (_, p) => ({
-          src: `https://placehold.co/800x1200.png`,
+          src: `https://placehold.co/400x800.png`,
           hint: p % 2 === 0 ? "fashion editorial" : "urban model",
           id: p,
           word: "Fetiche" // Palavra de exemplo
@@ -64,12 +64,12 @@ const MainFooter = () => {
                                 <CarouselItem key={photo.id} className="basis-full">
                                   <div className="p-1 space-y-2">
                                     <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                                      <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
+                                      <CardContent className="flex aspect-[1/2] items-center justify-center p-0">
                                         <Image
                                             src={photo.src}
                                             alt={`Foto da galeria ${gallery.id + 1}`}
-                                            width={800}
-                                            height={1200}
+                                            width={400}
+                                            height={800}
                                             className="w-full h-full object-cover"
                                             data-ai-hint={photo.hint}
                                           />
