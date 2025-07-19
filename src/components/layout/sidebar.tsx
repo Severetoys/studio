@@ -48,7 +48,7 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
               </Button>
             </li>
             <li><Link href="/" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>INÍCIO</Link></li>
-            <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>CANAIS</Link></li>
+            <li><Link href="/canais" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>CANAIS</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>LOJA ON-LINE</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
