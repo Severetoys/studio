@@ -41,7 +41,7 @@ export default function WhatsAppButton() {
         {isOpen && (
             <div className="flex flex-col items-end gap-4 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-5">
                  <div className="flex items-center gap-3">
-                    <span className="bg-background/80 text-foreground text-sm font-semibold px-3 py-1 rounded-md shadow-lg">
+                    <span className="relative bg-background/80 text-foreground text-sm font-semibold px-3 py-1.5 rounded-md shadow-lg after:absolute after:top-1/2 after:right-[-8px] after:-translate-y-1/2 after:border-t-8 after:border-t-transparent after:border-b-8 after:border-b-transparent after:border-l-8 after:border-l-background/80">
                         Chat Secreto
                     </span>
                     <a 
@@ -55,7 +55,7 @@ export default function WhatsAppButton() {
                     </a>
                 </div>
                 <div className="flex items-center gap-3">
-                     <span className="bg-background/80 text-foreground text-sm font-semibold px-3 py-1 rounded-md shadow-lg">
+                     <span className="relative bg-background/80 text-foreground text-sm font-semibold px-3 py-1.5 rounded-md shadow-lg after:absolute after:top-1/2 after:right-[-8px] after:-translate-y-1/2 after:border-t-8 after:border-t-transparent after:border-b-8 after:border-b-transparent after:border-l-8 after:border-l-background/80">
                         WhatsApp
                     </span>
                     <a 
