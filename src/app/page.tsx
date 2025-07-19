@@ -32,8 +32,15 @@ export default function AuthPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const getCameraPermission = async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         toast({
@@ -61,7 +68,14 @@ export default function AuthPage() {
       }
     };
     getCameraPermission();
-  }, [toast]);
+
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
+  }, [isClient, toast]);
 
 
   const handleGoogleSignIn = async () => {
@@ -137,6 +151,30 @@ export default function AuthPage() {
     </Button>
   );
 
+  const VideoPanel = () => (
+    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
+      {isClient ? (
+        <>
+          <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+          {!hasCameraPermission && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
+              <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
+                <AlertTitle>Camera Access Required</AlertTitle>
+                <AlertDescription>
+                  Please allow camera access to use this feature.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-muted">
+          <p className="text-muted-foreground">Loading Camera...</p>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background font-sans">
       <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl">
@@ -159,14 +197,7 @@ export default function AuthPage() {
             </TabsList>
             <TabsContent value="login">
               <div className="space-y-4">
-                <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
-                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                    {!hasCameraPermission && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
-                          <p className="text-white text-center">Camera permission is required for Face ID.</p>
-                      </div>
-                    )}
-                 </div>
+                <VideoPanel />
                 <AuthMethodButton onClick={handleGoogleSignIn} icon={<GoogleIcon />}>Sign in with Google</AuthMethodButton>
                 <AuthMethodButton icon={<Apple className="w-5 h-5" />}>Sign in with Apple</AuthMethodButton>
                 <AuthMethodButton onClick={handleFaceIdLogin} icon={<Fingerprint className="w-5 h-5" />} disabled={!hasCameraPermission || isVerifying}>
@@ -193,19 +224,7 @@ export default function AuthPage() {
             </TabsContent>
             <TabsContent value="register">
               <div className="space-y-4">
-                 <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
-                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                    {!hasCameraPermission && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
-                        <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
-                          <AlertTitle>Camera Access Required</AlertTitle>
-                          <AlertDescription>
-                            Please allow camera access to register with Face ID.
-                          </AlertDescription>
-                        </Alert>
-                      </div>
-                    )}
-                 </div>
+                <VideoPanel />
                 <AuthMethodButton icon={<Fingerprint className="w-5 h-5" />} disabled={!hasCameraPermission}>Register with Face ID</AuthMethodButton>
                 <div className="space-y-2">
                   <Label htmlFor="email-register">Email</Label>
@@ -227,5 +246,3 @@ export default function AuthPage() {
     </main>
   );
 }
-
-    
