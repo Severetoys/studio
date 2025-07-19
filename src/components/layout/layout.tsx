@@ -9,12 +9,14 @@ import type { Fetish } from '@/lib/fetish-data';
 import AdultWarningDialog from '@/components/adult-warning-dialog';
 import MainHeader from './main-header';
 import MainFooter from './main-footer';
+import { usePathname } from 'next/navigation';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFetish, setSelectedFetish] = useState<Fetish | null>(null);
   const [isWarningOpen, setIsWarningOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
@@ -46,6 +48,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
+  // Não mostrar o rodapé principal na página de canais
+  const showMainFooter = pathname !== '/canais';
+
   return (
     <>
       <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
@@ -58,7 +63,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         />
         <MainHeader />
         <main className="flex-grow">{children}</main>
-        <MainFooter />
+        {showMainFooter && <MainFooter />}
       </div>
       {selectedFetish && (
         <FetishModal
