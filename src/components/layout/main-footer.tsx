@@ -209,10 +209,6 @@ const MainFooter = () => {
                     </Card>
 
                     <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
-
-                    <div className="text-center mb-12">
-                        <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
-                    </div>
                 
                     <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
                     <div className="flex flex-col items-center gap-6">
@@ -222,6 +218,29 @@ const MainFooter = () => {
                     </div>
                 </div>
             </div>
+            
+            <footer className="w-full p-4 text-center text-sm text-muted-foreground">
+              <Separator className="mb-4 bg-primary/50" />
+              <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
+               <div className="flex justify-center gap-4 my-4">
+                  <a href="#" aria-label="Twitter">
+                      <Twitter className="h-5 w-5 text-primary hover:text-primary/80" />
+                  </a>
+                  <a href="#" aria-label="Instagram">
+                      <Instagram className="h-5 w-5 text-primary hover:text-primary/80" />
+                  </a>
+                  <a href="#" aria-label="YouTube">
+                      <Youtube className="h-5 w-5 text-primary hover:text-primary/80" />
+                  </a>
+                  <a href="#" aria-label="Facebook">
+                    <Facebook className="h-5 w-5 text-primary hover:text-primary/80" />
+                </a>
+              </div>
+              <p>
+                  <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
+              </p>
+              <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
+            </footer>
         </>
     );
 };

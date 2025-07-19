@@ -50,7 +50,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Define as rotas que NÃO devem exibir o cabeçalho e rodapé principais.
-  const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos'];
+  const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
   const showMainHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
   const showMainFooter = pathname === '/';
   const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/';
@@ -59,7 +59,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <>
       <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
-        <Header onMenuClick={toggleSidebar} />
+        { !pathname.startsWith('/chat-secreto') && <Header onMenuClick={toggleSidebar} /> }
         <Sidebar 
             isOpen={isSidebarOpen} 
             onClose={toggleSidebar} 
