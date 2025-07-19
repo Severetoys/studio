@@ -88,19 +88,30 @@ const registerFaceFlow = ai.defineFlow(
     outputSchema: RegisterFaceOutputSchema,
   },
   async (input) => {
-    console.log(`[registerFace] Starting registration for user: ${input.userId}`);
-    
-    const imageBuffer = dataUriToBuffer(input.photoDataUri);
-    await getSingleFaceAnnotation(imageBuffer); // This will throw an error if validation fails
-
     try {
+      console.log(`[registerFace] Starting registration for user: ${input.userId}`);
+      
+      const imageBuffer = dataUriToBuffer(input.photoDataUri);
+      await getSingleFaceAnnotation(imageBuffer); // This will throw an error if validation fails
+
       const userDocRef = db.collection("face_registrations").doc(input.userId);
       await userDocRef.set({ photoDataUri: input.photoDataUri, registeredAt: new Date().toISOString() });
+      
       console.log(`[registerFace] Face registered and saved to Firestore for user: ${input.userId}`);
       return { success: true, message: "Face registered successfully!" };
+
     } catch (error) {
-      console.error("[registerFace] Error during Firestore operation:", error);
-      throw new Error("Failed to save face registration data due to a database error.");
+      console.error("[registerFace] Error during registration flow:", error);
+      if (error instanceof Error) {
+        // Propagate specific, known errors
+        if (error.message.includes("face detected")) {
+           throw error;
+        }
+        // General database or other errors
+        throw new Error("Failed to save face registration data due to a database error.");
+      }
+      // Fallback for unknown errors
+      throw new Error("An unexpected error occurred during face registration.");
     }
   }
 );
