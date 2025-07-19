@@ -1,18 +1,10 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import Layout from '@/components/layout/layout';
-import { Card, CardContent } from '@/components/ui/card';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Fingerprint, Star } from 'lucide-react';
-import AdultWarningDialog from '@/components/adult-warning-dialog';
+import { Fingerprint, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import WhatsAppButton from '@/components/whatsapp-button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const GPayIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="20" viewBox="0 0 51.998 20.768">
@@ -34,200 +26,80 @@ const ApplePayIcon = () => (
 );
 
 
-export default function HomePage() {
+const FeatureList = () => (
+    <ul className="space-y-3 text-left w-full">
+        <li className="flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-primary" />
+            <span>Conteúdo exclusivo e sem censura.</span>
+        </li>
+        <li className="flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-primary" />
+            <span>Acesso a vídeos e ensaios completos.</span>
+        </li>
+        <li className="flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-primary" />
+            <span>Atualizações semanais com novas produções.</span>
+        </li>
+        <li className="flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-primary" />
+            <span>Comunidade e interação direta.</span>
+        </li>
+    </ul>
+);
+
+export default function HomePageContent() {
   const router = useRouter();
-  const [isWarningOpen, setIsWarningOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-    const hasConfirmedAge = localStorage.getItem('ageConfirmed');
-    if (!hasConfirmedAge) {
-      setIsWarningOpen(true);
-    }
-  }, []);
-
-  const handleConfirmAge = () => {
-    localStorage.setItem('ageConfirmed', 'true');
-    setIsWarningOpen(false);
-  };
-
-   const handlePaymentClick = (method: 'gpay' | 'applepay') => {
+  const handlePaymentClick = (method: 'gpay' | 'applepay') => {
     console.log(`Initiating payment with ${method}`);
     router.push('/auth'); 
   };
-
-
-  if (!isClient) {
-    return null;
-  }
   
-  const galleries = Array.from({ length: 8 }, (_, i) => ({
-    id: i,
-    title: `Galeria ${i + 1}`,
-    photos: Array.from({ length: 5 }, (_, p) => ({
-      src: `https://placehold.co/800x1200.png`,
-      hint: p % 2 === 0 ? "fashion editorial" : "urban model",
-      id: p,
-      word: "Fetiche" // Palavra de exemplo
-    }))
-  }));
-  
-  const reviews = [
-    {
-      name: 'João S.',
-      rating: 5,
-      text: 'Experiência incrível, conteúdo de alta qualidade! Superou todas as minhas expectativas. Recomendo fortemente.',
-      avatarSrc: 'https://placehold.co/100x100.png',
-      avatarFallback: 'JS',
-      aiHint: "male profile"
-    },
-    {
-      name: 'Marcos P.',
-      rating: 5,
-      text: 'Qualidade impecável e muito profissionalismo. O melhor que já vi na área, sem dúvidas. Vale cada centavo.',
-      avatarSrc: 'https://placehold.co/100x100.png',
-      avatarFallback: 'MP',
-      aiHint: "man avatar"
-    },
-    {
-      name: 'Lucas R.',
-      rating: 5,
-      text: 'Conteúdo exclusivo e um atendimento diferenciado. A assinatura abriu portas para um novo universo. Excelente!',
-      avatarSrc: 'https://placehold.co/100x100.png',
-      avatarFallback: 'LR',
-      aiHint: "user portrait"
-    },
-  ];
-
   return (
-    <Layout>
-      <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
-      <div className="flex-grow">
-        <div className="relative w-full h-[60vh] text-center flex items-center justify-center bg-black">
-          <Image
-            src="https://placehold.co/1920x1080.png"
-            alt="Hero background"
-            width={1920}
-            height={1080}
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-            data-ai-hint="male model"
-          />
-          <div className="relative border-4 border-primary p-4 shadow-neon-red-strong">
-            <h1 className="text-6xl font-serif text-white text-shadow-neon-red">Italo Santos</h1>
-          </div>
+    <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6">
+      <div className="w-full max-w-sm flex flex-col items-center gap-6 text-center">
+        <Button 
+            className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
+            onClick={() => router.push('/auth')}>
+            <Fingerprint className="h-8 w-8 mr-4" />
+            Face ID
+        </Button>
+        
+        <FeatureList />
+        
+        <div className="flex w-full items-center gap-4">
+            <Separator className="flex-1 bg-border/30" />
+            <span className="text-xs text-muted-foreground">OU</span>
+            <Separator className="flex-1 bg-border/30" />
         </div>
-
-        <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6">
-          <div className="w-full max-w-sm flex flex-col items-center gap-6">
-            <Button 
-                className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
-                onClick={() => router.push('/auth')}>
-                <Fingerprint className="h-8 w-8 mr-4" />
-                Face ID
+        
+        <div className="w-full grid grid-cols-2 gap-4">
+            <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+                <GPayIcon />
             </Button>
-            
-            <div className="flex w-full items-center gap-4">
-                <Separator className="flex-1 bg-border/30" />
-                <span className="text-xs text-muted-foreground">OU</span>
-                <Separator className="flex-1 bg-border/30" />
-            </div>
-            
-            <div className="w-full grid grid-cols-2 gap-4">
-                <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                    <GPayIcon />
-                </Button>
-                <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                    <ApplePayIcon />
-                </Button>
-            </div>
-            
-            <Separator className="w-full bg-border/30" />
-
-            <div className="text-center">
-                <p className="text-sm text-muted-foreground">ASSINATURA</p>
-                <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
-                    99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
-                </p>
-            </div>
-            
-            <Button 
-                className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300 mt-4"
-                onClick={() => router.push('/auth')}>
-                ENTRAR
+            <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+                <ApplePayIcon />
             </Button>
-          </div>
         </div>
         
-        <div className="py-8 space-y-8">
-            {galleries.map((gallery) => (
-              <div key={gallery.id}>
-                <div className="w-full px-4 md:px-8">
-                  <Carousel className="w-full max-w-xl mx-auto" opts={{ loop: true }}>
-                      <CarouselContent>
-                          {gallery.photos.map((photo) => (
-                            <CarouselItem key={photo.id}>
-                              <div className="p-1 space-y-2">
-                                <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                                  <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
-                                    <Image
-                                        src={photo.src}
-                                        alt={`Foto da galeria ${gallery.id + 1}`}
-                                        width={800}
-                                        height={1200}
-                                        className="w-full h-full object-cover"
-                                        data-ai-hint={photo.hint}
-                                      />
-                                  </CardContent>
-                                </Card>
-                                <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
-                                    {photo.word}
-                                </p>
-                              </div>
-                            </CarouselItem>
-                          ))}
-                      </CarouselContent>
-                      <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
-                      <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
-                  </Carousel>
-                </div>
-                <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
-              </div>
-            ))}
+        <Separator className="w-full bg-border/30" />
+
+        <div className="text-center">
+            <p className="text-sm text-muted-foreground">ASSINATURA</p>
+            <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
+                99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
+            </p>
         </div>
         
-        <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
-            <div className="text-center mb-12">
-                <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
-            </div>
-        
-            <div className="max-w-4xl w-full mx-auto">
-                <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
-                <div className="flex flex-col items-center gap-6">
-                  {reviews.map((review, index) => (
-                    <Card key={index} className="flex flex-col w-full max-w-2xl p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                      <CardContent className="flex flex-col items-center text-center p-0 flex-grow">
-                        <Avatar className="w-20 h-20 mb-4 border-2 border-primary">
-                          <AvatarImage src={review.avatarSrc} data-ai-hint={review.aiHint} />
-                          <AvatarFallback>{review.avatarFallback}</AvatarFallback>
-                        </Avatar>
-                        <h3 className="font-semibold text-lg">{review.name}</h3>
-                        <div className="flex gap-1 my-2 text-primary">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="w-5 h-5 fill-current" />
-                          ))}
-                        </div>
-                        <p className="text-muted-foreground text-sm flex-grow">{review.text}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-            </div>
-        </div>
+        <Button 
+            className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300 mt-4"
+            onClick={() => router.push('/auth')}>
+            ENTRAR
+        </Button>
       </div>
-      <WhatsAppButton />
-    </Layout>
+    </div>
   );
 }
+    
 
     

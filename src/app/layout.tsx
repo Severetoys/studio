@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
+import Layout from '@/components/layout/layout';
+import WhatsAppButton from '@/components/whatsapp-button';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -22,9 +24,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body className={`font-sans ${inter.variable} antialiased bg-background`}>
-        {children}
+        <Layout>
+          {children}
+        </Layout>
         <Toaster />
+        <WhatsAppButton />
       </body>
     </html>
   );
 }
+
+    

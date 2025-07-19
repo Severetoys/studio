@@ -1,18 +1,33 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './header';
 import Sidebar from './sidebar';
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
-import { Twitter, Instagram, Youtube, Facebook } from 'lucide-react';
 import FetishModal from '@/components/fetish-modal';
 import type { Fetish } from '@/lib/fetish-data';
+import AdultWarningDialog from '@/components/adult-warning-dialog';
+import MainHeader from './main-header';
+import MainFooter from './main-footer';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFetish, setSelectedFetish] = useState<Fetish | null>(null);
+  const [isWarningOpen, setIsWarningOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const hasConfirmedAge = localStorage.getItem('ageConfirmed');
+    if (!hasConfirmedAge) {
+      setIsWarningOpen(true);
+    }
+  }, []);
+
+  const handleConfirmAge = () => {
+    localStorage.setItem('ageConfirmed', 'true');
+    setIsWarningOpen(false);
+  };
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -20,44 +35,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const handleFetishSelect = (fetish: Fetish) => {
     setSelectedFetish(fetish);
+    onClose();
   };
 
   const handleCloseModal = () => {
     setSelectedFetish(null);
   };
 
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <>
+      <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header onMenuClick={toggleSidebar} />
-        <Sidebar 
-          isOpen={isSidebarOpen} 
-          onClose={toggleSidebar} 
-          onFetishSelect={handleFetishSelect}
-        />
+        <MainHeader />
         <main className="flex-grow">{children}</main>
-        <Separator className="my-4 bg-primary/50" />
-        <footer className="w-full p-4 text-center text-sm text-muted-foreground">
-          <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
-           <div className="flex justify-center gap-4 my-4">
-              <Link href="#" aria-label="Twitter">
-                  <Twitter className="h-5 w-5 text-primary hover:text-primary/80" />
-              </Link>
-              <Link href="#" aria-label="Instagram">
-                  <Instagram className="h-5 w-5 text-primary hover:text-primary/80" />
-              </Link>
-              <Link href="#" aria-label="YouTube">
-                  <Youtube className="h-5 w-5 text-primary hover:text-primary/80" />
-              </Link>
-              <Link href="#" aria-label="Facebook">
-                <Facebook className="h-5 w-5 text-primary hover:text-primary/80" />
-            </Link>
-          </div>
-          <p>
-              <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
-          </p>
-          <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
-        </footer>
+        <MainFooter />
       </div>
       {selectedFetish && (
         <FetishModal
@@ -71,3 +67,5 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default Layout;
+
+    
