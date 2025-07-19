@@ -20,15 +20,16 @@ export default function WhatsAppButton() {
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
   return (
-    <Link href={whatsappUrl} passHref>
-      <a 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white shadow-lg animate-pulse-green-glow"
-        aria-label="Fale conosco no WhatsApp"
-      >
-        <WhatsAppIcon className="h-8 w-8" />
-      </a>
-    </Link>
+    <a 
+      href={whatsappUrl}
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white shadow-lg animate-pulse-green-glow"
+      aria-label="Fale conosco no WhatsApp"
+    >
+      <WhatsAppIcon className="h-8 w-8" />
+    </a>
   );
 }
+
+    

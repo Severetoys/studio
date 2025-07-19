@@ -59,11 +59,14 @@ export default function AuthPage() {
   const router = useRouter();
   
   const handleFaceIdClick = () => {
+    // A página /old-auth-page contém a lógica de câmera
     router.push('/old-auth-page'); 
   };
   
   const handlePaymentClick = (method: 'gpay' | 'applepay') => {
     console.log(`Initiating payment with ${method}`);
+    // Ação de pagamento a ser implementada
+    // Por enquanto, apenas redireciona para o dashboard como um placeholder de sucesso
     router.push('/dashboard'); 
   };
 
@@ -120,3 +123,5 @@ export default function AuthPage() {
     </main>
   );
 }
+
+    
