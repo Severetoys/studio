@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, PlayCircle } from 'lucide-react';
+import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, PlayCircle, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,6 +17,14 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const [isPaid, setIsPaid] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    if (localStorage.getItem('hasPaid') === 'true') {
+      setIsPaid(true);
+    }
+  }, []);
 
   const handlePayment = async () => {
     setIsProcessingPayment(true);
@@ -48,6 +56,11 @@ export default function DashboardPage() {
         title: 'Pagamento bem-sucedido!',
         description: 'Seu acesso foi liberado.',
       });
+      
+      // Persiste o estado de pagamento no localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hasPaid', 'true');
+      }
       setIsPaid(true);
 
     } catch (error: any) {
@@ -62,6 +75,13 @@ export default function DashboardPage() {
     }
   };
 
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('hasPaid');
+    }
+    router.push('/');
+  };
+
   const ExclusiveContent = () => (
     <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-card backdrop-blur-xl">
         <CardHeader>
@@ -70,21 +90,12 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
             {isPaid ? (
-                <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                        <PlayCircle className="h-8 w-8 text-accent" />
-                        <div>
-                            <h3 className="font-semibold">Vídeo 1: Introdução à Segurança</h3>
-                            <p className="text-sm text-muted-foreground">Assista agora</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                        <PlayCircle className="h-8 w-8 text-accent" />
-                        <div>
-                            <h3 className="font-semibold">Vídeo 2: Configuração Avançada</h3>
-                            <p className="text-sm text-muted-foreground">Assista agora</p>
-                        </div>
-                    </div>
+                 <div className="text-center p-6 bg-green-500/10 rounded-lg border border-dashed border-green-500/30">
+                    <CheckCircle className="mx-auto h-12 w-12 text-green-400" />
+                    <h3 className="mt-4 text-lg font-semibold">Acesso Liberado!</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Você tem acesso a todo o nosso conteúdo exclusivo.
+                    </p>
                 </div>
             ) : (
                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
@@ -96,16 +107,24 @@ export default function DashboardPage() {
                 </div>
             )}
         </CardContent>
-        {!isPaid && (
-            <CardFooter>
-                 <Button className="w-full h-11 text-base" onClick={handlePayment} disabled={isProcessingPayment}>
+        <CardFooter>
+             {isPaid ? (
+                 <Button className="w-full h-11 text-base" onClick={() => router.push('/dashboard/videos')}>
+                    Acessar Conteúdo Exclusivo <ArrowRight className="ml-2" />
+                </Button>
+             ) : (
+                <Button className="w-full h-11 text-base" onClick={handlePayment} disabled={isProcessingPayment}>
                     <CreditCard className="mr-2" />
                     {isProcessingPayment ? 'Processando...' : 'Pagar para Liberar Acesso'}
                 </Button>
-            </CardFooter>
-        )}
+             )}
+        </CardFooter>
     </Card>
   );
+
+  if (!isClient) {
+    return null; // Renderiza nada no servidor para evitar hydration mismatch
+  }
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background gap-8">
@@ -148,7 +167,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <Button className="w-full h-11 text-base" variant="secondary" onClick={() => router.push('/')}>
+          <Button className="w-full h-11 text-base" variant="secondary" onClick={handleLogout}>
             <LogOut className="mr-2" />
             Sair
           </Button>
