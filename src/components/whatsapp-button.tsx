@@ -67,9 +67,9 @@ export default function WhatsAppButton() {
             onClick={() => setIsOpen(!isOpen)}
             className={cn(
                 "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
-                isOpen ? "bg-red-600 hover:bg-red-700" : "bg-primary hover:bg-primary/90"
+                isOpen ? "bg-primary hover:bg-primary/90" : "bg-primary hover:bg-primary/90"
             )}
-            aria-label="Abrir opções de chat"
+            aria-label={isOpen ? "Fechar opções de chat" : "Abrir opções de chat"}
         >
             {isOpen ? <X className="h-8 w-8" /> : <MessageSquare className="h-8 w-8" />}
         </button>
