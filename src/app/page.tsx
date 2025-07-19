@@ -63,7 +63,7 @@ export default function HomePageContent() {
   
   return (
     <div className="flex flex-col items-center">
-      <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-sm text-center">
+      <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-md text-center">
         <Button 
             className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
             onClick={() => router.push('/auth')}>
@@ -104,6 +104,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
