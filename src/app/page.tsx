@@ -84,9 +84,12 @@ export default function HomePageContent() {
 
         <div className="text-center">
             <p className="text-sm text-muted-foreground">ASSINATURA</p>
-            <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
-                99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
-            </p>
+            <div className="flex justify-center items-baseline gap-2">
+                <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
+                    99,00
+                </p>
+                <span className="text-lg font-medium text-muted-foreground self-end mb-4">BRL</span>
+            </div>
         </div>
         
         <Button 
@@ -103,6 +106,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
