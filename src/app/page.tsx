@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import AboutSection from '@/components/about-section';
 
 const GPayIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="20" viewBox="0 0 51.998 20.768">
@@ -63,6 +64,7 @@ export default function HomePageContent() {
   
   return (
     <div className="flex flex-col items-center">
+      <AboutSection />
       <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-md text-center">
         <Button 
             className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
@@ -104,6 +106,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
