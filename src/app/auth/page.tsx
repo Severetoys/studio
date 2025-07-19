@@ -6,11 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ArrowLeft, CheckCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-
-import { verifyFace } from '@/ai/flows/face-auth-flow';
+import WhatsAppButton from '@/components/whatsapp-button';
 
 // Custom Face ID icon to match user image
 const FaceIdIcon = ({ className }: { className?: string }) => (
@@ -112,8 +110,13 @@ export default function AuthPage() {
                         99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
                     </p>
                 </div>
+                
+                <div className="mt-4 text-center">
+                    <p className="text-4xl font-bold text-primary">IS</p>
+                </div>
             </CardContent>
         </Card>
+        <WhatsAppButton />
     </main>
   );
 }
