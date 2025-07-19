@@ -69,6 +69,7 @@ export default function HomePage() {
       src: `https://placehold.co/800x1200.png`,
       hint: p % 2 === 0 ? "fashion editorial" : "urban model",
       id: p,
+      word: "Fetiche" // Palavra de exemplo
     }))
   }));
   
@@ -160,12 +161,12 @@ export default function HomePage() {
         
         <div className="py-8 space-y-8">
             {galleries.map((gallery) => (
-              <div key={gallery.id} className="w-full px-4 md:px-8 space-y-4">
+              <div key={gallery.id} className="w-full px-4 md:px-8">
                  <Carousel className="w-full max-w-xl mx-auto" opts={{ loop: true }}>
                     <CarouselContent>
                         {gallery.photos.map((photo) => (
                            <CarouselItem key={photo.id}>
-                             <div className="p-1">
+                             <div className="p-1 space-y-2">
                                <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                                  <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
                                    <Image
@@ -178,6 +179,9 @@ export default function HomePage() {
                                     />
                                  </CardContent>
                                </Card>
+                               <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
+                                  {photo.word}
+                               </p>
                              </div>
                            </CarouselItem>
                         ))}
@@ -185,9 +189,6 @@ export default function HomePage() {
                     <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                     <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                  </Carousel>
-                 <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
-                    Acompanhante masculino sensualidade fantasia prazer bds fetiche fantasia
-                 </p>
               </div>
             ))}
         </div>
