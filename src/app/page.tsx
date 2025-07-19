@@ -54,7 +54,7 @@ export default function HomePage() {
 
    const handlePaymentClick = (method: 'gpay' | 'applepay') => {
     console.log(`Initiating payment with ${method}`);
-    router.push('/dashboard'); 
+    router.push('/auth'); 
   };
 
 
@@ -161,34 +161,37 @@ export default function HomePage() {
         
         <div className="py-8 space-y-8">
             {galleries.map((gallery) => (
-              <div key={gallery.id} className="w-full px-4 md:px-8">
-                 <Carousel className="w-full max-w-xl mx-auto" opts={{ loop: true }}>
-                    <CarouselContent>
-                        {gallery.photos.map((photo) => (
-                           <CarouselItem key={photo.id}>
-                             <div className="p-1 space-y-2">
-                               <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                                 <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
-                                   <Image
-                                      src={photo.src}
-                                      alt={`Foto da galeria ${gallery.id + 1}`}
-                                      width={800}
-                                      height={1200}
-                                      className="w-full h-full object-cover"
-                                      data-ai-hint={photo.hint}
-                                    />
-                                 </CardContent>
-                               </Card>
-                               <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
-                                  {photo.word}
-                               </p>
-                             </div>
-                           </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
-                    <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
-                 </Carousel>
+              <div key={gallery.id}>
+                <div className="w-full px-4 md:px-8">
+                  <Carousel className="w-full max-w-xl mx-auto" opts={{ loop: true }}>
+                      <CarouselContent>
+                          {gallery.photos.map((photo) => (
+                            <CarouselItem key={photo.id}>
+                              <div className="p-1 space-y-2">
+                                <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+                                  <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
+                                    <Image
+                                        src={photo.src}
+                                        alt={`Foto da galeria ${gallery.id + 1}`}
+                                        width={800}
+                                        height={1200}
+                                        className="w-full h-full object-cover"
+                                        data-ai-hint={photo.hint}
+                                      />
+                                  </CardContent>
+                                </Card>
+                                <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
+                                    {photo.word}
+                                </p>
+                              </div>
+                            </CarouselItem>
+                          ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
+                      <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
+                  </Carousel>
+                </div>
+                <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
               </div>
             ))}
         </div>
@@ -198,9 +201,7 @@ export default function HomePage() {
                 <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
             </div>
         
-            <Separator className="w-full max-w-4xl mx-auto bg-border/30" />
-
-            <div className="max-w-4xl w-full mx-auto mt-12">
+            <div className="max-w-4xl w-full mx-auto">
                 <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
                 <div className="flex flex-col items-center gap-6">
                   {reviews.map((review, index) => (
@@ -228,3 +229,5 @@ export default function HomePage() {
     </Layout>
   );
 }
+
+    
