@@ -28,6 +28,34 @@ const TelegramIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+interface ContactButtonProps {
+    href: string;
+    bgColor: string;
+    pulseColor: string;
+    text: string;
+    Icon: React.ElementType;
+}
+
+const ContactButton = ({ href, bgColor, pulseColor, text, Icon }: ContactButtonProps) => (
+    <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+            "flex items-center group animate-in fade-in-0 slide-in-from-bottom-5",
+            pulseColor
+        )}
+        aria-label={text}
+    >
+        <div className={cn("flex items-center justify-center text-white p-2 rounded-l-full rounded-r-3xl h-14 shadow-lg", bgColor)}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+                 <Icon className="h-6 w-6" />
+            </div>
+            <span className="pr-5 pl-3 text-base font-semibold">{text}</span>
+        </div>
+    </a>
+);
+
 
 export default function WhatsAppButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,35 +67,21 @@ export default function WhatsAppButton() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
         {isOpen && (
-            <div className="flex flex-col items-end gap-4 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-5">
-                 <div className="flex items-center gap-3">
-                    <span className="relative bg-background/80 text-foreground text-sm font-semibold px-3 py-1.5 rounded-md shadow-lg after:absolute after:top-1/2 after:right-[-8px] after:-translate-y-1/2 after:border-t-8 after:border-t-transparent after:border-b-8 after:border-b-transparent after:border-l-8 after:border-l-background/80">
-                        Chat Secreto
-                    </span>
-                    <a 
-                        href={telegramUrl}
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg animate-pulse-red-glow"
-                        aria-label="Fale conosco no Chat Secreto"
-                    >
-                        <TelegramIcon className="h-7 w-7" />
-                    </a>
-                </div>
-                <div className="flex items-center gap-3">
-                     <span className="relative bg-background/80 text-foreground text-sm font-semibold px-3 py-1.5 rounded-md shadow-lg after:absolute after:top-1/2 after:right-[-8px] after:-translate-y-1/2 after:border-t-8 after:border-t-transparent after:border-b-8 after:border-b-transparent after:border-l-8 after:border-l-background/80">
-                        WhatsApp
-                    </span>
-                    <a 
-                        href={whatsappUrl}
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg animate-pulse-green-glow"
-                        aria-label="Fale conosco no WhatsApp"
-                    >
-                        <WhatsAppIcon className="h-8 w-8" />
-                    </a>
-                </div>
+            <div className="flex flex-col items-end gap-4 transition-all duration-300">
+                <ContactButton
+                    href={telegramUrl}
+                    bgColor="bg-primary"
+                    pulseColor="animate-pulse-red-glow"
+                    text="Chat Secreto"
+                    Icon={TelegramIcon}
+                />
+                <ContactButton
+                    href={whatsappUrl}
+                    bgColor="bg-green-500"
+                    pulseColor="animate-pulse-green-glow"
+                    text="WhatsApp"
+                    Icon={WhatsAppIcon}
+                />
             </div>
         )}
 
