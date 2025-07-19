@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X, BadgeCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -54,11 +54,12 @@ export default function WhatsAppButton() {
                     href={whatsappUrl}
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex h-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg px-4 animate-pulse-green-glow"
+                    className="flex h-14 items-center justify-center gap-2 rounded-full bg-green-500 text-white shadow-lg px-4 animate-pulse-green-glow"
                     aria-label="Fale conosco no WhatsApp"
                 >
-                    <span className="mr-3 font-semibold">Fale comigo no WhatsApp</span>
+                    <span className="font-semibold">Fale comigo no WhatsApp</span>
                     <WhatsAppIcon className="h-8 w-8" />
+                    <BadgeCheck className="h-6 w-6 text-blue-300 fill-white" />
                 </a>
             </div>
         )}
