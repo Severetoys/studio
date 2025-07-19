@@ -61,7 +61,7 @@ const MainFooter = () => {
                       <Carousel className="w-full" opts={{ loop: true }}>
                           <CarouselContent>
                               {gallery.photos.map((photo) => (
-                                <CarouselItem key={photo.id} className="basis-1/2 md:basis-1/3 lg:basis-1/5">
+                                <CarouselItem key={photo.id} className="basis-full">
                                   <div className="p-1 space-y-2">
                                     <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                                       <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
