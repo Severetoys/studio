@@ -14,8 +14,10 @@ import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { adminApp } from '@/lib/firebase-admin'; // Import the central admin app to ensure init
 import { getFirestore as getAdminFirestore } from 'firebase-admin/firestore';
 
-// Initialize Cloud Vision client
-const visionClient = new ImageAnnotatorClient();
+// Initialize Cloud Vision client with explicit credentials
+const visionClient = new ImageAnnotatorClient({
+    keyFilename: './serviceAccountKey.json'
+});
 
 // Initialize Firestore from the client SDK for web operations
 // Note: This is separate from the Admin Firestore. We use the admin one for secure data access.
