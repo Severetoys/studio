@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import SiteFooter from './site-footer';
+import { Button } from '@/components/ui/button';
 
 interface Review {
   author: string;
@@ -92,7 +93,7 @@ const MainFooter = () => {
         { author: 'Leh', time: '3 anos', text: 'Ítalo super gente boa, bom de papo e atraente, foi a minha primeira experiência como Sub com ele e gostei demais, soube me dominar muito bem e meu muito prazer! Pra quem é iniciante como eu, super recomendo!!!' },
         { author: 'Mineiro', time: '3 anos', text: 'Já estive com Ítalo duas vezes. Além de saber brincar direitinho, ele tem um papo muito agradável. Domina muito bem e tem uma boa coleção de acessórios.' },
         { author: 'Branquinha', time: '3 anos', text: 'Virei puta de vestidinho vagabundo. Apanhei como merecia. Levei porra na cara. Só fiz o que ele mandava. Gostei tanto de ser tratada assim que voltei e não queria ir embora. Me arregaçou. Domínio sedutor. Ítalo é daqueles personagens da literatura erótica e sdm. Nível internacional. Ele é escavador de desejos não ditos.' },
-        { author: 'Putão', time: '3 anos', text: 'Foda sensacional, já fiz várias sessões de dominação e putaria sem limites com Italo. Sabe dominar, humilhar, soca e fista até arrombar meu cu. Já me deu muita porra e mijo. Sem contar q ele tem todos os brinquedos e acessórios q eu podia imaginar. Até anaconda gigante ele enfiou em mim. Recomendo pra quem tem experiência e também pra quem quer ser iniciado, porque além de muito puto, he é educado, limpo e seguro.' },
+        { author: 'Putão', time: '3 anos', text: 'Foda sensacional, já fiz várias sessões de dominação e putaria sem limites com Italo. Sabe dominar, humilhar, soca e fista até arrombar meu cu. Já me deu muita porra e mijo. Sem contar q ele tem todos os brinquedos e acessórios q eu podia imaginar. Até anaconda gigante ele enfiou em mim. Recomendo pra quem tem experiência e também pra quem quer ser iniciado, porque além de muito puto, ele é educado, limpo e seguro.' },
         { author: 'Rogfaria', time: '3 anos', text: 'Se você gosta de ser tratado como puta, apanhar e tomar leite, esse é o cara! Macho, bonito, gostoso, educado e puto. Super recomendo!' },
         { author: 'Gato bh 32a', time: '3 anos', text: 'Lindo, educado, respeita os limites e sabe dominar. Não vejo a hora dele voltar pra BH pra servi-lo novamente. Bebi mijao, me vestiu de puta, usei coleirinha, algemas, me exibiu pro pessoal da República como sua putinha, fiz video. Tesão. Qro denovo hehehe. Saudades lindo.' },
         { author: 'Lu', time: '3 anos', text: 'É bem difícil achar um garoto que conheça de verdade bdsm, mas o Ítalo é um mestre no assunto, sem falar que tem ótimos acessórios, e sabe muito bem usar, fiquei o tempo todo babando de tesão, valeu cada centavo...o bom é que no dia seguinte vai se olhar no espelho e lembrar....' },
