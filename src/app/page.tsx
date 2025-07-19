@@ -62,8 +62,8 @@ export default function HomePageContent() {
   };
   
   return (
-    <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6">
-      <div className="w-full max-w-sm flex flex-col items-center gap-6 text-center">
+    <div className="flex flex-col items-center">
+      <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-sm text-center">
         <Button 
             className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
             onClick={() => router.push('/auth')}>
@@ -83,7 +83,6 @@ export default function HomePageContent() {
         <Separator className="w-full bg-border/30" />
 
         <div className="text-center">
-            <p className="text-sm text-muted-foreground">ASSINATURA</p>
             <div className="flex justify-center items-baseline gap-2">
                 <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
                     99,00
@@ -105,6 +104,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
