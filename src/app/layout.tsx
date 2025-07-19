@@ -4,7 +4,10 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: 'AuthKit',
@@ -18,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-background`}>
+      <body className={`font-sans ${inter.variable} antialiased bg-background`}>
         {children}
         <Toaster />
       </body>

@@ -27,7 +27,6 @@ const SHEET_NAME = 'Sheet1'; // ATENÇÃO: Mude para o nome correto da sua aba s
 // Define as colunas esperadas. A ordem é crucial.
 const COLUMN_ORDER = ['timestamp', 'name', 'email', 'imageId', 'videoBase64', 'paymentId'];
 const EMAIL_COLUMN_INDEX = 2; // Coluna 'C' é o índice 2 (base 0)
-const PAYMENT_ID_COLUMN_INDEX = 5; // Coluna 'F' é o índice 5 (base 0)
 const PAYMENT_ID_COLUMN_LETTER = 'F';
 
 /**
