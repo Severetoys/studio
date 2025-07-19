@@ -6,11 +6,34 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ArrowLeft, ScanFace, CheckCircle } from 'lucide-react';
+import { Fingerprint, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 
 import { verifyFace } from '@/ai/flows/face-auth-flow';
+
+// Custom Face ID icon to match user image
+const FaceIdIcon = ({ className }: { className?: string }) => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="1.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className}
+    >
+        <path d="M4 8V6a2 2 0 0 1 2-2h2" />
+        <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+        <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+        <path d="M16 20h2a2 2 0 0 0 2-2v-2" />
+        <path d="M9 10h.01" />
+        <path d="M15 10h.01" />
+        <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
+    </svg>
+);
+
 
 // Mock SVG icons for G Pay and Apple Pay
 const GPayIcon = () => (
@@ -59,7 +82,7 @@ export default function AuthPage() {
               <ArrowLeft />
             </Button>
             <div className="flex justify-center items-center mb-2 pt-8">
-                <ScanFace className="h-16 w-16 text-primary" />
+                <FaceIdIcon className="h-16 w-16 text-primary" />
             </div>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-6 px-6 pb-6">
