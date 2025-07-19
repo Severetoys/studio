@@ -158,13 +158,13 @@ export default function HomePage() {
             {galleries.map((gallery) => (
               <div key={gallery.id}>
                  <h2 className="text-2xl font-bold mb-4 px-4 text-shadow-neon-red-light">{gallery.title}</h2>
-                 <Carousel className="w-full">
+                 <Carousel className="w-full" opts={{ loop: true }}>
                     <CarouselContent>
                         {gallery.photos.map((photo) => (
                            <CarouselItem key={photo.id}>
                              <div className="p-1">
                                <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                                 <CardContent className="flex aspect-[2/3] items-center justify-center p-0">
+                                 <CardContent className="flex aspect-[3/4] items-center justify-center p-0">
                                    <Image
                                       src={photo.src}
                                       alt={`Foto da galeria ${gallery.id + 1}`}
@@ -190,9 +190,9 @@ export default function HomePage() {
           <Separator className="w-full max-w-4xl mx-auto bg-border/30" />
           <div className="max-w-4xl mx-auto mt-12">
             <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex flex-col items-center gap-6">
               {reviews.map((review, index) => (
-                <Card key={index} className="flex flex-col p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+                <Card key={index} className="flex flex-col w-full max-w-2xl p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                   <CardContent className="flex flex-col items-center text-center p-0 flex-grow">
                     <Avatar className="w-20 h-20 mb-4 border-2 border-primary">
                       <AvatarImage src={review.avatarSrc} data-ai-hint={review.aiHint} />
@@ -217,3 +217,5 @@ export default function HomePage() {
     </Layout>
   );
 }
+
+    
