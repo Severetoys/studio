@@ -37,14 +37,14 @@ const FeatureList = () => (
     <div className="relative w-full overflow-hidden bg-background py-4">
         <div className="flex animate-marquee whitespace-nowrap">
             {features.map((feature, index) => (
-                <span key={index} className="flex items-center mx-4 text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                <span key={index} className="flex items-center mx-4 text-muted-foreground text-lg">
+                    <CheckCircle className="h-5 w-5 mr-3 text-primary" />
                     {feature}
                 </span>
             ))}
             {features.map((feature, index) => (
-                 <span key={`dup-${index}`} className="flex items-center mx-4 text-muted-foreground" aria-hidden="true">
-                    <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                 <span key={`dup-${index}`} className="flex items-center mx-4 text-muted-foreground text-lg" aria-hidden="true">
+                    <CheckCircle className="h-5 w-5 mr-3 text-primary" />
                     {feature}
                 </span>
             ))}
@@ -93,19 +93,19 @@ export default function HomePageContent() {
         </div>
         
         <Button 
-            className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300 mt-4"
+            className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
             onClick={() => router.push('/auth')}>
             ENTRAR
         </Button>
-
-        <FeatureList />
       </div>
+      <FeatureList />
     </div>
   );
 }
     
 
     
+
 
 
 
