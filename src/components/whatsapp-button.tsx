@@ -40,16 +40,14 @@ const ContactButton = ({ href, bgColor, text, Icon }: ContactButtonProps) => (
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center group animate-in fade-in-0 slide-in-from-bottom-5"
+        className="flex items-center justify-end gap-3 group animate-in fade-in-0 slide-in-from-bottom-5"
         aria-label={text}
     >
-        <div className="flex items-center justify-end h-14">
-            <div className="bg-background/80 backdrop-blur-sm text-foreground rounded-l-lg px-4 h-full flex items-center">
-                <span className="text-base font-semibold">{text}</span>
-            </div>
-            <div className={cn("flex items-center justify-center text-white p-2 rounded-full h-14 w-14 shadow-lg", bgColor)}>
-                 <Icon className="h-8 w-8" />
-            </div>
+        <div className="bg-background/80 backdrop-blur-sm text-foreground rounded-lg px-4 h-12 flex items-center shadow-lg">
+            <span className="text-base font-semibold">{text}</span>
+        </div>
+        <div className={cn("flex items-center justify-center text-white rounded-full h-14 w-14 shadow-lg", bgColor)}>
+             <Icon className="h-8 w-8" />
         </div>
     </a>
 );
@@ -75,7 +73,7 @@ export default function WhatsAppButton() {
                 <ContactButton
                     href={whatsappUrl}
                     bgColor="bg-green-500"
-                    text="WhatsApp"
+                    text="WhatsApp Business"
                     Icon={WhatsAppIcon}
                 />
             </div>
