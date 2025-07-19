@@ -37,29 +37,37 @@ export default function WhatsAppButton() {
   const telegramUrl = `https://t.me/seu_usuario_telegram`; // Substitua pelo seu usuário do Telegram
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-4">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
         {isOpen && (
-            <div className="flex flex-col items-center gap-4 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-5">
-                <a 
-                    href={telegramUrl}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex h-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg px-4 animate-pulse-red-glow"
-                    aria-label="Fale conosco no Chat Secreto"
-                >
-                    <span className="mr-3 font-semibold">Chat Secreto</span>
-                    <TelegramIcon className="h-7 w-7" />
-                </a>
-                <a 
-                    href={whatsappUrl}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex h-14 items-center justify-center gap-2 rounded-full bg-green-500 text-white shadow-lg px-4 animate-pulse-green-glow"
-                    aria-label="Fale conosco no WhatsApp"
-                >
-                    <span className="font-semibold">Fale comigo no WhatsApp</span>
-                    <WhatsAppIcon className="h-8 w-8" />
-                </a>
+            <div className="flex flex-col items-end gap-4 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-5">
+                 <div className="flex items-center gap-3">
+                    <span className="bg-background/80 text-foreground text-sm font-semibold px-3 py-1 rounded-md shadow-lg">
+                        Chat Secreto
+                    </span>
+                    <a 
+                        href={telegramUrl}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg animate-pulse-red-glow"
+                        aria-label="Fale conosco no Chat Secreto"
+                    >
+                        <TelegramIcon className="h-7 w-7" />
+                    </a>
+                </div>
+                <div className="flex items-center gap-3">
+                     <span className="bg-background/80 text-foreground text-sm font-semibold px-3 py-1 rounded-md shadow-lg">
+                        WhatsApp
+                    </span>
+                    <a 
+                        href={whatsappUrl}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg animate-pulse-green-glow"
+                        aria-label="Fale conosco no WhatsApp"
+                    >
+                        <WhatsAppIcon className="h-8 w-8" />
+                    </a>
+                </div>
             </div>
         )}
 
