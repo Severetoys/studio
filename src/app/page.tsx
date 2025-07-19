@@ -199,56 +199,57 @@ export default function AuthPage() {
   );
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background font-sans">
-      <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl shadow-primary-glow">
-        <CardHeader className="text-center pb-2">
-          <div className="flex justify-center items-center mb-4">
-            <ShieldCheck className="h-12 w-12 text-primary" />
-          </div>
-          <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
-            AuthKit
-          </CardTitle>
-          <CardDescription className="text-muted-foreground pt-2">
-            Autenticação Facial Segura
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
-              <TabsTrigger value="signin">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin">
-                <div className="space-y-4 pt-4">
-                    <VideoPanel />
-                    <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
-                      <Fingerprint className="w-5 h-5 mr-2" />
-                      {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
-                    </Button>
-                </div>
-            </TabsContent>
-            <TabsContent value="signup">
-                <div className="space-y-4 pt-4">
-                    <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                    <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                    <VideoPanel />
-                     <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
-                      <Fingerprint className="w-5 h-5 mr-2" />
-                      {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
-                    </Button>
-                </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-      <footer className="mt-8 text-center text-sm text-muted-foreground max-w-md w-full">
-        <p>Copyrights © Italo Santos 2025 - Todos os direitos reservados</p>
-        <p>
-            <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
-        </p>
-        <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
-      </footer>
+    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background font-sans relative isolate">
+        <div className="absolute inset-0 -z-10 h-full w-full bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+        <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl shadow-primary-glow">
+            <CardHeader className="text-center pb-2">
+            <div className="flex justify-center items-center mb-4">
+                <ShieldCheck className="h-12 w-12 text-primary" />
+            </div>
+            <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
+                AuthKit
+            </CardTitle>
+            <CardDescription className="text-muted-foreground pt-2">
+                Autenticação Facial Segura
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
+                <TabsTrigger value="signin">Entrar</TabsTrigger>
+                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+                </TabsList>
+                <TabsContent value="signin">
+                    <div className="space-y-4 pt-4">
+                        <VideoPanel />
+                        <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
+                        <Fingerprint className="w-5 h-5 mr-2" />
+                        {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
+                        </Button>
+                    </div>
+                </TabsContent>
+                <TabsContent value="signup">
+                    <div className="space-y-4 pt-4">
+                        <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                        <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        <VideoPanel />
+                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
+                        <Fingerprint className="w-5 h-5 mr-2" />
+                        {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
+                        </Button>
+                    </div>
+                </TabsContent>
+            </Tabs>
+            </CardContent>
+        </Card>
+        <footer className="mt-8 text-center text-sm text-muted-foreground max-w-md w-full">
+            <p>Copyrights © Italo Santos 2025 - Todos os direitos reservados</p>
+            <p>
+                <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
+            </p>
+            <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
+        </footer>
     </main>
   );
 }
