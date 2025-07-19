@@ -3,7 +3,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { CornerDownRight, CheckCircle, MapPin } from 'lucide-react';
+import { CornerDownRight, CheckCircle, MapPin, Twitter, Instagram, Youtube, Facebook } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
