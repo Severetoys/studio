@@ -1,13 +1,14 @@
 
 'use server';
 /**
- * @fileOverview Fluxo de autenticação facial usando a API Google Vision.
- * Este arquivo implementa a lógica para verificação de usuário com base no reconhecimento facial.
+ * @fileOverview Fluxo de autenticação facial usando a API Google Vision e registrando dados em uma Planilha Google.
+ * Este arquivo implementa a lógica para verificação e registro de usuário com base no reconhecimento facial.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { ImageAnnotatorClient } from '@google-cloud/vision';
+import { appendToSheet } from '@/services/google-sheets';
 
 // Inicializa o cliente da API Vision, garantindo que ele use a conta de serviço do projeto.
 const visionClient = new ImageAnnotatorClient({
@@ -87,13 +88,6 @@ const verifyFaceFlow = ai.defineFlow(
   async ({ liveImage, name, email, phone }) => {
 
     const isRegistering = !!(name && email && phone);
-    if(isRegistering) {
-        console.log(`Registrando novo usuário: ${name} (${email})`);
-        // Em um aplicativo real, você salvaria os dados do usuário e os dados faciais em um banco de dados aqui.
-    } else {
-        console.log('Fazendo login de usuário existente.');
-        // Em um aplicativo real, você compararia o rosto da liveImage com um rosto armazenado aqui.
-    }
     
     const faceCheckResult = await detectSingleFace(liveImage);
 
@@ -102,6 +96,32 @@ const verifyFaceFlow = ai.defineFlow(
         isMatch: false,
         reason: faceCheckResult.error,
       };
+    }
+    
+    // Se for um registro e a verificação facial for bem-sucedida, salve na planilha.
+    if (isRegistering) {
+        console.log(`Registrando novo usuário: ${name} (${email}) e salvando na planilha.`);
+        try {
+            await appendToSheet({
+                timestamp: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+                name: name!,
+                email: email!,
+                imageId: liveImage,
+                // Colunas de vídeo e pagamento são deixadas em branco, conforme a lógica atual
+                videoBase64: '', 
+                paymentId: '',
+            });
+        } catch (error) {
+            console.error('Falha ao salvar na Planilha Google:', error);
+            // Decide se quer falhar a operação inteira se a planilha falhar.
+            // Por enquanto, vamos retornar um erro para o usuário.
+            return {
+                isMatch: false,
+                reason: 'A verificação do rosto foi bem-sucedida, mas houve um erro ao salvar seu registro. Tente novamente.',
+            };
+        }
+    } else {
+        console.log('Fazendo login de usuário existente.');
     }
     
     // Para esta demonstração, se um rosto for encontrado, a verificação é bem-sucedida.

@@ -7,15 +7,59 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, PlayCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useToast } from "@/hooks/use-toast";
+
+// Simula um email de usuário logado. Em uma aplicação real, isso viria de uma sessão.
+const FAKE_USER_EMAIL = "usuario.exemplo@email.com";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPaid, setIsPaid] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  const handlePayment = () => {
-    // Em um aplicativo real, aqui você integraria um gateway de pagamento.
-    // Para esta demonstração, vamos apenas simular o sucesso do pagamento.
-    setIsPaid(true);
+  const handlePayment = async () => {
+    setIsProcessingPayment(true);
+    toast({ title: 'Processando pagamento...', description: 'Aguarde um momento.' });
+
+    try {
+      // Simula a geração de um ID de pagamento.
+      const paymentId = `PAY-SIM-${Date.now()}`;
+
+      // Chama o nosso próprio endpoint de webhook para simular um sistema de pagamento externo.
+      const response = await fetch('/api/payment-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: FAKE_USER_EMAIL,
+          paymentId: paymentId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Falha ao processar o pagamento.');
+      }
+
+      toast({
+        title: 'Pagamento bem-sucedido!',
+        description: 'Seu acesso foi liberado.',
+      });
+      setIsPaid(true);
+
+    } catch (error: any) {
+      console.error('Erro ao simular pagamento:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro no Pagamento',
+        description: error.message || 'Não foi possível concluir o pagamento. Tente novamente.',
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const ExclusiveContent = () => (
@@ -54,9 +98,9 @@ export default function DashboardPage() {
         </CardContent>
         {!isPaid && (
             <CardFooter>
-                 <Button className="w-full h-11 text-base" onClick={handlePayment}>
+                 <Button className="w-full h-11 text-base" onClick={handlePayment} disabled={isProcessingPayment}>
                     <CreditCard className="mr-2" />
-                    Pagar para Liberar Acesso
+                    {isProcessingPayment ? 'Processando...' : 'Pagar para Liberar Acesso'}
                 </Button>
             </CardFooter>
         )}
