@@ -5,8 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { X } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const router = useRouter();
+  
+  const handleNavigate = (path: string) => {
+    router.push(path);
+    onClose();
+  };
+  
   return (
     <>
       <div 
@@ -33,7 +41,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>Untitled page</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
-            <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ASSINATURA</Link></li>
+            <li><Button variant="ghost" className="w-full justify-start p-3 text-base" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
             <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
              <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1" className="border-none">
