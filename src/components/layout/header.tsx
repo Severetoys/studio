@@ -11,7 +11,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between border-b border-border/40">
+      <div className="container flex h-14 max-w-screen-2xl items-center justify-between border-b border-primary/50">
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="icon" onClick={onMenuClick} className="text-muted-foreground hover:text-primary hover:bg-primary/10">
             <Menu className="h-6 w-6" />
