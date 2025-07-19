@@ -48,10 +48,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  // Define as rotas que não devem exibir o rodapé principal.
-  const noFooterRoutes = ['/canais'];
-  const showMainFooter = !noFooterRoutes.includes(pathname);
-  const showMainHeader = pathname !== '/dashboard' && pathname !== '/auth' && pathname !== '/old-auth-page';
+  // Define as rotas que não devem exibir o cabeçalho e rodapé principais.
+  const noMainLayoutRoutes = ['/dashboard', '/auth', '/old-auth-page'];
+  const showMainLayout = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
 
 
   return (
@@ -64,9 +63,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onClose={toggleSidebar} 
             onFetishSelect={handleFetishSelect} 
         />
-        {showMainHeader && <MainHeader />}
+        {showMainLayout && <MainHeader />}
         <main className="flex-grow">{children}</main>
-        {showMainFooter && <MainFooter />}
+        {showMainLayout && <MainFooter />}
       </div>
       {selectedFetish && (
         <FetishModal
