@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { GoogleAuthProvider, signInWithPopup, signInWithCustomToken } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Apple, Fingerprint, KeyRound, Mail, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { verifyFace } from '@/ai/flows/face-auth-flow';
 
@@ -34,6 +35,15 @@ export default function AuthPage() {
 
   useEffect(() => {
     const getCameraPermission = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast({
+          variant: 'destructive',
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access, which is required for Face ID.',
+        });
+        setHasCameraPermission(false);
+        return;
+      }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
@@ -88,15 +98,10 @@ export default function AuthPage() {
         
         try {
             const result = await verifyFace({ liveImage: imageBase64 });
-            if (result.isMatch) {
-                const customToken = result.token;
-                if (customToken) {
-                    await signInWithCustomToken(auth, customToken);
-                    toast({ title: 'Face ID Verified!', description: 'Redirecting to dashboard.' });
-                    router.push('/dashboard');
-                } else {
-                    throw new Error("No custom token returned from verification.");
-                }
+            if (result.isMatch && result.token) {
+                await signInWithCustomToken(auth, result.token);
+                toast({ title: 'Face ID Verified!', description: 'Redirecting to dashboard.' });
+                router.push('/dashboard');
             } else {
                 toast({
                     variant: 'destructive',
@@ -114,6 +119,13 @@ export default function AuthPage() {
         } finally {
             setIsVerifying(false);
         }
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Canvas Error',
+            description: 'Could not capture image from video stream.',
+        });
+        setIsVerifying(false);
     }
   };
 
@@ -147,6 +159,14 @@ export default function AuthPage() {
             </TabsList>
             <TabsContent value="login">
               <div className="space-y-4">
+                <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
+                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                    {!hasCameraPermission && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
+                          <p className="text-white text-center">Camera permission is required for Face ID.</p>
+                      </div>
+                    )}
+                 </div>
                 <AuthMethodButton onClick={handleGoogleSignIn} icon={<GoogleIcon />}>Sign in with Google</AuthMethodButton>
                 <AuthMethodButton icon={<Apple className="w-5 h-5" />}>Sign in with Apple</AuthMethodButton>
                 <AuthMethodButton onClick={handleFaceIdLogin} icon={<Fingerprint className="w-5 h-5" />} disabled={!hasCameraPermission || isVerifying}>
@@ -176,8 +196,13 @@ export default function AuthPage() {
                  <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
                     <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
                     {!hasCameraPermission && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                          <p className="text-white text-center p-4">Camera permission needed for Face ID registration.</p>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
+                        <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
+                          <AlertTitle>Camera Access Required</AlertTitle>
+                          <AlertDescription>
+                            Please allow camera access to register with Face ID.
+                          </AlertDescription>
+                        </Alert>
                       </div>
                     )}
                  </div>
@@ -202,3 +227,5 @@ export default function AuthPage() {
     </main>
   );
 }
+
+    
