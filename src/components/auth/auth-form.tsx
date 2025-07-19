@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +104,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} />
               </div>
-              <Button type="submit" className="w-full h-11 text-base bg-primary hover:bg-primary/90" disabled={isLoading}>
+              <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {authMode === 'login' ? 'Sign In' : 'Sign Up'} with Email
               </Button>
@@ -116,7 +114,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
             <SmsAuthForm />
           </TabsContent>
         </Tabs>
-        <Button variant="secondary" className="w-full h-12 text-base" onClick={onFaceAuthClick}>
+        <Button variant="outline" className="w-full h-11 text-base" onClick={onFaceAuthClick}>
           <ScanFace className="mr-2 h-5 w-5" />
           Authenticate with FaceID
         </Button>
