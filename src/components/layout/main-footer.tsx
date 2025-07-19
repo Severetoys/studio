@@ -64,7 +64,7 @@ const MainFooter = () => {
                                 <CarouselItem key={photo.id} className="basis-full">
                                   <div className="p-1 space-y-2">
                                     <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                                      <CardContent className="flex aspect-[1/2] items-center justify-center p-0">
+                                      <CardContent className="flex aspect-[9/16] items-center justify-center p-0">
                                         <Image
                                             src={photo.src}
                                             alt={`Foto da galeria ${gallery.id + 1}`}
@@ -75,7 +75,7 @@ const MainFooter = () => {
                                           />
                                       </CardContent>
                                     </Card>
-                                    <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
+                                    <p className="text-center text-primary text-shadow-neon-red-light text-sm tracking-widest uppercase">
                                         {photo.word}
                                     </p>
                                   </div>
@@ -148,4 +148,5 @@ const MainFooter = () => {
 export default MainFooter;
 
     
+
 
