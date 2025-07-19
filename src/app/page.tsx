@@ -1,18 +1,40 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/layout';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Fingerprint } from 'lucide-react';
+import AdultWarningDialog from '@/components/adult-warning-dialog';
 
 export default function HomePage() {
   const router = useRouter();
+  const [isWarningOpen, setIsWarningOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
+  useEffect(() => {
+    setIsClient(true);
+    const hasConfirmedAge = localStorage.getItem('ageConfirmed');
+    if (!hasConfirmedAge) {
+      setIsWarningOpen(true);
+    }
+  }, []);
+
+  const handleConfirmAge = () => {
+    localStorage.setItem('ageConfirmed', 'true');
+    setIsWarningOpen(false);
+  };
+
+  if (!isClient) {
+    return null; // Don't render anything on the server to avoid hydration mismatch
+  }
+  
   return (
     <Layout>
+      <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex-grow">
         <div className="relative w-full h-[60vh] text-center flex items-center justify-center bg-black">
           <Image
