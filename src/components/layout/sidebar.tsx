@@ -43,7 +43,7 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
         <nav className="p-4 overflow-y-auto h-[calc(100%-65px)]">
           <ul className="space-y-2">
             <li>
-              <Button variant="secondary" className="w-full justify-start text-base py-6">
+              <Button variant="secondary" className="w-full justify-start text-base py-6" onClick={() => handleNavigate('/auth')}>
                 +18 ADULT WORK
               </Button>
             </li>
@@ -88,3 +88,5 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
 };
 
 export default Sidebar;
+
+    

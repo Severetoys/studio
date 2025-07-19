@@ -6,267 +6,94 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, ArrowLeft, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Fingerprint, ArrowLeft, ScanFace, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
 
 import { verifyFace } from '@/ai/flows/face-auth-flow';
 
+// Mock SVG icons for G Pay and Apple Pay
+const GPayIcon = () => (
+    <svg width="48" height="20" viewBox="0 0 48 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11.5312 8.66406V11.1328H15.4609C15.2578 12.3359 14.1562 13.9609 11.5312 13.9609C9.21094 13.9609 7.30469 12.0625 7.30469 9.74219C7.30469 7.42188 9.21094 5.52344 11.5312 5.52344C12.7578 5.52344 13.625 6.00781 14.0703 6.4375L15.8984 4.63281C14.7188 3.53125 13.2578 2.92188 11.5312 2.92188C8.24219 2.92188 5.57031 5.57031 5.57031 9.74219C5.57031 13.9141 8.24219 16.5625 11.5312 16.5625C15.1484 16.5625 17.5 14.0703 17.5 9.92969C17.5 9.39844 17.4609 9.03125 17.3594 8.66406H11.5312Z" fill="white"/>
+        <path d="M25.8601 13.5719C25.8601 14.5328 25.1023 15.2516 24.1648 15.2516C23.2039 15.2516 22.4695 14.5328 22.4695 13.5719V5.91562H23.9617V13.5719C23.9617 13.7594 24.0476 13.8352 24.1648 13.8352C24.282 13.8352 24.3578 13.7594 24.3578 13.5719V5.91562H25.8601V13.5719Z" fill="white"/>
+        <path d="M30.7078 15.2516C31.7547 15.2516 32.5594 14.5328 32.5594 13.5719V11.0875C32.5594 10.025 31.9734 9.47031 31.1453 9.47031C30.5828 9.47031 30.1375 9.77812 29.8953 10.2164V9.525C29.8953 8.85312 29.5633 8.35312 28.8719 8.35312C28.2594 8.35312 27.8461 8.78281 27.8461 9.40781V13.5719C27.8461 14.5328 28.5828 15.2516 29.5437 15.2516C30.3484 15.2516 30.7078 14.7766 30.7078 14.2453V12.1891C31.1219 12.6031 31.5414 12.8352 32.0648 12.8352C32.3312 12.8352 32.5594 12.6273 32.5594 12.3539C32.5594 12.1273 32.4258 11.9648 32.2226 11.9406C31.6812 11.8906 31.3219 11.5156 31.0289 11.2352L30.7078 10.9328V11.8172C30.7078 13.1422 30.2328 13.8352 29.5437 13.8352C28.9734 13.8352 28.7961 13.4391 28.7961 12.8852V9.525C28.7961 9.20469 28.8461 8.94844 28.8719 8.80312C29.0852 8.85312 29.3203 8.92188 29.5187 8.92188C29.9898 8.92188 30.7078 8.66562 30.7078 7.55156V5.91562H32.5594V7.67344C32.5594 8.42812 31.9734 8.73281 31.4422 8.73281C31.0289 8.73281 30.7078 8.97188 30.7078 9.49531V10.7437C31.3914 9.87656 32.2469 9.37656 33.1945 9.37656C34.4211 9.37656 35.4383 10.2664 35.4383 11.7453V15.0266H33.9461V11.8422C33.9461 10.8562 33.4906 10.3328 32.6539 10.3328C31.8414 10.3328 31.1219 10.9578 31.1219 12.0672V13.5719C31.1219 14.5328 31.8328 15.2516 32.7805 15.2516C33.6414 15.2516 34.2539 14.7047 34.5469 14.0719L35.2578 14.2469C34.9148 15.2016 33.9461 15.7516 32.7805 15.7516C31.7547 15.7516 31.0289 15.2516 30.7078 14.65V15.1531H27.8711C28.1219 14.0969 29.1703 13.5969 30.0164 13.5969C30.3484 13.5969 30.7078 13.6703 30.7078 14.1234C30.7078 14.35 30.5594 14.5547 30.3234 14.5547C30.0156 14.5547 29.8953 14.325 29.8953 13.9891V11.0875C29.8953 10.8352 29.7469 10.6031 29.5187 10.6031C29.2922 10.6031 29.1422 10.8352 29.1422 11.0875V13.5719C29.1422 14.1234 29.5437 14.6516 30.2328 14.6516C30.4359 14.6516 30.5828 14.6516 30.7078 14.6516V15.2516H30.7078Z" fill="white"/>
+        <path d="M40.3808 12.3539C40.3808 11.6352 39.9058 11.1602 39.0538 11.1602C38.3093 11.1602 37.8808 11.6102 37.8808 12.282V15.0266H36.3786V5.91562H37.8808V8.66562C38.3558 8.22656 38.9038 7.85156 39.6738 7.85156C41.0995 7.85156 41.8823 8.85312 41.8823 10.2656V10.6273C41.5073 10.1641 40.9593 9.87656 40.3558 9.87656C39.2308 9.87656 38.4023 10.7328 38.4023 11.9406C38.4023 13.1422 39.3258 14.0719 40.5058 14.0719C41.1323 14.0719 41.7358 13.7844 42.1858 13.1922L42.2323 15.0266H43.7343V10.2891C43.7343 8.52656 42.4213 7.37656 40.8308 7.37656C39.5433 7.37656 38.5258 8.02656 37.9523 8.85312C37.8073 8.57812 37.3573 7.85156 36.3786 7.85156V9.47031H37.2843C37.3308 9.47031 37.3808 9.47031 37.4273 9.49531L37.8808 9.04844V12.282C37.8808 12.782 38.2133 13.2562 38.8073 13.2562C39.4273 13.2562 39.8808 12.8062 39.8808 12.1891C39.8808 11.7594 39.6238 11.4156 39.1495 11.4156C39.0295 11.4156 38.9308 11.4656 38.8558 11.5391C38.9308 10.7828 39.5933 10.1641 40.4058 10.1641C41.0558 10.1641 41.6823 10.5531 41.8093 11.1844C41.4823 11.5891 41.2808 12.0891 41.2808 12.6719C41.2808 13.8109 42.0858 14.5547 43.1618 14.5547H43.7343V12.6969C43.2343 12.4469 42.8058 12.0172 42.8058 11.3391C42.8058 10.8156 43.1618 10.4266 43.7343 10.3805V8.52656C42.8308 8.75938 42.3786 9.44531 42.3786 10.2891C42.3786 10.5781 42.4213 10.8422 42.5228 11.0875C42.1108 11.7844 41.7358 12.3539 41.7358 13.0641C41.7358 14.2453 42.7093 15.2516 43.8308 15.2516H45.3323V5.91562H43.7343V9.32812C43.3308 8.61562 42.6093 8.00156 41.7823 8.00156C40.8538 8.00156 40.3808 8.61562 40.3808 9.32812V12.3539H40.3808Z" fill="white"/>
+    </svg>
+);
+
+const ApplePayIcon = () => (
+    <svg width="48" height="20" viewBox="0 0 48 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12.2825 5.17498C13.6825 5.14498 15.2425 4.19998 16.3225 3.20998C15.5125 2.19998 14.2825 1.63498 13.0225 1.63498C10.5325 1.63498 8.5225 3.32998 8.5225 5.75998C8.5225 7.55998 9.7225 8.39998 11.0425 8.39998C12.3025 8.39998 12.9325 7.61998 14.2225 7.58998C14.2225 7.58998 12.9625 9.77998 11.1325 11.64C9.9325 12.87 9.0925 14.63 9.0925 16.5H10.5925C10.5925 14.93 11.2225 13.56 12.3025 12.48C13.3825 11.43 14.4325 9.92998 14.4325 9.89998C14.3725 9.89998 12.9925 9.17998 12.9925 7.43998C12.9925 7.43998 14.3125 6.62998 15.8425 6.62998C16.2925 6.62998 18.0025 6.80998 19.0525 5.39998C18.0625 3.53998 16.1425 2.84998 15.1525 2.75998C13.5925 2.60998 11.9725 3.32998 11.1325 3.32998C11.1325 3.32998 11.5825 1.70998 13.0525 0.53998C11.6425 0.0599805 10.0525 0 8.5825 0C6.0025 0 3.7525 1.52998 2.5825 3.89998C0.00250049 8.87998 3.8725 14.34 6.7825 16.5C7.9225 17.37 9.1225 18.39 10.6525 18.42C12.0325 18.42 12.5725 17.76 14.1925 17.76C15.8125 17.76 16.4125 18.42 17.8225 18.39C19.2325 18.36 20.2525 17.25 20.8825 16.26C21.4225 15.42 21.6025 14.61 21.6325 14.58C21.5725 14.58 19.3525 13.65 19.3525 11.1C19.3525 8.96998 21.0325 7.76998 21.3325 7.55998C19.9525 6.35998 18.1525 5.81998 17.4325 5.66998C15.8725 5.33998 14.5525 6.17998 14.2225 6.17998C14.2225 6.17998 13.0525 5.20498 12.2825 5.17498Z" fill="white"/>
+        <path d="M28.455 12.245C28.455 11.135 29.115 10.595 30.305 10.595C31.525 10.595 32.125 11.165 32.125 12.125C32.125 12.775 31.845 13.145 31.065 13.435L32.415 16.5H30.825L29.745 13.775H29.565V16.5H28.455V12.245ZM29.565 12.875H30.015C30.675 12.875 31.065 12.575 31.065 12.155C31.065 11.705 30.675 11.465 30.045 11.465C29.415 11.465 29.565 11.705 29.565 12.155V12.875Z" fill="white"/>
+        <path d="M37.7949 16.5V11.465C37.7949 10.975 37.5449 10.655 37.0049 10.595L37.1549 9.875C37.3649 9.905 37.5749 9.935 37.7949 9.935V10.565H38.7849V9.935C39.2649 9.935 39.7149 9.755 39.7149 9.155C39.7149 8.635 39.2949 8.455 38.7849 8.455V7.825H39.7149V6.835H37.7949V6.205C37.5749 6.205 37.3649 6.235 37.1549 6.265L37.0049 5.545C37.5449 5.485 37.7949 5.165 37.7949 4.675V0H33.5049V16.5H34.6149V9.065C34.6149 7.825 35.1549 7.225 36.1449 7.225C37.1349 7.225 37.6449 7.825 37.6449 9.065V16.5H38.7849H42.7149V11.465C42.7149 10.975 42.4649 10.655 41.9249 10.595L42.0749 9.875C42.2849 9.905 42.4949 9.935 42.7149 9.935V10.565H43.7049V9.935C44.1849 9.935 44.6349 9.755 44.6349 9.155C44.6349 8.635 44.2149 8.455 43.7049 8.455V7.825H44.6349V6.835H42.7149V6.205C42.4949 6.205 42.2849 6.235 42.0749 6.265L41.9249 5.545C42.4649 5.485 42.7149 5.165 42.7149 4.675V0H38.9349V16.5H37.7949Z" fill="white"/>
+    </svg>
+);
+
+
 export default function AuthPage() {
-  const { toast } = useToast();
   const router = useRouter();
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-
-  // State for registration form
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const videoCallbackRef = useCallback((node: HTMLVideoElement | null) => {
-    if (node) {
-      videoRef.current = node;
-      if (mediaStream && node.srcObject !== mediaStream) {
-        node.srcObject = mediaStream;
-      }
-    }
-  }, [mediaStream]);
-
-  useEffect(() => {
-    if (!isClient) return;
-
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast({
-          variant: 'destructive',
-          title: 'Câmera não Suportada',
-          description: 'Seu navegador não suporta acesso à câmera.',
-        });
-        setHasCameraPermission(false);
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-        setMediaStream(stream);
-      } catch (error) {
-        console.error('Erro ao acessar a câmera:', error);
-        setHasCameraPermission(false);
-        setMediaStream(null);
-        toast({
-          variant: 'destructive',
-          title: 'Acesso à Câmera Negado',
-          description: 'Por favor, habilite as permissões da câmera nas configurações do seu navegador.',
-        });
-      }
-    };
-    if (!mediaStream) {
-        getCameraPermission();
-    }
-
-    return () => {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-      }
-    }
-  }, [isClient, toast, mediaStream]);
-
-  const captureImage = (): string | null => {
-    if (!videoRef.current || videoRef.current.readyState < 3 || videoRef.current.videoWidth === 0) {
-      toast({
-          variant: 'destructive',
-          title: 'Erro de Inicialização',
-          description: 'A câmera ainda está inicializando. Por favor, tente novamente em um momento.',
-      });
-      return null;
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const context = canvas.getContext('2d');
-    
-    if (context) {
-        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/jpeg');
-    }
-    
-    toast({
-        variant: 'destructive',
-        title: 'Erro no Canvas',
-        description: 'Não foi possível capturar a imagem do stream de vídeo.',
-    });
-    return null;
+  
+  const handleFaceIdClick = () => {
+    // For now, this just redirects to the old face auth page.
+    // In a real scenario, this might trigger a modal or a different flow.
+    router.push('/old-auth-page'); 
   };
   
-  const handleAuthAction = async (action: 'login' | 'register') => {
-    if (!hasCameraPermission) {
-        toast({
-            variant: 'destructive',
-            title: 'Câmera não está Pronta',
-            description: 'Por favor, conceda acesso à câmera e espere ela inicializar.',
-        });
-        return;
-    }
-    
-    if (action === 'register' && (!name || !email || !phone)) {
-      toast({
-        variant: 'destructive',
-        title: 'Formulário Incompleto',
-        description: 'Por favor, preencha todos os campos antes de se cadastrar.',
-      });
-      return;
-    }
-
-    setIsVerifying(true);
-    toast({ title: 'Verificando Face ID...', description: 'Por favor, olhe para a câmera.' });
-
-    const imageBase64 = captureImage();
-    
-    if (imageBase64) {
-        try {
-            const result = await verifyFace({ 
-              liveImage: imageBase64,
-              ...(action === 'register' && { name, email, phone })
-            });
-
-            if (result.isMatch) {
-                toast({ title: 'Face ID Verificado!', description: 'Redirecionando para o painel.' });
-                router.push('/dashboard');
-            } else {
-                toast({
-                    variant: 'destructive',
-                    title: 'Falha no Face ID',
-                    description: result.reason || 'Não foi possível verificar sua identidade. Por favor, tente novamente.',
-                });
-            }
-        } catch (error: any) {
-            console.error(error);
-            toast({
-                variant: 'destructive',
-                title: 'Ocorreu um Erro',
-                description: error.message || 'Algo deu errado durante a verificação do Face ID.',
-            });
-        } finally {
-            setIsVerifying(false);
-        }
-    } else {
-        setIsVerifying(false);
-    }
+  const handlePaymentClick = (method: 'gpay' | 'applepay') => {
+    // This is a placeholder for the payment logic.
+    // It will simulate the payment flow and redirect to the dashboard on success.
+    console.log(`Initiating payment with ${method}`);
+    router.push('/dashboard'); 
   };
-
-  const VideoPanel = () => (
-    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border border-primary/20 shadow-[0_0_20px_hsl(var(--primary))]">
-      {isClient ? (
-        <>
-          <video ref={videoCallbackRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-          {isVerifying && <div className="absolute inset-0 laser-scanner"></div>}
-          {!hasCameraPermission && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
-              <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
-                <AlertTitle>Acesso à Câmera Necessário</AlertTitle>
-                <AlertDescription>
-                  Por favor, permita o acesso à câmera para usar esta funcionalidade.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center bg-muted">
-          <p className="text-muted-foreground">Carregando Câmera...</p>
-        </div>
-      )}
-    </div>
-  );
-
-  const InputField = ({ id, label, icon, type, value, onChange }: { id: string, label: string, icon: React.ReactNode, type: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
-    <div className="space-y-2">
-      <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
-        {icon} {label}
-      </Label>
-      <Input id={id} type={type} value={value} onChange={onChange} required className="h-11 bg-background/50 border-primary/30 focus:shadow-primary-glow" />
-    </div>
-  );
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background font-sans relative isolate">
         <div className="absolute inset-0 -z-10 h-full w-full bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
-        <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl">
-            <CardHeader className="text-center pb-2 relative">
+        <Card className="w-full max-w-sm shadow-2xl border-primary/20 bg-card/90 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-500">
+            <CardHeader className="text-center pb-4 relative">
             <Button variant="ghost" size="icon" className="absolute top-4 left-4" onClick={() => router.push('/')}>
               <ArrowLeft />
             </Button>
-            <div className="flex justify-center items-center mb-4 pt-8">
-                <ShieldCheck className="h-12 w-12 text-primary" />
+            <div className="flex justify-center items-center mb-2 pt-8">
+                <ScanFace className="h-16 w-16 text-primary" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
-                AuthKit
-            </CardTitle>
-            <CardDescription className="text-muted-foreground pt-2">
-                Autenticação Facial Segura
-            </CardDescription>
             </CardHeader>
-            <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
-                </TabsList>
-                <TabsContent value="signin">
-                    <div className="space-y-4 pt-4">
-                        <VideoPanel />
-                        <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
-                        <Fingerprint className="w-5 h-5 mr-2" />
-                        {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
-                        </Button>
-                    </div>
-                </TabsContent>
-                <TabsContent value="signup">
-                    <div className="space-y-4 pt-4">
-                        <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                        <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                        <VideoPanel />
-                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
-                        <Fingerprint className="w-5 h-5 mr-2" />
-                        {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
-                        </Button>
-                    </div>
-                </TabsContent>
-            </Tabs>
+            <CardContent className="flex flex-col items-center gap-6 px-6 pb-6">
+                <Button 
+                  onClick={handleFaceIdClick} 
+                  className="w-full h-14 bg-zinc-800 hover:bg-zinc-700 text-white text-xl font-semibold"
+                >
+                  Face ID
+                </Button>
+                
+                <div className="flex w-full items-center gap-4">
+                    <Separator className="flex-1 bg-border/30" />
+                    <span className="text-xs text-muted-foreground">OU</span>
+                    <Separator className="flex-1 bg-border/30" />
+                </div>
+
+                <div className="w-full grid grid-cols-2 gap-4">
+                    <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-black text-white border border-white/20 hover:bg-zinc-900">
+                        <GPayIcon />
+                    </Button>
+                    <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-black text-white border border-white/20 hover:bg-zinc-900">
+                        <ApplePayIcon />
+                    </Button>
+                </div>
+                
+                <Separator className="w-full bg-border/30" />
+
+                <div className="text-center">
+                    <p className="text-sm text-muted-foreground">ASSINATURA</p>
+                    <p className="text-4xl font-bold text-amber-300 tracking-tight">
+                        99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
+                    </p>
+                </div>
             </CardContent>
         </Card>
-        <Separator className="my-8 bg-border/20 max-w-md w-full" />
-        <footer className="text-center text-sm text-muted-foreground max-w-md w-full">
-            <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
-            <p>
-                <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
-            </p>
-            <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
-            <div className="flex justify-center gap-4 mt-4">
-                <Link href="#" aria-label="Twitter">
-                    <Twitter className="h-5 w-5 hover:text-primary" />
-                </Link>
-                <Link href="#" aria-label="Instagram">
-                    <Instagram className="h-5 w-5 hover:text-primary" />
-                </Link>
-                <Link href="#" aria-label="YouTube">
-                    <Youtube className="h-5 w-5 hover:text-primary" />
-                </Link>
-            </div>
-        </footer>
     </main>
   );
 }
+
+    
