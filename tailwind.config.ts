@@ -124,7 +124,11 @@ export default {
             '50%': {
               boxShadow: '0 0 25px hsl(var(--primary)), 0 0 40px hsl(var(--primary))'
             }
-        }
+        },
+        'marquee': {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -132,6 +136,7 @@ export default {
         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'pulse-green-glow': 'pulse-green-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'pulse-red-glow': 'pulse-red-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'marquee': 'marquee 25s linear infinite',
       },
     },
   },

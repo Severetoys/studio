@@ -26,26 +26,32 @@ const ApplePayIcon = () => (
 );
 
 
+const features = [
+    "Conteúdo exclusivo e sem censura.",
+    "Acesso a vídeos e ensaios completos.",
+    "Atualizações semanais com novas produções.",
+    "Comunidade e interação direta.",
+];
+
 const FeatureList = () => (
-    <ul className="space-y-3 text-left w-full">
-        <li className="flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-primary" />
-            <span>Conteúdo exclusivo e sem censura.</span>
-        </li>
-        <li className="flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-primary" />
-            <span>Acesso a vídeos e ensaios completos.</span>
-        </li>
-        <li className="flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-primary" />
-            <span>Atualizações semanais com novas produções.</span>
-        </li>
-        <li className="flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-primary" />
-            <span>Comunidade e interação direta.</span>
-        </li>
-    </ul>
+    <div className="relative w-full overflow-hidden bg-background py-4">
+        <div className="flex animate-marquee whitespace-nowrap">
+            {features.map((feature, index) => (
+                <span key={index} className="flex items-center mx-4 text-muted-foreground">
+                    <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                    {feature}
+                </span>
+            ))}
+            {features.map((feature, index) => (
+                 <span key={`dup-${index}`} className="flex items-center mx-4 text-muted-foreground" aria-hidden="true">
+                    <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                    {feature}
+                </span>
+            ))}
+        </div>
+    </div>
 );
+
 
 export default function HomePageContent() {
   const router = useRouter();
@@ -76,10 +82,6 @@ export default function HomePageContent() {
         
         <Separator className="w-full bg-border/30" />
 
-        <FeatureList />
-        
-        <Separator className="w-full bg-border/30" />
-
         <div className="text-center">
             <p className="text-sm text-muted-foreground">ASSINATURA</p>
             <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
@@ -92,6 +94,8 @@ export default function HomePageContent() {
             onClick={() => router.push('/auth')}>
             ENTRAR
         </Button>
+
+        <FeatureList />
       </div>
     </div>
   );
@@ -99,5 +103,6 @@ export default function HomePageContent() {
     
 
     
+
 
 
