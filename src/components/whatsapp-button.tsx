@@ -44,7 +44,7 @@ export default function WhatsAppButton() {
                     href={telegramUrl}
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex h-14 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg px-4 animate-pulse-blue-glow"
+                    className="flex h-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg px-4 animate-pulse-red-glow"
                     aria-label="Fale conosco no Chat Secreto"
                 >
                     <span className="mr-3 font-semibold">Chat Secreto</span>

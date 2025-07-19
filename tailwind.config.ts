@@ -117,12 +117,12 @@ export default {
             boxShadow: '0 0 25px #22c55e, 0 0 40px #22c55e'
           }
         },
-        'pulse-blue-glow': {
+        'pulse-red-glow': {
             '0%, 100%': {
-              boxShadow: '0 0 15px #3b82f6, 0 0 25px #3b82f6'
+              boxShadow: '0 0 15px hsl(var(--primary)), 0 0 25px hsl(var(--primary))'
             },
             '50%': {
-              boxShadow: '0 0 25px #3b82f6, 0 0 40px #3b82f6'
+              boxShadow: '0 0 25px hsl(var(--primary)), 0 0 40px hsl(var(--primary))'
             }
         }
       },
@@ -131,7 +131,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'pulse-green-glow': 'pulse-green-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'pulse-blue-glow': 'pulse-blue-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-red-glow': 'pulse-red-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
