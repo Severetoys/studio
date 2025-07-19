@@ -18,7 +18,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
       <main className="flex-grow">{children}</main>
       <footer className="w-full p-4 text-center text-sm text-muted-foreground">
-        <p>Copyrights © Italo Santos 2025 - Todos os direitos reservados</p>
+        <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
         <p>
             <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
         </p>
