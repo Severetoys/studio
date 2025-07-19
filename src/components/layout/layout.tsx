@@ -50,8 +50,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Define as rotas que NÃO devem exibir o cabeçalho e rodapé principais.
-  const noMainLayoutRoutes = ['/dashboard', '/auth', '/old-auth-page', '/dashboard/videos'];
-  const showMainLayoutHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
+  const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos'];
+  const showMainHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
   const showMainFooter = pathname === '/';
   const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/';
 
@@ -65,7 +65,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onClose={toggleSidebar} 
             onFetishSelect={handleFetishSelect} 
         />
-        {showMainLayoutHeader && <MainHeader />}
+        {showMainHeader && <MainHeader />}
         <main className="flex-grow">{children}</main>
         {showMainFooter && <MainFooter />}
         {showSiteFooter && <SiteFooter />}
