@@ -12,8 +12,8 @@ import AdultWarningDialog from '@/components/adult-warning-dialog';
 import { Separator } from '@/components/ui/separator';
 import WhatsAppButton from '@/components/whatsapp-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
-// Mock SVG icons for G Pay and Apple Pay
 const GPayIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="20" viewBox="0 0 51.998 20.768">
       <g transform="translate(-256.346 -393.662)">
@@ -55,20 +55,22 @@ export default function HomePage() {
 
    const handlePaymentClick = (method: 'gpay' | 'applepay') => {
     console.log(`Initiating payment with ${method}`);
-    // Ação de pagamento a ser implementada
-    // Por enquanto, apenas redireciona para o dashboard como um placeholder de sucesso
     router.push('/dashboard'); 
   };
 
 
   if (!isClient) {
-    return null; // Don't render anything on the server to avoid hydration mismatch
+    return null;
   }
   
-  const photos = Array.from({ length: 24 }, (_, i) => ({
-    src: `https://placehold.co/800x1200.png`,
-    hint: i % 2 === 0 ? "fashion editorial" : "urban model",
+  const galleries = Array.from({ length: 8 }, (_, i) => ({
     id: i,
+    title: `Galeria ${i + 1}`,
+    photos: Array.from({ length: 5 }, (_, p) => ({
+      src: `https://placehold.co/800x1200.png`,
+      hint: p % 2 === 0 ? "fashion editorial" : "urban model",
+      id: p,
+    }))
   }));
   
   const reviews = [
@@ -119,7 +121,7 @@ export default function HomePage() {
         <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6">
             <Button 
                 className="w-full max-w-sm h-14 bg-zinc-800 hover:bg-zinc-700 text-white text-xl font-semibold"
-                onClick={() => router.push('/old-auth-page')}>
+                onClick={() => router.push('/auth')}>
                 <Fingerprint className="h-8 w-8 mr-4" />
                 Face ID
             </Button>
@@ -153,23 +155,36 @@ export default function HomePage() {
             </div>
         </div>
         
-        <div className="px-4 md:px-8 py-8">
-            <div className="flex flex-col items-center gap-8">
-                {photos.map((photo) => (
-                    <Card key={photo.id} className="w-full max-w-xl overflow-hidden shadow-lg">
-                        <CardContent className="p-0">
-                            <Image
-                                src={photo.src}
-                                alt={`Foto da galeria ${photo.id + 1}`}
-                                width={800}
-                                height={1200}
-                                className="w-full h-auto object-cover"
-                                data-ai-hint={photo.hint}
-                            />
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+        <div className="px-4 md:px-8 py-8 space-y-8">
+            {galleries.map((gallery) => (
+              <div key={gallery.id}>
+                 <h2 className="text-2xl font-bold mb-4 px-4">{gallery.title}</h2>
+                 <Carousel className="w-full">
+                    <CarouselContent>
+                        {gallery.photos.map((photo) => (
+                           <CarouselItem key={photo.id} className="md:basis-1/2 lg:basis-1/3">
+                             <div className="p-1">
+                               <Card className="overflow-hidden">
+                                 <CardContent className="flex aspect-[2/3] items-center justify-center p-0">
+                                   <Image
+                                      src={photo.src}
+                                      alt={`Foto da galeria ${gallery.id + 1}`}
+                                      width={800}
+                                      height={1200}
+                                      className="w-full h-full object-cover"
+                                      data-ai-hint={photo.hint}
+                                    />
+                                 </CardContent>
+                               </Card>
+                             </div>
+                           </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="ml-14" />
+                    <CarouselNext className="mr-14" />
+                 </Carousel>
+              </div>
+            ))}
         </div>
 
         <div className="px-4 md:px-8 py-12 bg-background">
