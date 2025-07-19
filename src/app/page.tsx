@@ -161,7 +161,7 @@ export default function HomePage() {
                  <Carousel className="w-full">
                     <CarouselContent>
                         {gallery.photos.map((photo) => (
-                           <CarouselItem key={photo.id} className="md:basis-1/2 lg:basis-1/3">
+                           <CarouselItem key={photo.id}>
                              <div className="p-1">
                                <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                                  <CardContent className="flex aspect-[2/3] items-center justify-center p-0">
