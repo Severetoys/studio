@@ -1,5 +1,4 @@
 // src/lib/firebase-admin.ts
-'use server';
 /**
  * @fileOverview Initializes and exports the Firebase Admin SDK instance.
  * This ensures that the SDK is initialized only once across the server-side application.
