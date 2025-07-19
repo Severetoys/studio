@@ -99,8 +99,8 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12 text-base bg-white text-black hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105" onClick={() => handlePaymentClick('Google')}>
-                <GoogleIcon className="mr-2 h-5 w-5" /> Pay
+            <Button variant="outline" className="h-12 text-base bg-black text-white hover:bg-gray-800 transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center border-gray-600" onClick={() => handlePaymentClick('Google')}>
+                <span className="mr-1">Pay</span> <GoogleIcon className="h-5 w-5" />
             </Button>
             <ApplePayButton onClick={() => handlePaymentClick('Apple')} />
         </div>
