@@ -15,6 +15,38 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     onClose();
   };
   
+  const fetishCategories = {
+    "Dirty": ["urinolagnia", "scat", "olfactofilia", "omorash", "pissing", "podolatria", "salirophilia", "ass-to-mouth"],
+    "Leather/Latex": ["leather/latex", "leather", "leather/clothed-sex"],
+    "Fantasy": ["cenoura-play", "daddyboy", "adult-nursing", "hirsutofilia", "clamping", "feederism", "tickling"],
+    "Knife-Play/E-Stim": ["knife-play/e-stim-play", "knife-play/axe-play", "knife-play/wax-play", "knife-play"],
+    "Muscle Worship": ["muscle-worship", "muscle-worship/thigh-worship"],
+    "Dominação e Submissão": [
+      "candle-wax-play", "military-play", "pet-play/pony-play", "pet-play",
+      "butt-plug-play", "medical-play", "ass-play", "food-play", "gender-play",
+      "temperature-play", "necro-play", "role-play", "diaper-play", "furry-play",
+      "blood-play", "public-play", "pet-play/puppy-play", "pet-play",
+      "diaper-play", "furry-play", "blood-play", "public-play"
+    ],
+    "Sadomasoquismo": [
+      "masterslave", "anal-hook", "spanking", "nipple-torture", "tease-and-denial",
+      "candle-wax", "inflamation", "tickle-torture", "sounding", "asfixiofilia",
+      "castration-fantasy", "cbt", "choking", "breath-control"
+    ],
+    "Mumification": ["mumification", "breast-bondage", "shibari/cock-ring", "bondage", "shibari/chastity", "shibari/hogtie", "shibari"],
+    "Sex": [
+      "cuckolding", "oral-worship", "rimming", "voyeurismo", "gang-bang",
+      "voyeurismo-social", "voyeurismo-exibicionista", "cuckolding", "garganta-profunda",
+      "dp", "glory-hole", "ball-gag"
+    ],
+    "Interracial Fetish": [
+      "super-hero-fetish", "inch-high-fetish", "barber-fetish", "armpit-fetish",
+      "inflatulabe-suit-fetish", "body-hair-fetish"
+    ],
+    "Sissy/Crossdresser": ["sissy/crossdresser-cd", "sissy", "sissy/drag"],
+    "Outros": ["cum-play", "humiliation-play", "uniform-play", "findom", "enema-play", "nipple-play"]
+  };
+
   return (
     <>
       <div 
@@ -28,7 +60,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <X className="h-6 w-6" />
           </Button>
         </div>
-        <nav className="p-4">
+        <nav className="p-4 overflow-y-auto h-[calc(100%-65px)]">
           <ul className="space-y-2">
             <li>
               <Button variant="secondary" className="w-full justify-start text-base py-6">
@@ -44,13 +76,27 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <li><Button variant="ghost" className="w-full justify-start p-3 text-base" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
             <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
              <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1" className="border-none">
+              <AccordionItem value="fetish-bdsm" className="border-none">
                 <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md">FETISH & BDSM</AccordionTrigger>
-                <AccordionContent className="pl-6">
-                  <ul className="space-y-2 pt-2">
-                    <li><Link href="#" className="block p-2 rounded-md hover:bg-muted/50" onClick={onClose}>Sub-item 1</Link></li>
-                    <li><Link href="#" className="block p-2 rounded-md hover:bg-muted/50" onClick={onClose}>Sub-item 2</Link></li>
-                  </ul>
+                <AccordionContent className="pl-4">
+                  <Accordion type="multiple" className="w-full">
+                    {Object.entries(fetishCategories).map(([category, items]) => (
+                      <AccordionItem key={category} value={category} className="border-none">
+                        <AccordionTrigger className="py-2 px-2 text-sm hover:no-underline hover:bg-muted/50 rounded-md">{category}</AccordionTrigger>
+                        <AccordionContent className="pl-4">
+                          <ul className="space-y-1 pt-1">
+                            {items.map((item) => (
+                              <li key={item}>
+                                <Link href="#" className="block p-2 text-xs rounded-md hover:bg-muted/50" onClick={onClose}>
+                                  {item.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -62,3 +108,5 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 };
 
 export default Sidebar;
+
+    
