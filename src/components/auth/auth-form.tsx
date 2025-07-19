@@ -101,8 +101,8 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
             <Button variant="outline" className="h-12 text-base bg-white text-black hover:bg-gray-200" onClick={() => handlePaymentClick('Google')}>
                 <GoogleIcon className="mr-2 h-5 w-5" /> Pay
             </Button>
-            <Button variant="outline" className="h-12 text-base bg-black text-white hover:bg-gray-800 border-gray-600" onClick={() => handlePaymentClick('Apple')}>
-                <AppleIcon className="mr-2 h-5 w-5 fill-white" /> Pay
+            <Button variant="outline" className="h-12 text-base bg-white text-black hover:bg-gray-200 border-gray-600" onClick={() => handlePaymentClick('Apple')}>
+                <AppleIcon className="mr-2 h-5 w-5 fill-black" /> Pay
             </Button>
         </div>
 
