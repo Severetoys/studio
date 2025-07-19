@@ -100,16 +100,16 @@ export default function HomePageContent() {
         <Separator className="w-full bg-primary/50" />
 
         <div className="text-left w-full space-y-4 text-muted-foreground">
-            <h2 className="text-2xl font-bold text-primary text-shadow-neon-red-light text-center">Sobre</h2>
+            <h2 className="text-2xl font-bold text-primary text-shadow-neon-red-light text-center mb-6">Sobre</h2>
             
-            <h3 className="font-semibold text-primary/90">Características Físicas</h3>
-            <p>1,69m de altura e 70kg com cabelo castanho claro corpo atlético magro definido um dote de 20cm. Fetichista elite. Costumo dizer isso pois para meus servos o cachê que pagam indiferente em suas vidas.</p>
-
+            <h3 className="font-semibold text-primary/90 text-lg">Características Físicas</h3>
+            <p>1,69m de altura e 70kg com cabelo castanho claro corpo atlético magro definido um dote de 20cm.</p>
+            <p>Fetichista elite. Costumo dizer isso pois para meus servos o cachê que pagam indiferente em suas vidas.</p>
             <p>Independentemente do status social trato todos igualmente mesmo aqueles que só possam ter o prazer de desfrutar da minha companhia uma vez ao mês.</p>
             <p>Sou cordial e autoritário, o acompanhante ideal para te iniciar em suas maiores fantasias sexuais.</p>
             
-            <h3 className="font-semibold text-primary/90">Durante as sessões</h3>
-            <p>Gosto de proporcionar experiências únicas libertando os desejos mais obscuros e reprimidos. Realizo vários fetiches sendo minhas práticas com mais experiência: D/s, fisting, pet-play, pissing, spit, leather, anal play, nipple play, ass play, spanking, humilhação, CBT, wax, sissificação, e-stim, bondage, asfixia. Disponho de acessórios e brinquedos para aquecer a relação.</p>
+            <h3 className="font-semibold text-primary/90 text-lg mt-6">Durante as sessões</h3>
+            <p>Gosto de proporcionar experiências únicas libertando os desejos mais obscuros e reprimidos. Realizo vários fetichessendo minhas práticas com mais experiência: D/s, fisting, pet-play, pissing, spit, leather, anal play, nipple play, ass play, spanking, humilhação, CBT, wax, sissificação, e-stim, bondage, asfixia. Disponho de acessórios e brinquedos para aquecer a relação.</p>
             <p>Para aqueles que não têm fantasias e fetiches, podemos ter uma relação sexual normal sem práticas.</p>
             <p>Tudo à disposição em um ambiente climatizado, seguro e confortável, com chuveiro quente, toalha limpa, sabonete, álcool gel, camisinha e lubrificante. Contrate-me no WhatsApp e me encontre aqui no meu local.</p>
         </div>
