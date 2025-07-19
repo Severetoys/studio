@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AppleIcon, GoogleIcon } from "./icons";
+import { GoogleIcon } from "./icons";
+import { ApplePayButton } from "./apple-pay-button";
 import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "@/lib/firebase";
@@ -101,9 +102,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
             <Button variant="outline" className="h-12 text-base bg-white text-black hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105" onClick={() => handlePaymentClick('Google')}>
                 <GoogleIcon className="mr-2 h-5 w-5" /> Pay
             </Button>
-            <Button variant="outline" className="h-12 text-base bg-white text-black border-input hover:bg-white hover:shadow-md transition-all duration-300 ease-in-out transform hover:scale-105" onClick={() => handlePaymentClick('Apple')}>
-                <AppleIcon className="mr-2 h-5 w-5 fill-black" /> Pay
-            </Button>
+            <ApplePayButton onClick={() => handlePaymentClick('Apple')} />
         </div>
 
 
