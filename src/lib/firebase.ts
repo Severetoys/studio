@@ -2,7 +2,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 
-// Your web app's Firebase configuration
+// Your web app's Firebase configuration - This is for client-side SDKs if needed, not for Admin.
 const firebaseConfig = {
   apiKey: "AIzaSyC7yaXjEFWFORvyLyHh1O5SPYjRCzptTg8",
   authDomain: "authkit-y9vjx.firebaseapp.com",
