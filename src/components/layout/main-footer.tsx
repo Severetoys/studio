@@ -3,11 +3,10 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { CornerDownRight, CheckCircle } from 'lucide-react';
+import { CornerDownRight, CheckCircle, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import SiteFooter from './site-footer';
 import { Button } from '@/components/ui/button';
 
 interface Review {
@@ -188,13 +187,33 @@ const MainFooter = () => {
                   </div>
                 ))}
             </div>
-            
+
             <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
-                <div className="text-center mb-12">
-                    <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
-                </div>
-            
                 <div className="max-w-4xl w-full mx-auto">
+                     <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red flex items-center justify-center gap-2">
+                        <MapPin className="h-8 w-8 text-primary"/>
+                        Localização
+                    </h2>
+                    <Card className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 mb-12">
+                        <CardContent className="p-2">
+                             <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.145944983025!2d-46.656539084476!3d-23.56306366754635!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0x2665c5b4e7b6a4b!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%20Brasil!5e0!3m2!1spt-BR!2sus!4v1625845012345!5m2!1spt-BR!2sus"
+                                width="100%"
+                                height="450"
+                                style={{ border: 0 }}
+                                allowFullScreen={true}
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                            ></iframe>
+                        </CardContent>
+                    </Card>
+
+                    <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
+
+                    <div className="text-center mb-12">
+                        <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
+                    </div>
+                
                     <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
                     <div className="flex flex-col items-center gap-6">
                       {reviews.map((review, index) => (
@@ -203,7 +222,6 @@ const MainFooter = () => {
                     </div>
                 </div>
             </div>
-            <SiteFooter />
         </>
     );
 };
