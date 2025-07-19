@@ -1,7 +1,10 @@
 
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { MessageSquare, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
     <svg 
@@ -14,20 +17,62 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+const TelegramIcon = ({ className }: { className?: string }) => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="0 0 24 24" 
+        fill="currentColor" 
+        className={className}
+    >
+        <path d="M21.8,3.2c-0.4-0.3-0.9-0.4-1.4-0.1L3.9,8.6C3.4,8.8,3,9.3,3,9.8s0.4,1,0.9,1.2l4.9,1.6l1.6,4.9c0.2,0.5,0.7,0.9,1.2,0.9c0.1,0,0.2,0,0.3,0c0.5-0.1,0.9-0.4,1.1-0.8l5.5-16.5C22.2,4.1,22.1,3.5,21.8,3.2z M17.2,7.2L11,13.4l-3.3-1.1L17.2,7.2z M10.1,16.2l-1.1-3.3l6.2-6.2L10.1,16.2z" />
+    </svg>
+);
+
+
 export default function WhatsAppButton() {
-  const phoneNumber = "5511999999999"; // Substitua pelo seu número
+  const [isOpen, setIsOpen] = useState(false);
+  const phoneNumber = "5511999999999";
   const message = "Olá! Gostaria de mais informações.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const telegramUrl = `https://t.me/seu_usuario_telegram`; // Substitua pelo seu usuário do Telegram
 
   return (
-    <a 
-      href={whatsappUrl}
-      target="_blank" 
-      rel="noopener noreferrer" 
-      className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white shadow-lg animate-pulse-green-glow"
-      aria-label="Fale conosco no WhatsApp"
-    >
-      <WhatsAppIcon className="h-8 w-8" />
-    </a>
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-4">
+        {isOpen && (
+            <div className="flex flex-col items-center gap-4 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-5">
+                <a 
+                    href={telegramUrl}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex h-14 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg px-4 animate-pulse-blue-glow"
+                    aria-label="Fale conosco no Chat Secreto"
+                >
+                    <span className="mr-3 font-semibold">Chat Secreto</span>
+                    <TelegramIcon className="h-7 w-7" />
+                </a>
+                <a 
+                    href={whatsappUrl}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex h-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg px-4 animate-pulse-green-glow"
+                    aria-label="Fale conosco no WhatsApp"
+                >
+                    <span className="mr-3 font-semibold">Fale comigo no WhatsApp</span>
+                    <WhatsAppIcon className="h-8 w-8" />
+                </a>
+            </div>
+        )}
+
+        <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className={cn(
+                "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                isOpen ? "bg-red-600 hover:bg-red-700" : "bg-primary hover:bg-primary/90"
+            )}
+            aria-label="Abrir opções de chat"
+        >
+            {isOpen ? <X className="h-8 w-8" /> : <MessageSquare className="h-8 w-8" />}
+        </button>
+    </div>
   );
 }

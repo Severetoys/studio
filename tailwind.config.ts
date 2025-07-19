@@ -116,6 +116,14 @@ export default {
           '50%': {
             boxShadow: '0 0 25px #22c55e, 0 0 40px #22c55e'
           }
+        },
+        'pulse-blue-glow': {
+            '0%, 100%': {
+              boxShadow: '0 0 15px #3b82f6, 0 0 25px #3b82f6'
+            },
+            '50%': {
+              boxShadow: '0 0 25px #3b82f6, 0 0 40px #3b82f6'
+            }
         }
       },
       animation: {
@@ -123,6 +131,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'pulse-green-glow': 'pulse-green-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-blue-glow': 'pulse-blue-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
