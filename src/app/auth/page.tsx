@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, ArrowLeft } from 'lucide-react';
+import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, ArrowLeft, Twitter, Instagram, Youtube } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 
 import { verifyFace } from '@/ai/flows/face-auth-flow';
 
@@ -246,12 +248,24 @@ export default function AuthPage() {
             </Tabs>
             </CardContent>
         </Card>
-        <footer className="mt-8 text-center text-sm text-muted-foreground max-w-md w-full">
+        <Separator className="my-8 bg-border/20 max-w-md w-full" />
+        <footer className="text-center text-sm text-muted-foreground max-w-md w-full">
             <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
             <p>
                 <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
             </p>
             <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
+            <div className="flex justify-center gap-4 mt-4">
+                <Link href="#" aria-label="Twitter">
+                    <Twitter className="h-5 w-5 hover:text-primary" />
+                </Link>
+                <Link href="#" aria-label="Instagram">
+                    <Instagram className="h-5 w-5 hover:text-primary" />
+                </Link>
+                <Link href="#" aria-label="YouTube">
+                    <Youtube className="h-5 w-5 hover:text-primary" />
+                </Link>
+            </div>
         </footer>
     </main>
   );
