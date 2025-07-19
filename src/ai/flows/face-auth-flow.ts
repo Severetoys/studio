@@ -12,6 +12,7 @@ import { FaceAuthInput, FaceAuthInputSchema, FaceAuthOutput, FaceAuthOutputSchem
 import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { adminApp } from '@/lib/firebase-admin'; // Import the central admin app to ensure init
 import { getFirestore as getAdminFirestore } from 'firebase-admin/firestore';
+import { z } from 'zod';
 
 // Initialize Cloud Vision client with explicit credentials
 const visionClient = new ImageAnnotatorClient({
@@ -66,28 +67,43 @@ async function getSingleFaceAnnotation(imageBuffer: Buffer) {
     return face;
 }
 
+const RegisterFaceOutputSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
 
 /**
  * Registers a user's face in Firestore. It first verifies a single, clear face is present.
  * @param input The user ID and their photo data URI.
  * @returns A promise that resolves with a success message.
  */
-export async function registerFace(input: FaceAuthInput): Promise<{success: boolean; message: string}> {
-  console.log(`[registerFace] Starting registration for user: ${input.userId}`);
-  
-  const imageBuffer = dataUriToBuffer(input.photoDataUri);
-  await getSingleFaceAnnotation(imageBuffer); // This will throw an error if validation fails
-
-  try {
-    const userDocRef = db.collection("face_registrations").doc(input.userId);
-    await userDocRef.set({ photoDataUri: input.photoDataUri, registeredAt: new Date().toISOString() });
-    console.log(`[registerFace] Face registered and saved to Firestore for user: ${input.userId}`);
-    return { success: true, message: "Face registered successfully!" };
-  } catch (error) {
-    console.error("[registerFace] Error during Firestore operation:", error);
-    throw new Error("Failed to save face registration data due to a database error.");
-  }
+export async function registerFace(input: FaceAuthInput): Promise<z.infer<typeof RegisterFaceOutputSchema>> {
+  return registerFaceFlow(input);
 }
+
+const registerFaceFlow = ai.defineFlow(
+  {
+    name: 'registerFaceFlow',
+    inputSchema: FaceAuthInputSchema,
+    outputSchema: RegisterFaceOutputSchema,
+  },
+  async (input) => {
+    console.log(`[registerFace] Starting registration for user: ${input.userId}`);
+    
+    const imageBuffer = dataUriToBuffer(input.photoDataUri);
+    await getSingleFaceAnnotation(imageBuffer); // This will throw an error if validation fails
+
+    try {
+      const userDocRef = db.collection("face_registrations").doc(input.userId);
+      await userDocRef.set({ photoDataUri: input.photoDataUri, registeredAt: new Date().toISOString() });
+      console.log(`[registerFace] Face registered and saved to Firestore for user: ${input.userId}`);
+      return { success: true, message: "Face registered successfully!" };
+    } catch (error) {
+      console.error("[registerFace] Error during Firestore operation:", error);
+      throw new Error("Failed to save face registration data due to a database error.");
+    }
+  }
+);
 
 
 /**
