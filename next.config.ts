@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    // Correctly define layout property as 'fill' is a valid value
+    layoutRaw: true,
   },
 };
 

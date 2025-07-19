@@ -3,43 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', sans-serif;
-}
-
 @layer base {
   :root {
-    --background: 210 40% 96.1%; /* very light blue */
-    --foreground: 222.2 84% 4.9%;
-    --card: 210 40% 96.1%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 210 40% 96.1%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 0 84.2% 60.2%; /* Red */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 91.4%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 91.4%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 0 84.2% 60.2%; /* Red */
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 0 84.2% 60.2%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 2%;
+    --background: 0 0% 8%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
+    --card: 0 0% 12%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 98%;
@@ -53,11 +21,33 @@ body {
     --accent-foreground: 0 0% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
+    --border: 0 0% 20%;
     --input: 0 0% 15%;
     --ring: 0 72% 51%;
     --radius: 0.5rem;
-    --accent-shadow: 0 80% 50%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 72% 51%; /* Neon Red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 0 72% 51%; /* Neon Red */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 0 72% 51%;
+    --radius: 0.5rem;
   }
 }
 
@@ -67,28 +57,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-  }
-
-  .dark body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('/logo.png');
-    background-size: 200px;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.05;
-    z-index: -1;
-    animation: pulse-bg 10s infinite ease-in-out;
-  }
-
-  @keyframes pulse-bg {
-    0% { transform: scale(1); opacity: 0.05; }
-    50% { transform: scale(1.05); opacity: 0.08; }
-    100% { transform: scale(1); opacity: 0.05; }
   }
 }
 
