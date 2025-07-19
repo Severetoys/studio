@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -14,15 +14,27 @@ import { verifyFace } from '@/ai/flows/face-auth-flow';
 export default function AuthPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  // Set the video ref and connect the media stream
+  const videoCallbackRef = useCallback((node: HTMLVideoElement | null) => {
+    if (node) {
+      videoRef.current = node;
+      if (mediaStream && node.srcObject !== mediaStream) {
+        node.srcObject = mediaStream;
+      }
+    }
+  }, [mediaStream]);
+
+  // Request camera permission and set the stream
   useEffect(() => {
     if (!isClient) return;
 
@@ -39,12 +51,11 @@ export default function AuthPage() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
+        setMediaStream(stream);
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
+        setMediaStream(null);
         toast({
           variant: 'destructive',
           title: 'Camera Access Denied',
@@ -52,15 +63,16 @@ export default function AuthPage() {
         });
       }
     };
-    getCameraPermission();
+    if (!mediaStream) {
+        getCameraPermission();
+    }
 
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
       }
     }
-  }, [isClient, toast]);
+  }, [isClient, toast, mediaStream]);
 
   
   const handleFaceIdLogin = async () => {
@@ -73,8 +85,7 @@ export default function AuthPage() {
         return;
     }
     
-    // Definitive Fix: Ensure the video stream is actively playing and has valid dimensions.
-    if (!videoRef.current || videoRef.current.videoWidth === 0) {
+    if (!videoRef.current || videoRef.current.readyState < 3 || videoRef.current.videoWidth === 0) {
       toast({
           variant: 'destructive',
           title: 'Initialization Error',
@@ -139,7 +150,7 @@ export default function AuthPage() {
     <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border">
       {isClient ? (
         <>
-          <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+          <video ref={videoCallbackRef} className="w-full h-full object-cover" autoPlay muted playsInline />
           {!hasCameraPermission && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
               <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
