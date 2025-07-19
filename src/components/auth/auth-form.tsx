@@ -15,8 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GoogleIcon } from "./icons";
-import { ApplePayButton } from "./apple-pay-button";
 import { Mail, MessageCircle, ScanFace, Loader2 } from "lucide-react";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "@/lib/firebase";
@@ -70,13 +68,6 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
     }
   };
 
-  const handlePaymentClick = (provider: 'Google' | 'Apple') => {
-    toast({
-      title: "Funcionalidade em Desenvolvimento",
-      description: `A integração com ${provider} Pay ainda não foi implementada.`,
-    });
-  };
-
   return (
     <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
       <CardHeader className="text-center">
@@ -93,26 +84,7 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">
-              Pague com
-            </span>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12 text-base" onClick={() => handlePaymentClick('Google')}>
-                <GoogleIcon className="h-6 w-6 mr-2" /> Pay
-            </Button>
-            <ApplePayButton onClick={() => handlePaymentClick('Apple')} />
-        </div>
-
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">
-              Ou continue com
+              Continue com
             </span>
           </div>
         </div>
