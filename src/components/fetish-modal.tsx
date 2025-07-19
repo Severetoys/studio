@@ -9,7 +9,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Image from 'next/image';
 import type { Fetish } from '@/lib/fetish-data';
 
 interface FetishModalProps {
@@ -25,16 +24,9 @@ export default function FetishModal({ fetish, isOpen, onClose }: FetishModalProp
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] p-0 bg-card border-primary shadow-neon-red-strong">
         <ScrollArea className="max-h-[90vh]">
-          <div className="relative h-64 w-full">
-            <Image
-              src={fetish.imageUrl}
-              alt={`Imagem representando ${fetish.title}`}
-              fill
-              objectFit="cover"
-              className="opacity-80"
-              data-ai-hint={fetish.aiHint}
-            />
-             <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+          <div className="relative h-64 w-full overflow-hidden">
+            <div className="absolute inset-0 animate-gradient-bg bg-[length:200%_200%] bg-gradient-to-br from-background via-primary/30 to-background" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
           </div>
           <div className="p-6 pt-0 -mt-8 relative z-10">
             <DialogHeader>
