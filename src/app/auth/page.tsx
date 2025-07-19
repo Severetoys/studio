@@ -61,14 +61,10 @@ export default function AuthPage() {
   const router = useRouter();
   
   const handleFaceIdClick = () => {
-    // For now, this just redirects to the old face auth page.
-    // In a real scenario, this might trigger a modal or a different flow.
     router.push('/old-auth-page'); 
   };
   
   const handlePaymentClick = (method: 'gpay' | 'applepay') => {
-    // This is a placeholder for the payment logic.
-    // It will simulate the payment flow and redirect to the dashboard on success.
     console.log(`Initiating payment with ${method}`);
     router.push('/dashboard'); 
   };
@@ -112,7 +108,7 @@ export default function AuthPage() {
 
                 <div className="text-center">
                     <p className="text-sm text-muted-foreground">ASSINATURA</p>
-                    <p className="text-4xl font-bold text-amber-300 tracking-tight">
+                    <p className="text-4xl font-bold text-amber-400 tracking-tight animate-pulse-glow">
                         99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
                     </p>
                 </div>
