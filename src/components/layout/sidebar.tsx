@@ -17,35 +17,36 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   
   const fetishCategories = {
     "Dirty": ["urinolagnia", "scat", "olfactofilia", "omorash", "pissing", "podolatria", "salirophilia", "ass-to-mouth"],
-    "Leather/Latex": ["leather/latex", "leather", "leather/clothed-sex"],
+    "Leather/Latex": ["leather-latex", "leather", "leather-clothed-sex"],
     "Fantasy": ["cenoura-play", "daddyboy", "adult-nursing", "hirsutofilia", "clamping", "feederism", "tickling"],
-    "Knife-Play/E-Stim": ["knife-play/e-stim-play", "knife-play/axe-play", "knife-play/wax-play", "knife-play"],
-    "Muscle Worship": ["muscle-worship", "muscle-worship/thigh-worship"],
+    "Knife-Play/E-Stim": ["knife-play-e-stim-play", "knife-play-axe-play", "knife-play-wax-play", "knife-play"],
+    "Muscle Worship": ["muscle-worship", "muscle-worship-thigh-worship"],
     "Dominação e Submissão": [
-      "candle-wax-play", "military-play", "pet-play/pony-play", "pet-play",
+      "candle-wax-play", "military-play", "pet-play-pony-play", "pet-play",
       "butt-plug-play", "medical-play", "ass-play", "food-play", "gender-play",
       "temperature-play", "necro-play", "role-play", "diaper-play", "furry-play",
-      "blood-play", "public-play", "pet-play/puppy-play", "pet-play",
-      "diaper-play", "furry-play", "blood-play", "public-play"
+      "blood-play", "public-play", "pet-play-puppy-play"
     ],
     "Sadomasoquismo": [
       "masterslave", "anal-hook", "spanking", "nipple-torture", "tease-and-denial",
       "candle-wax", "inflamation", "tickle-torture", "sounding", "asfixiofilia",
       "castration-fantasy", "cbt", "choking", "breath-control"
     ],
-    "Mumification": ["mumification", "breast-bondage", "shibari/cock-ring", "bondage", "shibari/chastity", "shibari/hogtie", "shibari"],
+    "Mumification": ["mumification", "breast-bondage", "shibari-cock-ring", "bondage", "shibari-chastity", "shibari-hogtie", "shibari"],
     "Sex": [
       "cuckolding", "oral-worship", "rimming", "voyeurismo", "gang-bang",
-      "voyeurismo-social", "voyeurismo-exibicionista", "cuckolding", "garganta-profunda",
+      "voyeurismo-social", "voyeurismo-exibicionista", "garganta-profunda",
       "dp", "glory-hole", "ball-gag"
     ],
     "Interracial Fetish": [
       "super-hero-fetish", "inch-high-fetish", "barber-fetish", "armpit-fetish",
       "inflatulabe-suit-fetish", "body-hair-fetish"
     ],
-    "Sissy/Crossdresser": ["sissy/crossdresser-cd", "sissy", "sissy/drag"],
+    "Sissy/Crossdresser": ["sissy-crossdresser-cd", "sissy", "sissy-drag"],
     "Outros": ["cum-play", "humiliation-play", "uniform-play", "findom", "enema-play", "nipple-play"]
   };
+  
+  const createSlug = (item: string) => item.toLowerCase().replace(/[\s_]+/g, '-').replace(/\//g, '-');
 
   return (
     <>
@@ -85,13 +86,16 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                         <AccordionTrigger className="py-2 px-2 text-sm hover:no-underline hover:bg-muted/50 rounded-md">{category}</AccordionTrigger>
                         <AccordionContent className="pl-4">
                           <ul className="space-y-1 pt-1">
-                            {items.map((item) => (
-                              <li key={item}>
-                                <Link href="#" className="block p-2 text-xs rounded-md hover:bg-muted/50" onClick={onClose}>
-                                  {item.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                </Link>
-                              </li>
-                            ))}
+                            {items.map((item) => {
+                              const slug = createSlug(item);
+                              return (
+                                <li key={item}>
+                                  <Link href={`/fetish/${slug}`} className="block p-2 text-xs rounded-md hover:bg-muted/50" onClick={onClose}>
+                                    {item.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </Link>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </AccordionContent>
                       </AccordionItem>
@@ -108,5 +112,3 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 };
 
 export default Sidebar;
-
-    

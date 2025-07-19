@@ -5,11 +5,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, ArrowRight, Twitter, Instagram, Youtube } from 'lucide-react';
+import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
 
 // Simula um email de usuário logado. Em uma aplicação real, isso viria de uma sessão.
 const FAKE_USER_EMAIL = "usuario.exemplo@email.com";
@@ -129,7 +127,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background gap-8">
+    <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background gap-8">
        <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-card backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-3 mb-4">
@@ -177,26 +175,6 @@ export default function DashboardPage() {
       </Card>
       
       <ExclusiveContent />
-
-      <Separator className="my-4 bg-border/20 max-w-md w-full" />
-      <footer className="text-center text-sm text-muted-foreground max-w-md w-full">
-        <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
-        <p>
-            <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
-        </p>
-        <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
-        <div className="flex justify-center gap-4 mt-4">
-            <Link href="#" aria-label="Twitter">
-                <Twitter className="h-5 w-5 hover:text-primary" />
-            </Link>
-            <Link href="#" aria-label="Instagram">
-                <Instagram className="h-5 w-5 hover:text-primary" />
-            </Link>
-            <Link href="#" aria-label="YouTube">
-                <Youtube className="h-5 w-5 hover:text-primary" />
-            </Link>
-        </div>
-      </footer>
     </main>
   );
 }

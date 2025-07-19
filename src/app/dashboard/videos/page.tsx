@@ -5,10 +5,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Twitter, Instagram, Youtube } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
 
 export default function VideosPage() {
   const router = useRouter();
@@ -35,7 +33,7 @@ export default function VideosPage() {
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background">
+    <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-4xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-card backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -80,25 +78,6 @@ export default function VideosPage() {
             </div>
         </CardContent>
       </Card>
-      <Separator className="my-8 bg-border/20 max-w-4xl w-full" />
-      <footer className="text-center text-sm text-muted-foreground max-w-md w-full">
-        <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
-        <p>
-            <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
-        </p>
-        <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
-        <div className="flex justify-center gap-4 mt-4">
-            <Link href="#" aria-label="Twitter">
-                <Twitter className="h-5 w-5 hover:text-primary" />
-            </Link>
-            <Link href="#" aria-label="Instagram">
-                <Instagram className="h-5 w-5 hover:text-primary" />
-            </Link>
-            <Link href="#" aria-label="YouTube">
-                <Youtube className="h-5 w-5 hover:text-primary" />
-            </Link>
-        </div>
-      </footer>
     </main>
   );
 }
