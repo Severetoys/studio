@@ -150,10 +150,6 @@ export default function HomePage() {
                 </p>
             </div>
             
-            <div className="mt-4 text-center">
-                <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
-            </div>
-
             <Button 
                 className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300 mt-4"
                 onClick={() => router.push('/auth')}>
@@ -164,9 +160,8 @@ export default function HomePage() {
         
         <div className="py-8 space-y-8">
             {galleries.map((gallery) => (
-              <div key={gallery.id} className="w-full px-4 md:px-8">
-                 <h2 className="text-2xl font-bold mb-4 px-4 text-shadow-neon-red-light">{gallery.title}</h2>
-                 <Carousel className="w-full" opts={{ loop: true }}>
+              <div key={gallery.id} className="w-full px-4 md:px-8 space-y-4">
+                 <Carousel className="w-full max-w-xl mx-auto" opts={{ loop: true }}>
                     <CarouselContent>
                         {gallery.photos.map((photo) => (
                            <CarouselItem key={photo.id}>
@@ -190,36 +185,43 @@ export default function HomePage() {
                     <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                     <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                  </Carousel>
+                 <p className="text-center text-muted-foreground text-sm tracking-widest uppercase">
+                    Acompanhante masculino sensualidade fantasia prazer bds fetiche fantasia
+                 </p>
               </div>
             ))}
         </div>
-
-        <div className="px-4 md:px-8 py-12 bg-background">
-          <Separator className="w-full max-w-4xl mx-auto bg-border/30" />
-          <div className="max-w-4xl mx-auto mt-12">
-            <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
-            <div className="flex flex-col items-center gap-6">
-              {reviews.map((review, index) => (
-                <Card key={index} className="flex flex-col w-full max-w-2xl p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                  <CardContent className="flex flex-col items-center text-center p-0 flex-grow">
-                    <Avatar className="w-20 h-20 mb-4 border-2 border-primary">
-                      <AvatarImage src={review.avatarSrc} data-ai-hint={review.aiHint} />
-                      <AvatarFallback>{review.avatarFallback}</AvatarFallback>
-                    </Avatar>
-                    <h3 className="font-semibold text-lg">{review.name}</h3>
-                    <div className="flex gap-1 my-2 text-primary">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-current" />
-                      ))}
-                    </div>
-                    <p className="text-muted-foreground text-sm flex-grow">{review.text}</p>
-                  </CardContent>
-                </Card>
-              ))}
+        
+        <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
+            <div className="text-center mb-12">
+                <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
             </div>
-          </div>
-        </div>
+        
+            <Separator className="w-full max-w-4xl mx-auto bg-border/30" />
 
+            <div className="max-w-4xl w-full mx-auto mt-12">
+                <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
+                <div className="flex flex-col items-center gap-6">
+                  {reviews.map((review, index) => (
+                    <Card key={index} className="flex flex-col w-full max-w-2xl p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+                      <CardContent className="flex flex-col items-center text-center p-0 flex-grow">
+                        <Avatar className="w-20 h-20 mb-4 border-2 border-primary">
+                          <AvatarImage src={review.avatarSrc} data-ai-hint={review.aiHint} />
+                          <AvatarFallback>{review.avatarFallback}</AvatarFallback>
+                        </Avatar>
+                        <h3 className="font-semibold text-lg">{review.name}</h3>
+                        <div className="flex gap-1 my-2 text-primary">
+                          {[...Array(review.rating)].map((_, i) => (
+                            <Star key={i} className="w-5 h-5 fill-current" />
+                          ))}
+                        </div>
+                        <p className="text-muted-foreground text-sm flex-grow">{review.text}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+            </div>
+        </div>
       </div>
       <WhatsAppButton />
     </Layout>
