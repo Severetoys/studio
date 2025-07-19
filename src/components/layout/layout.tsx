@@ -48,21 +48,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  // Define as rotas que não devem exibir o cabeçalho e rodapé principais.
+  // Define as rotas que NÃO devem exibir o cabeçalho e rodapé principais.
   const noMainLayoutRoutes = ['/dashboard', '/auth', '/old-auth-page'];
   const showMainLayout = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
-
 
   return (
     <>
       <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
-        <Header onMenuClick={toggleSidebar} />
-        <Sidebar 
-            isOpen={isSidebarOpen} 
-            onClose={toggleSidebar} 
-            onFetishSelect={handleFetishSelect} 
-        />
+        {/* O Header e a Sidebar agora são controlados por layouts mais específicos quando necessário (ex: Dashboard) ou por este layout global */}
+        {!noMainLayoutRoutes.some(route => pathname.startsWith(route)) && (
+            <>
+                <Header onMenuClick={toggleSidebar} />
+                <Sidebar 
+                    isOpen={isSidebarOpen} 
+                    onClose={toggleSidebar} 
+                    onFetishSelect={handleFetishSelect} 
+                />
+            </>
+        )}
         {showMainLayout && <MainHeader />}
         <main className="flex-grow">{children}</main>
         {showMainLayout && <MainFooter />}
