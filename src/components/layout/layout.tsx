@@ -48,8 +48,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  // Não mostrar o rodapé principal na página de canais
-  const showMainFooter = pathname !== '/canais';
+  // Define as rotas que não devem exibir o rodapé principal.
+  const noFooterRoutes = ['/canais'];
+  const showMainFooter = !noFooterRoutes.includes(pathname);
+  const showMainHeader = pathname !== '/dashboard' && pathname !== '/auth' && pathname !== '/old-auth-page';
+
 
   return (
     <>
@@ -61,7 +64,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onClose={toggleSidebar} 
             onFetishSelect={handleFetishSelect} 
         />
-        <MainHeader />
+        {showMainHeader && <MainHeader />}
         <main className="flex-grow">{children}</main>
         {showMainFooter && <MainFooter />}
       </div>
