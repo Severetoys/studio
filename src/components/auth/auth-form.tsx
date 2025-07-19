@@ -70,11 +70,10 @@ export function AuthForm({ onAuthSuccess, onFaceAuthClick }: AuthFormProps) {
 
   return (
     <Card className="w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 border-accent/20 bg-black/30 backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">{authMode === 'login' ? 'Welcome Back' : 'Create an Account'}</CardTitle>
-        <CardDescription>
-          {authMode === 'login' ? 'Choose your preferred method to sign in.' : 'Fill in your details to get started.'}
-        </CardDescription>
+       <CardHeader className="text-center">
+        <div className="flex justify-center items-center p-4">
+            <ScanFace className="w-16 h-16 text-primary" />
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         
