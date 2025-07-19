@@ -48,8 +48,8 @@ export default function AuthPage() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         toast({
           variant: 'destructive',
-          title: 'Camera Not Supported',
-          description: 'Your browser does not support camera access.',
+          title: 'Câmera não Suportada',
+          description: 'Seu navegador não suporta acesso à câmera.',
         });
         setHasCameraPermission(false);
         return;
@@ -59,13 +59,13 @@ export default function AuthPage() {
         setHasCameraPermission(true);
         setMediaStream(stream);
       } catch (error) {
-        console.error('Error accessing camera:', error);
+        console.error('Erro ao acessar a câmera:', error);
         setHasCameraPermission(false);
         setMediaStream(null);
         toast({
           variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings.',
+          title: 'Acesso à Câmera Negado',
+          description: 'Por favor, habilite as permissões da câmera nas configurações do seu navegador.',
         });
       }
     };
@@ -84,8 +84,8 @@ export default function AuthPage() {
     if (!videoRef.current || videoRef.current.readyState < 3 || videoRef.current.videoWidth === 0) {
       toast({
           variant: 'destructive',
-          title: 'Initialization Error',
-          description: 'Camera is still initializing. Please try again in a moment.',
+          title: 'Erro de Inicialização',
+          description: 'A câmera ainda está inicializando. Por favor, tente novamente em um momento.',
       });
       return null;
     }
@@ -102,8 +102,8 @@ export default function AuthPage() {
     
     toast({
         variant: 'destructive',
-        title: 'Canvas Error',
-        description: 'Could not capture image from video stream.',
+        title: 'Erro no Canvas',
+        description: 'Não foi possível capturar a imagem do stream de vídeo.',
     });
     return null;
   };
@@ -112,8 +112,8 @@ export default function AuthPage() {
     if (!hasCameraPermission) {
         toast({
             variant: 'destructive',
-            title: 'Camera Not Ready',
-            description: 'Please grant camera access and wait for it to initialize.',
+            title: 'Câmera não está Pronta',
+            description: 'Por favor, conceda acesso à câmera e espere ela inicializar.',
         });
         return;
     }
@@ -121,14 +121,14 @@ export default function AuthPage() {
     if (action === 'register' && (!name || !email || !phone)) {
       toast({
         variant: 'destructive',
-        title: 'Form Incomplete',
-        description: 'Please fill out all fields before registering.',
+        title: 'Formulário Incompleto',
+        description: 'Por favor, preencha todos os campos antes de se cadastrar.',
       });
       return;
     }
 
     setIsVerifying(true);
-    toast({ title: 'Verifying Face ID...', description: 'Please look at the camera.' });
+    toast({ title: 'Verificando Face ID...', description: 'Por favor, olhe para a câmera.' });
 
     const imageBase64 = captureImage();
     
@@ -140,21 +140,21 @@ export default function AuthPage() {
             });
 
             if (result.isMatch) {
-                toast({ title: 'Face ID Verified!', description: 'Redirecting to dashboard.' });
+                toast({ title: 'Face ID Verificado!', description: 'Redirecionando para o painel.' });
                 router.push('/dashboard');
             } else {
                 toast({
                     variant: 'destructive',
-                    title: 'Face ID Failed',
-                    description: result.reason || 'Could not verify your identity. Please try again.',
+                    title: 'Falha no Face ID',
+                    description: result.reason || 'Não foi possível verificar sua identidade. Por favor, tente novamente.',
                 });
             }
         } catch (error: any) {
             console.error(error);
             toast({
                 variant: 'destructive',
-                title: 'An Error Occurred',
-                description: error.message || 'Something went wrong during Face ID verification.',
+                title: 'Ocorreu um Erro',
+                description: error.message || 'Algo deu errado durante a verificação do Face ID.',
             });
         } finally {
             setIsVerifying(false);
@@ -173,9 +173,9 @@ export default function AuthPage() {
           {!hasCameraPermission && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
               <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
-                <AlertTitle>Camera Access Required</AlertTitle>
+                <AlertTitle>Acesso à Câmera Necessário</AlertTitle>
                 <AlertDescription>
-                  Please allow camera access to use this feature.
+                  Por favor, permita o acesso à câmera para usar esta funcionalidade.
                 </AlertDescription>
               </Alert>
             </div>
@@ -183,7 +183,7 @@ export default function AuthPage() {
         </>
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-muted">
-          <p className="text-muted-foreground">Loading Camera...</p>
+          <p className="text-muted-foreground">Carregando Câmera...</p>
         </div>
       )}
     </div>
@@ -209,33 +209,33 @@ export default function AuthPage() {
             AuthKit
           </CardTitle>
           <CardDescription className="text-muted-foreground pt-2">
-            Secure Face Authentication
+            Autenticação Facial Segura
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="signin">Entrar</TabsTrigger>
+              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
                 <div className="space-y-4 pt-4">
                     <VideoPanel />
                     <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
                       <Fingerprint className="w-5 h-5 mr-2" />
-                      {isVerifying ? 'Verifying...' : 'Sign in with Face ID'}
+                      {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
                     </Button>
                 </div>
             </TabsContent>
             <TabsContent value="signup">
                 <div className="space-y-4 pt-4">
-                    <InputField id="name" label="Full Name" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                    <InputField id="email" label="Email Address" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <InputField id="phone" label="Phone Number" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                    <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                     <VideoPanel />
                      <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
                       <Fingerprint className="w-5 h-5 mr-2" />
-                      {isVerifying ? 'Verifying...' : 'Register with Face ID'}
+                      {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
                     </Button>
                 </div>
             </TabsContent>
@@ -243,7 +243,7 @@ export default function AuthPage() {
         </CardContent>
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>Copyright © AuthKit 2025 - All rights reserved.</p>
+        <p>Copyright © AuthKit 2025 - Todos os direitos reservados.</p>
       </footer>
     </main>
   );

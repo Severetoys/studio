@@ -18,19 +18,19 @@ export default function DashboardPage() {
              <CheckCircle className="h-12 w-12 text-accent" />
           </div>
            <CardTitle className="text-3xl">
-                Login Successful
+                Login Bem-sucedido
             </CardTitle>
-          <CardDescription>Welcome to your secure dashboard.</CardDescription>
+          <CardDescription>Bem-vindo ao seu painel seguro.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center space-x-4 border-b border-border pb-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="profile avatar" />
+              <AvatarImage src="https://placehold.co/100x100.png" alt="Avatar do Usuário" data-ai-hint="profile avatar" />
               <AvatarFallback className="text-2xl bg-muted">U</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-xl font-bold">Authenticated User</h2>
-              <p className="text-sm text-muted-foreground">Access granted via Face ID</p>
+              <h2 className="text-xl font-bold">Usuário Autenticado</h2>
+              <p className="text-sm text-muted-foreground">Acesso concedido via Face ID</p>
             </div>
           </div>
           
@@ -39,21 +39,21 @@ export default function DashboardPage() {
                 <UserIcon className="h-5 w-5 text-accent" />
                 <p>
                     <span className="text-muted-foreground">Status: </span>
-                    <strong>Verified</strong>
+                    <strong>Verificado</strong>
                 </p>
             </div>
             <div className="flex items-center gap-4">
                 <BellRing className="h-5 w-5 text-accent" />
                 <p>
-                    <span className="text-muted-foreground">Notifications: </span>
-                    <strong>Enabled</strong>
+                    <span className="text-muted-foreground">Notificações: </span>
+                    <strong>Ativadas</strong>
                 </p>
             </div>
           </div>
 
           <Button className="w-full h-11 text-base" variant="secondary" onClick={() => router.push('/')}>
             <LogOut className="mr-2" />
-            Sign Out
+            Sair
           </Button>
         </CardContent>
       </Card>

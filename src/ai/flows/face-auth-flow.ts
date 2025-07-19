@@ -1,24 +1,24 @@
 
 'use server';
 /**
- * @fileOverview Face authentication flow using Google Vision API.
- * This file implements the logic for user verification based on facial recognition.
+ * @fileOverview Fluxo de autenticação facial usando a API Google Vision.
+ * Este arquivo implementa a lógica para verificação de usuário com base no reconhecimento facial.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { ImageAnnotatorClient } from '@google-cloud/vision';
 
-// Initialize the Vision API client, ensuring it uses the project's service account.
+// Inicializa o cliente da API Vision, garantindo que ele use a conta de serviço do projeto.
 const visionClient = new ImageAnnotatorClient({
   keyFilename: './serviceAccountKey.json',
 });
 
 /**
- * Helper function to detect a single face in a base64 encoded image.
- * This is the core verification logic.
- * @param imageBase64 The base64 encoded image string.
- * @returns An object indicating if a valid face was detected.
+ * Função auxiliar para detectar um único rosto em uma imagem codificada em base64.
+ * Esta é a lógica central de verificação.
+ * @param imageBase64 A string da imagem codificada em base64.
+ * @returns Um objeto indicando se um rosto válido foi detectado.
  */
 async function detectSingleFace(imageBase64: string): Promise<{
   faceFound: boolean;
@@ -26,55 +26,55 @@ async function detectSingleFace(imageBase64: string): Promise<{
 }> {
   try {
     if (!imageBase64 || !imageBase64.includes(',')) {
-        return { faceFound: false, error: 'Invalid or empty image data received.' };
+        return { faceFound: false, error: 'Dados de imagem inválidos ou vazios recebidos.' };
     }
 
     const [result] = await visionClient.faceDetection(Buffer.from(imageBase64.split(',')[1], 'base64'));
     const faces = result.faceAnnotations;
 
     if (!faces || faces.length === 0) {
-      return { faceFound: false, error: 'No face detected in the image.' };
+      return { faceFound: false, error: 'Nenhum rosto detectado na imagem.' };
     }
     if (faces.length > 1) {
-      return { faceFound: false, error: 'Multiple faces detected. Please ensure only one person is in the frame.' };
+      return { faceFound: false, error: 'Vários rostos detectados. Por favor, garanta que apenas uma pessoa esteja no quadro.' };
     }
     
     const face = faces[0];
     const confidence = face.detectionConfidence || 0;
 
     if (confidence < 0.85) {
-        return { faceFound: false, error: `Low face detection confidence: ${confidence.toFixed(2)}` };
+        return { faceFound: false, error: `Baixa confiança na detecção de rosto: ${confidence.toFixed(2)}` };
     }
     if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
-        return { faceFound: false, error: 'Image quality is too low (blurry or underexposed).'};
+        return { faceFound: false, error: 'A qualidade da imagem é muito baixa (borrada ou subexposta)..'};
     }
 
     return { faceFound: true };
 
   } catch (error: any) {
-    console.error('Google Vision API Error:', error);
-    return { faceFound: false, error: 'An error occurred during face analysis.' };
+    console.error('Erro na API Google Vision:', error);
+    return { faceFound: false, error: 'Ocorreu um erro durante a análise facial.' };
   }
 }
 
 
 const VerifyFaceInputSchema = z.object({
-  liveImage: z.string().describe("A base64 encoded image captured from the user's camera."),
+  liveImage: z.string().describe("Uma imagem codificada em base64 capturada da câmera do usuário."),
   name: z.string().optional(),
   email: z.string().email().optional(),
   phone: z.string().optional(),
 });
 
 const VerifyFaceOutputSchema = z.object({
-  isMatch: z.boolean().describe('Whether the face verification was successful.'),
-  reason: z.string().optional().describe('The reason for verification failure.'),
+  isMatch: z.boolean().describe('Se a verificação facial foi bem-sucedida.'),
+  reason: z.string().optional().describe('O motivo da falha na verificação.'),
 });
 
 
 /**
- * Genkit flow to verify a user's face.
- * If a valid face is detected in the live image, it returns success.
- * If registering, it could also save user data here.
+ * Fluxo Genkit para verificar o rosto de um usuário.
+ * Se um rosto válido for detectado na imagem ao vivo, ele retorna sucesso.
+ * Se estiver registrando, também poderia salvar os dados do usuário aqui.
  */
 const verifyFaceFlow = ai.defineFlow(
   {
@@ -86,11 +86,11 @@ const verifyFaceFlow = ai.defineFlow(
 
     const isRegistering = !!(name && email && phone);
     if(isRegistering) {
-        console.log(`Registering new user: ${name} (${email})`);
-        // In a real app, you would save the user data and face data to a database here.
+        console.log(`Registrando novo usuário: ${name} (${email})`);
+        // Em um aplicativo real, você salvaria os dados do usuário e os dados faciais em um banco de dados aqui.
     } else {
-        console.log('Logging in existing user.');
-        // In a real app, you would compare the liveImage face with a stored face here.
+        console.log('Fazendo login de usuário existente.');
+        // Em um aplicativo real, você compararia o rosto da liveImage com um rosto armazenado aqui.
     }
     
     const faceCheckResult = await detectSingleFace(liveImage);
@@ -102,15 +102,15 @@ const verifyFaceFlow = ai.defineFlow(
       };
     }
     
-    // For this demo, if a face is found, verification is successful.
+    // Para esta demonstração, se um rosto for encontrado, a verificação é bem-sucedida.
     return { isMatch: true };
   }
 );
 
 
 /**
- * Exported function to be called from the client-side.
- * It invokes the Genkit flow and returns its result.
+ * Função exportada para ser chamada do lado do cliente.
+ * Invoca o fluxo Genkit e retorna seu resultado.
  */
 export async function verifyFace(input: z.infer<typeof VerifyFaceInputSchema>): Promise<z.infer<typeof VerifyFaceOutputSchema>> {
     return await verifyFaceFlow(input);

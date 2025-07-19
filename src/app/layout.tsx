@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'AuthKit',
-  description: 'Secure and simple authentication for modern applications.',
+  description: 'Autenticação segura e simples para aplicações modernas.',
 };
 
 export default function RootLayout({
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-background`}>
         {children}
         <Toaster />
