@@ -9,6 +9,7 @@ import type { Fetish } from '@/lib/fetish-data';
 import AdultWarningDialog from '@/components/adult-warning-dialog';
 import MainHeader from './main-header';
 import MainFooter from './main-footer';
+import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -49,9 +50,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Define as rotas que NÃO devem exibir o cabeçalho e rodapé principais.
-  const noMainLayoutRoutes = ['/dashboard', '/auth', '/old-auth-page'];
+  const noMainLayoutRoutes = ['/dashboard', '/auth', '/old-auth-page', '/dashboard/videos'];
   const showMainLayoutHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
-  const showMainLayoutFooter = pathname === '/'; // Apenas mostra o rodapé na página inicial
+  const showMainFooter = pathname === '/';
+  const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/';
 
   return (
     <>
@@ -65,7 +67,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         />
         {showMainLayoutHeader && <MainHeader />}
         <main className="flex-grow">{children}</main>
-        {showMainLayoutFooter && <MainFooter />}
+        {showMainFooter && <MainFooter />}
+        {showSiteFooter && <SiteFooter />}
       </div>
       {selectedFetish && (
         <FetishModal
