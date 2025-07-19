@@ -2,8 +2,7 @@
 'use server';
 /**
  * @fileOverview Face authentication flow using Google Vision API.
- * This file implements the logic for user verification based on facial recognition,
- * inspired by the user's provided Google Apps Script.
+ * This file implements the logic for user verification based on facial recognition.
  */
 
 import { ai } from '@/ai/genkit';
@@ -17,7 +16,7 @@ const visionClient = new ImageAnnotatorClient({
 
 /**
  * Helper function to detect a single face in a base64 encoded image.
- * This is the core verification logic, similar to the `verifyUserLogin` in the user's script.
+ * This is the core verification logic.
  * @param imageBase64 The base64 encoded image string.
  * @returns An object indicating if a valid face was detected.
  */
@@ -26,7 +25,6 @@ async function detectSingleFace(imageBase64: string): Promise<{
   error?: string;
 }> {
   try {
-    // Definitive Fix: Add a resiliency check to ensure the base64 string is valid before sending.
     if (!imageBase64 || !imageBase64.includes(',')) {
         return { faceFound: false, error: 'Invalid or empty image data received.' };
     }
@@ -44,7 +42,6 @@ async function detectSingleFace(imageBase64: string): Promise<{
     const face = faces[0];
     const confidence = face.detectionConfidence || 0;
 
-    // Check for high confidence and basic quality metrics.
     if (confidence < 0.85) {
         return { faceFound: false, error: `Low face detection confidence: ${confidence.toFixed(2)}` };
     }
@@ -63,6 +60,9 @@ async function detectSingleFace(imageBase64: string): Promise<{
 
 const VerifyFaceInputSchema = z.object({
   liveImage: z.string().describe("A base64 encoded image captured from the user's camera."),
+  name: z.string().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
 });
 
 const VerifyFaceOutputSchema = z.object({
@@ -74,6 +74,7 @@ const VerifyFaceOutputSchema = z.object({
 /**
  * Genkit flow to verify a user's face.
  * If a valid face is detected in the live image, it returns success.
+ * If registering, it could also save user data here.
  */
 const verifyFaceFlow = ai.defineFlow(
   {
@@ -81,7 +82,17 @@ const verifyFaceFlow = ai.defineFlow(
     inputSchema: VerifyFaceInputSchema,
     outputSchema: VerifyFaceOutputSchema,
   },
-  async ({ liveImage }) => {
+  async ({ liveImage, name, email, phone }) => {
+
+    const isRegistering = !!(name && email && phone);
+    if(isRegistering) {
+        console.log(`Registering new user: ${name} (${email})`);
+        // In a real app, you would save the user data and face data to a database here.
+    } else {
+        console.log('Logging in existing user.');
+        // In a real app, you would compare the liveImage face with a stored face here.
+    }
+    
     const faceCheckResult = await detectSingleFace(liveImage);
 
     if (!faceCheckResult.faceFound) {
@@ -91,7 +102,7 @@ const verifyFaceFlow = ai.defineFlow(
       };
     }
     
-    // If a face is found, verification is successful.
+    // For this demo, if a face is found, verification is successful.
     return { isMatch: true };
   }
 );

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,33 +37,25 @@ body {
   }
 
   .dark {
-    --background: 204 10% 96%; /* #E3F2FD - Light Blue */
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 204 10% 96%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 204 10% 96%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 207 90% 69%; /* #64B5F6 - Calming Blue */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 207 90% 54%;
     --primary-foreground: 210 40% 98%;
-    
-    --secondary: 210 40% 91.4%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 91.4%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    
-    --accent: 123 48% 66%; /* #81C784 - Muted Green */
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 218 11% 65%;
+    --accent: 123 48% 66%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 207 90% 59%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 207 90% 54%;
     --radius: 0.5rem;
   }
 }
@@ -73,5 +66,37 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .laser-scanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(
+      to bottom,
+      hsla(180, 100%, 50%, 0),
+      hsla(180, 100%, 50%, 0.4) 49%,
+      hsl(180, 100%, 50%) 50%,
+      hsla(180, 100%, 50%, 0.4) 51%,
+      hsla(180, 100%, 50%, 0)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 4px;
+    animation: scan 2.5s linear infinite;
+    pointer-events: none;
+    box-shadow: 0 0 10px hsl(180, 100%, 50%);
+  }
+
+  @keyframes scan {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 0 100%;
+    }
   }
 }
