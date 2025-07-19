@@ -36,7 +36,7 @@ async function detectSingleFace(imageBase64: string): Promise<{
       return { faceFound: false, error: 'Nenhum rosto detectado na imagem.' };
     }
     if (faces.length > 1) {
-      return { faceFound: false, error: 'Vários rostos detectados. Por favor, garanta que apenas uma pessoa esteja no quadro.' };
+      return { faceFound: false, error: 'Múltiplos rostos detectados. Por favor, garanta que apenas uma pessoa esteja no quadro.' };
     }
     
     const face = faces[0];
@@ -64,17 +64,19 @@ const VerifyFaceInputSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().optional(),
 });
+export type VerifyFaceInput = z.infer<typeof VerifyFaceInputSchema>;
+
 
 const VerifyFaceOutputSchema = z.object({
   isMatch: z.boolean().describe('Se a verificação facial foi bem-sucedida.'),
   reason: z.string().optional().describe('O motivo da falha na verificação.'),
 });
+export type VerifyFaceOutput = z.infer<typeof VerifyFaceOutputSchema>;
 
 
 /**
  * Fluxo Genkit para verificar o rosto de um usuário.
  * Se um rosto válido for detectado na imagem ao vivo, ele retorna sucesso.
- * Se estiver registrando, também poderia salvar os dados do usuário aqui.
  */
 const verifyFaceFlow = ai.defineFlow(
   {
@@ -112,6 +114,6 @@ const verifyFaceFlow = ai.defineFlow(
  * Função exportada para ser chamada do lado do cliente.
  * Invoca o fluxo Genkit e retorna seu resultado.
  */
-export async function verifyFace(input: z.infer<typeof VerifyFaceInputSchema>): Promise<z.infer<typeof VerifyFaceOutputSchema>> {
+export async function verifyFace(input: VerifyFaceInput): Promise<VerifyFaceOutput> {
     return await verifyFaceFlow(input);
 }

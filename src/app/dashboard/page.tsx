@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, PlayCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function DashboardPage() {
   const router = useRouter();
