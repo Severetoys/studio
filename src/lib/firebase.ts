@@ -1,16 +1,8 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getMessaging } from "firebase/messaging";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyC7yaXjEFWFORvyLyHh1O5SPYjRCzptTg8",
   authDomain: "authkit-y9vjx.firebaseapp.com",
@@ -25,33 +17,4 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// --- INICIALIZAÇÃO DO APP CHECK ---
-// IMPORTANTE: Substitua a string abaixo pela sua chave de site do reCAPTCHA v3
-// Você pode obtê-la no Console do Google Cloud > Segurança > reCAPTCHA Enterprise
-if (typeof window !== 'undefined') {
-  // COLE SUA CHAVE DO RECAPTCHA V3 AQUI:
-  const reCaptchaV3SiteKey = "6LcH3IYrAAAAAB2TnGPZgFaQIHHmTnk2AbDEpSoJ";
-
-  if (reCaptchaV3SiteKey && reCaptchaV3SiteKey !== "SUA_RECAPTCHA_V3_SITE_KEY_AQUI") {
-      try {
-        initializeAppCheck(app, {
-          provider: new ReCaptchaV3Provider(reCaptchaV3SiteKey),
-          isTokenAutoRefreshEnabled: true
-        });
-        console.log("Firebase App Check inicializado com sucesso.");
-      } catch (error) {
-        console.error("Erro ao inicializar Firebase App Check:", error);
-      }
-  } else {
-      console.warn("AVISO: A chave do site reCAPTCHA v3 não foi configurada. O App Check não será inicializado, o que pode causar erros de autenticação.");
-  }
-}
-// --- FIM DA INICIALIZAÇÃO DO APP CHECK ---
-
-
-const auth = getAuth(app);
-const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
-const messaging = isSupported().then(yes => yes ? getMessaging(app) : null);
-
-
-export { app, auth, analytics, messaging, firebaseConfig };
+export { app, firebaseConfig };

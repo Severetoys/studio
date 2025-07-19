@@ -4,27 +4,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
-import { GoogleAuthProvider, signInWithPopup, signInWithCustomToken } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { Apple, Fingerprint, KeyRound, Mail, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Fingerprint, ShieldCheck } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { verifyFace } from '@/ai/flows/face-auth-flow';
-
-const GoogleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 48 48">
-    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
-    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
-    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
-    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C42.021,35.591,44,30.138,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
-  </svg>
-);
-
 
 export default function AuthPage() {
   const { toast } = useToast();
@@ -77,17 +62,6 @@ export default function AuthPage() {
     }
   }, [isClient, toast]);
 
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      toast({ title: "Signed in successfully", description: "Redirecting to your dashboard." });
-      router.push('/dashboard');
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Sign in failed", description: error.message });
-    }
-  };
   
   const handleFaceIdLogin = async () => {
     if (!hasCameraPermission || !videoRef.current) {
@@ -112,8 +86,7 @@ export default function AuthPage() {
         
         try {
             const result = await verifyFace({ liveImage: imageBase64 });
-            if (result.isMatch && result.token) {
-                await signInWithCustomToken(auth, result.token);
+            if (result.isMatch) {
                 toast({ title: 'Face ID Verified!', description: 'Redirecting to dashboard.' });
                 router.push('/dashboard');
             } else {
@@ -145,7 +118,7 @@ export default function AuthPage() {
 
 
   const AuthMethodButton = ({ icon, children, onClick, disabled }: { icon: React.ReactNode, children: React.ReactNode, onClick?: () => void, disabled?: boolean }) => (
-    <Button variant="outline" className="w-full justify-start h-12 text-base" onClick={onClick} disabled={disabled}>
+    <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={onClick} disabled={disabled}>
       {icon}
       <span className="flex-1 text-center">{children}</span>
     </Button>
@@ -186,58 +159,16 @@ export default function AuthPage() {
             AuthKit
           </CardTitle>
           <CardDescription className="text-muted-foreground pt-2">
-            Secure and simple authentication for modern applications.
+            Secure Face Authentication
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Sign In</TabsTrigger>
-              <TabsTrigger value="register">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <div className="space-y-4">
-                <VideoPanel />
-                <AuthMethodButton onClick={handleGoogleSignIn} icon={<GoogleIcon />}>Sign in with Google</AuthMethodButton>
-                <AuthMethodButton icon={<Apple className="w-5 h-5" />}>Sign in with Apple</AuthMethodButton>
-                <AuthMethodButton onClick={handleFaceIdLogin} icon={<Fingerprint className="w-5 h-5" />} disabled={!hasCameraPermission || isVerifying}>
-                  {isVerifying ? 'Verifying...' : 'Sign in with Face ID'}
-                </AuthMethodButton>
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-login">Email</Label>
-                  <Input id="email-login" type="email" placeholder="m@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-login">Password</Label>
-                  <Input id="password-login" type="password" />
-                </div>
-                <Button className="w-full h-11 text-base">Sign In</Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="register">
-              <div className="space-y-4">
-                <VideoPanel />
-                <AuthMethodButton icon={<Fingerprint className="w-5 h-5" />} disabled={!hasCameraPermission}>Register with Face ID</AuthMethodButton>
-                <div className="space-y-2">
-                  <Label htmlFor="email-register">Email</Label>
-                  <Input id="email-register" type="email" placeholder="m@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-register">Password</Label>
-                  <Input id="password-register" type="password" />
-                </div>
-                <Button className="w-full h-11 text-base">Create Account</Button>
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="space-y-4">
+            <VideoPanel />
+            <AuthMethodButton onClick={handleFaceIdLogin} icon={<Fingerprint className="w-5 h-5" />} disabled={!hasCameraPermission || isVerifying}>
+              {isVerifying ? 'Verifying...' : 'Sign in with Face ID'}
+            </AuthMethodButton>
+          </div>
         </CardContent>
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">

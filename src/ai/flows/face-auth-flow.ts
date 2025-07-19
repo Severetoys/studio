@@ -8,15 +8,10 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { ImageAnnotatorClient } from '@google-cloud/vision';
-import { getAuth } from 'firebase-admin/auth';
-import { adminApp } from '@/lib/firebase-admin';
 
 // Initialize the Vision API client, ensuring it uses the project's service account.
 const visionClient = new ImageAnnotatorClient({
-  auth: new (require('google-auth-library').GoogleAuth)({
-    keyFilename: './serviceAccountKey.json',
-    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-  }),
+  keyFilename: './serviceAccountKey.json',
 });
 
 /**
@@ -67,13 +62,12 @@ const VerifyFaceInputSchema = z.object({
 const VerifyFaceOutputSchema = z.object({
   isMatch: z.boolean().describe('Whether the face verification was successful.'),
   reason: z.string().optional().describe('The reason for verification failure.'),
-  token: z.string().optional().describe('A custom Firebase auth token if verification is successful.'),
 });
 
 
 /**
  * Genkit flow to verify a user's face.
- * If a valid face is detected in the live image, it generates a custom Firebase token.
+ * If a valid face is detected in the live image, it returns success.
  */
 const verifyFaceFlow = ai.defineFlow(
   {
@@ -91,17 +85,8 @@ const verifyFaceFlow = ai.defineFlow(
       };
     }
     
-    // As per the user's script, successful detection grants access.
-    // We generate a custom token for a generic, verified user.
-    // In a real app, you would look up the user by face vector similarity.
-    const userId = "verified_face_user"; // Placeholder user ID
-    try {
-        const customToken = await getAuth(adminApp).createCustomToken(userId);
-        return { isMatch: true, token: customToken };
-    } catch(error: any) {
-        console.error("Error creating custom token:", error);
-        return { isMatch: false, reason: "Failed to create authentication session."};
-    }
+    // If a face is found, verification is successful.
+    return { isMatch: true };
   }
 );
 
