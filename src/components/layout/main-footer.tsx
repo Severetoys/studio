@@ -86,7 +86,6 @@ const MainFooter = () => {
                           <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                       </Carousel>
                     </div>
-                     <p className="text-center text-muted-foreground mt-4">Acompanhante masculino sensualidade fantasia prazer bds fetiche fantasia</p>
                     <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
                   </div>
                 ))}
@@ -149,3 +148,4 @@ const MainFooter = () => {
 export default MainFooter;
 
     
+
