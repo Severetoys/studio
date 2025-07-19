@@ -150,8 +150,14 @@ export default function HomePage() {
             </div>
             
             <div className="mt-4 text-center">
-                <p className="text-4xl font-bold text-primary text-shadow-neon-red-light">IS</p>
+                <p className="text-8xl font-bold text-primary text-shadow-neon-red-light">IS</p>
             </div>
+
+            <Button 
+                className="w-full max-w-sm h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300 mt-4"
+                onClick={() => router.push('/auth')}>
+                ENTRAR
+            </Button>
         </div>
         
         <div className="px-4 md:px-8 py-8 space-y-8">
@@ -217,5 +223,3 @@ export default function HomePage() {
     </Layout>
   );
 }
-
-    
