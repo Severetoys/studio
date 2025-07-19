@@ -1,72 +1,64 @@
 
-"use client";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Check, Star, Zap } from "lucide-react";
+import Link from "next/link";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app } from "@/lib/firebase";
-
-import { AuthForm } from "@/components/auth/auth-form";
-import { KycForm } from "@/components/auth/kyc-form";
-import { AuthKitLogo } from "@/components/auth/icons";
-import { FaceAuthModal } from "@/components/auth/face-auth-modal";
-import { Skeleton } from "@/components/ui/skeleton";
+const features = [
+  {
+    icon: <Check className="h-5 w-5 text-accent" />,
+    text: "Modern Design",
+  },
+  {
+    icon: <Zap className="h-5 w-5 text-accent" />,
+    text: "Lightning Fast",
+  },
+  {
+    icon: <Star className="h-5 w-5 text-accent" />,
+    text: "Top-tier Quality",
+  },
+];
 
 export default function Home() {
-  const [isKycOpen, setIsKycOpen] = useState(false);
-  const [isFaceAuthOpen, setIsFaceAuthOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const router = useRouter();
-  const auth = getAuth(app);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push('/dashboard');
-      } else {
-        setLoading(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [auth, router]);
-  
-  const handleSuccessfulAuth = () => {
-    // KYC form can be triggered here if needed, or redirect directly
-    // For now, onAuthStateChanged will handle the redirect.
-     setIsKycOpen(true);
-  };
-  
-  const handleFaceAuthClick = () => {
-    setIsFaceAuthOpen(true);
-  }
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen w-full items-center justify-center">
-        <Skeleton className="h-[550px] w-full max-w-md" />
-      </div>
-    );
-  }
-
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
-       <div className="flex flex-col items-center justify-center text-center space-y-6">
-        <div className="flex items-center space-x-3">
-          <AuthKitLogo className="h-10 w-10 text-primary" />
-          <h1 className="text-4xl font-bold tracking-tighter text-foreground">
-            Italo Santos
-          </h1>
+    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/20">
+      <Card className="w-full max-w-4xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-card/80 backdrop-blur-xl">
+        <div className="grid md:grid-cols-2">
+          <div className="p-8 md:p-12 flex flex-col justify-center">
+            <CardHeader className="p-0">
+              <CardTitle className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">
+                Italo Santos
+              </CardTitle>
+              <CardDescription className="mt-4 text-lg text-muted-foreground">
+                A beautifully designed, world-class static page. Built with Next.js and ShadCN UI.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 mt-8">
+              <div className="space-y-4">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    {feature.icon}
+                    <span className="text-foreground">{feature.text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                <Link href="/dashboard" passHref>
+                  <Button size="lg" className="w-full sm:w-auto h-12 text-base">View Profile</Button>
+                </Link>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 text-base">Learn More</Button>
+              </div>
+            </CardContent>
+          </div>
+          <div className="hidden md:flex items-center justify-center p-8 bg-accent/10 rounded-r-lg">
+             <img src="https://placehold.co/600x600.png" alt="Placeholder" className="rounded-lg shadow-xl" data-ai-hint="abstract illustration" />
+          </div>
         </div>
-        <p className="max-w-md text-muted-foreground">
-          A beautifully designed, world-class authentication page.
-        </p>
-      </div>
-      <div className="w-full max-w-md mt-8">
-        <AuthForm onAuthSuccess={handleSuccessfulAuth} onFaceAuthClick={handleFaceAuthClick} />
-      </div>
-      <KycForm isOpen={isKycOpen} onOpenChange={setIsKycOpen} />
-      <FaceAuthModal isOpen={isFaceAuthOpen} onOpenChange={setIsFaceAuthOpen} />
+      </Card>
+      <footer className="mt-8 text-center text-muted-foreground">
+        <p>Copyright © Italo Santos 2025 - All rights reserved.</p>
+      </footer>
     </main>
   );
 }

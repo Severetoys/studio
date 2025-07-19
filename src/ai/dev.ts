@@ -1,3 +1,3 @@
-// Flows will be imported for their side effects in this file.
-import './flows/face-auth-flow';
-import './flows/custom-token-flow';
+
+// This file can be used to import flows for development and testing.
+// No flows are currently defined.
