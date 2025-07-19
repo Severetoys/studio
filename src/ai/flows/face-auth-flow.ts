@@ -112,7 +112,7 @@ const registerFaceFlow = ai.defineFlow(
  * @returns A promise that resolves with the verification result.
  */
 export async function verifyFace(input: FaceAuthInput): Promise<FaceAuthOutput> {
-  return verifyFaceFlow(input);
+  return await verifyFaceFlow(input);
 }
 
 
