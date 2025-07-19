@@ -7,10 +7,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Fingerprint } from 'lucide-react';
+import { Fingerprint, Star } from 'lucide-react';
 import AdultWarningDialog from '@/components/adult-warning-dialog';
 import { Separator } from '@/components/ui/separator';
 import WhatsAppButton from '@/components/whatsapp-button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 // Mock SVG icons for G Pay and Apple Pay
 const GPayIcon = () => (
@@ -69,6 +70,33 @@ export default function HomePage() {
     hint: i % 2 === 0 ? "fashion editorial" : "urban model",
     id: i,
   }));
+  
+  const reviews = [
+    {
+      name: 'João S.',
+      rating: 5,
+      text: 'Experiência incrível, conteúdo de alta qualidade! Superou todas as minhas expectativas. Recomendo fortemente.',
+      avatarSrc: 'https://placehold.co/100x100.png',
+      avatarFallback: 'JS',
+      aiHint: "male profile"
+    },
+    {
+      name: 'Marcos P.',
+      rating: 5,
+      text: 'Qualidade impecável e muito profissionalismo. O melhor que já vi na área, sem dúvidas. Vale cada centavo.',
+      avatarSrc: 'https://placehold.co/100x100.png',
+      avatarFallback: 'MP',
+      aiHint: "man avatar"
+    },
+    {
+      name: 'Lucas R.',
+      rating: 5,
+      text: 'Conteúdo exclusivo e um atendimento diferenciado. A assinatura abriu portas para um novo universo. Excelente!',
+      avatarSrc: 'https://placehold.co/100x100.png',
+      avatarFallback: 'LR',
+      aiHint: "user portrait"
+    },
+  ];
 
   return (
     <Layout>
@@ -142,6 +170,32 @@ export default function HomePage() {
                     </Card>
                 ))}
             </div>
+        </div>
+
+        <div className="px-4 md:px-8 py-12 bg-background">
+          <Separator className="w-full max-w-4xl mx-auto bg-border/30" />
+          <div className="max-w-4xl mx-auto mt-12">
+            <h2 className="text-3xl font-bold text-center mb-8">O que dizem sobre mim</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.map((review, index) => (
+                <Card key={index} className="flex flex-col p-6 bg-card/50 backdrop-blur-sm border-primary/20">
+                  <CardContent className="flex flex-col items-center text-center p-0 flex-grow">
+                    <Avatar className="w-20 h-20 mb-4 border-2 border-primary">
+                      <AvatarImage src={review.avatarSrc} data-ai-hint={review.aiHint} />
+                      <AvatarFallback>{review.avatarFallback}</AvatarFallback>
+                    </Avatar>
+                    <h3 className="font-semibold text-lg">{review.name}</h3>
+                    <div className="flex gap-1 my-2 text-amber-400">
+                      {[...Array(review.rating)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-muted-foreground text-sm flex-grow">{review.text}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
 
       </div>
