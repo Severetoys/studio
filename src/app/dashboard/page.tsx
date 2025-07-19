@@ -57,6 +57,13 @@ export default function DashboardPage() {
           </Button>
         </CardContent>
       </Card>
+      <footer className="mt-8 text-center text-sm text-muted-foreground max-w-md w-full">
+        <p>Copyrights © Italo Santos 2025 - Todos os direitos reservados</p>
+        <p>
+            <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
+        </p>
+        <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
+      </footer>
     </main>
   );
 }
