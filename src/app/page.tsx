@@ -64,13 +64,23 @@ export default function AuthPage() {
 
   
   const handleFaceIdLogin = async () => {
-    if (!hasCameraPermission || !videoRef.current) {
+    if (!hasCameraPermission) {
         toast({
             variant: 'destructive',
             title: 'Camera Not Ready',
             description: 'Please grant camera access and wait for it to initialize.',
         });
         return;
+    }
+    
+    // Definitive Fix: Ensure the video stream is actively playing and has valid dimensions.
+    if (!videoRef.current || videoRef.current.videoWidth === 0) {
+      toast({
+          variant: 'destructive',
+          title: 'Initialization Error',
+          description: 'Camera is still initializing. Please try again in a moment.',
+      });
+      return;
     }
 
     setIsVerifying(true);
@@ -80,6 +90,7 @@ export default function AuthPage() {
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
     const context = canvas.getContext('2d');
+    
     if (context) {
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const imageBase64 = canvas.toDataURL('image/jpeg');

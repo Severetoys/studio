@@ -26,6 +26,11 @@ async function detectSingleFace(imageBase64: string): Promise<{
   error?: string;
 }> {
   try {
+    // Definitive Fix: Add a resiliency check to ensure the base64 string is valid before sending.
+    if (!imageBase64 || !imageBase64.includes(',')) {
+        return { faceFound: false, error: 'Invalid or empty image data received.' };
+    }
+
     const [result] = await visionClient.faceDetection(Buffer.from(imageBase64.split(',')[1], 'base64'));
     const faces = result.faceAnnotations;
 
