@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MessageSquare, X, BadgeCheck } from 'lucide-react';
+import { MessageSquare, X, BadgeCheck, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -31,27 +31,25 @@ const TelegramIcon = ({ className }: { className?: string }) => (
 interface ContactButtonProps {
     href: string;
     bgColor: string;
-    pulseColor: string;
     text: string;
     Icon: React.ElementType;
 }
 
-const ContactButton = ({ href, bgColor, pulseColor, text, Icon }: ContactButtonProps) => (
+const ContactButton = ({ href, bgColor, text, Icon }: ContactButtonProps) => (
     <a
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn(
-            "flex items-center group animate-in fade-in-0 slide-in-from-bottom-5",
-            pulseColor
-        )}
+        className="flex items-center group animate-in fade-in-0 slide-in-from-bottom-5"
         aria-label={text}
     >
-        <div className={cn("flex items-center justify-center text-white p-2 rounded-l-full rounded-r-3xl h-14 shadow-lg", bgColor)}>
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
-                 <Icon className="h-6 w-6" />
+        <div className="flex items-center justify-end h-14">
+            <div className="bg-background/80 backdrop-blur-sm text-foreground rounded-l-lg px-4 h-full flex items-center">
+                <span className="text-base font-semibold">{text}</span>
             </div>
-            <span className="pr-5 pl-3 text-base font-semibold">{text}</span>
+            <div className={cn("flex items-center justify-center text-white p-2 rounded-full h-14 w-14 shadow-lg", bgColor)}>
+                 <Icon className="h-8 w-8" />
+            </div>
         </div>
     </a>
 );
@@ -62,7 +60,7 @@ export default function WhatsAppButton() {
   const phoneNumber = "5511999999999";
   const message = "Olá! Gostaria de mais informações.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  const telegramUrl = `https://t.me/seu_usuario_telegram`; // Substitua pelo seu usuário do Telegram
+  const telegramUrl = `https://t.me/seu_usuario_telegram`; 
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
@@ -71,14 +69,12 @@ export default function WhatsAppButton() {
                 <ContactButton
                     href={telegramUrl}
                     bgColor="bg-primary"
-                    pulseColor="animate-pulse-red-glow"
                     text="Chat Secreto"
                     Icon={TelegramIcon}
                 />
                 <ContactButton
                     href={whatsappUrl}
                     bgColor="bg-green-500"
-                    pulseColor="animate-pulse-green-glow"
                     text="WhatsApp"
                     Icon={WhatsAppIcon}
                 />
