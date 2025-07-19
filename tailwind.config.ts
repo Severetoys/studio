@@ -70,7 +70,12 @@ export default {
         },
       },
       boxShadow: {
-        'primary-glow': '0 0 15px hsl(var(--primary))',
+        'neon-red-light': '0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary) / 0.5)',
+        'neon-red-strong': '0 0 15px hsl(var(--primary)), 0 0 25px hsl(var(--primary) / 0.7)',
+      },
+      textShadow: {
+        'neon-red-light': '0 0 5px hsl(var(--primary) / 0.8)',
+        'neon-red': '0 0 8px hsl(var(--primary))',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -97,11 +102,11 @@ export default {
         'pulse-glow': {
           '0%, 100%': { 
             opacity: '1',
-            textShadow: '0 0 10px #fde047, 0 0 20px #fde047, 0 0 30px #fde047'
+            textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))'
           },
           '50%': { 
             opacity: '0.8',
-            textShadow: '0 0 20px #fde047, 0 0 30px #fde047, 0 0 40px #fde047'
+            textShadow: '0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary)), 0 0 40px hsl(var(--primary))'
           },
         },
         'pulse-green-glow': {
@@ -121,7 +126,18 @@ export default {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    function ({ addUtilities, theme }: { addUtilities: any, theme: any }) {
+      const newUtilities = {
+        '.text-shadow-neon-red-light': {
+          textShadow: theme('textShadow.neon-red-light'),
+        },
+        '.text-shadow-neon-red': {
+          textShadow: theme('textShadow.neon-red'),
+        },
+      }
+      addUtilities(newUtilities, ['responsive', 'hover'])
+    }
+  ],
 } satisfies Config;
-
-    

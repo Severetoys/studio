@@ -30,20 +30,20 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
   return (
     <>
       <div 
-        className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
+        className={`fixed inset-0 bg-black/80 z-40 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
         onClick={onClose}
       />
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-card text-card-foreground shadow-2xl z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-card text-card-foreground shadow-2xl z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} border-r border-primary/30`}>
         <div className="p-4 flex justify-between items-center border-b border-border">
-          <h2 className="text-xl font-bold">Menu</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <h2 className="text-xl font-bold text-shadow-neon-red-light">Menu</h2>
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-primary hover:bg-primary/10">
             <X className="h-6 w-6" />
           </Button>
         </div>
         <nav className="p-4 overflow-y-auto h-[calc(100%-65px)]">
           <ul className="space-y-2">
             <li>
-              <Button variant="secondary" className="w-full justify-start text-base py-6" onClick={() => handleNavigate('/auth')}>
+              <Button variant="destructive" className="w-full justify-start text-base py-6 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300" onClick={() => handleNavigate('/auth')}>
                 +18 ADULT WORK
               </Button>
             </li>
@@ -53,11 +53,11 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>Untitled page</Link></li>
             <li><Link href="#" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
-            <li><Button variant="ghost" className="w-full justify-start p-3 text-base" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
+            <li><Button variant="ghost" className="w-full justify-start p-3 text-base hover:bg-muted hover:text-primary" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
             <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
              <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="fetish-bdsm" className="border-none">
-                <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md">FETISH &amp; BDSM</AccordionTrigger>
+                <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">FETISH &amp; BDSM</AccordionTrigger>
                 <AccordionContent className="pl-4">
                   <Accordion type="multiple" className="w-full">
                     {Object.entries(fetishCategories).map(([category, items]) => (
@@ -67,7 +67,7 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
                           <ul className="space-y-1 pt-1">
                             {items.map((item) => (
                                <li key={item.id}>
-                                <button onClick={() => handleFetishClick(item)} className="block w-full text-left p-2 text-xs rounded-md hover:bg-muted/50">
+                                <button onClick={() => handleFetishClick(item)} className="block w-full text-left p-2 text-xs rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50">
                                   {item.title}
                                 </button>
                               </li>
@@ -88,5 +88,3 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
 };
 
 export default Sidebar;
-
-    

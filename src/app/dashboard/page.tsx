@@ -83,9 +83,9 @@ export default function DashboardPage() {
   };
 
   const ExclusiveContent = () => (
-    <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-card backdrop-blur-xl">
+    <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader>
-            <CardTitle className="text-2xl">Conteúdo Exclusivo</CardTitle>
+            <CardTitle className="text-2xl text-shadow-neon-red-light">Conteúdo Exclusivo</CardTitle>
             <CardDescription>Acesse vídeos e tutoriais especiais.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -109,11 +109,11 @@ export default function DashboardPage() {
         </CardContent>
         <CardFooter>
              {isPaid ? (
-                 <Button className="w-full h-11 text-base" onClick={() => router.push('/dashboard/videos')}>
+                 <Button className="w-full h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/dashboard/videos')}>
                     Acessar Conteúdo Exclusivo <ArrowRight className="ml-2" />
                 </Button>
              ) : (
-                <Button className="w-full h-11 text-base" onClick={handlePayment} disabled={isProcessingPayment}>
+                <Button className="w-full h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={handlePayment} disabled={isProcessingPayment}>
                     <CreditCard className="mr-2" />
                     {isProcessingPayment ? 'Processando...' : 'Pagar para Liberar Acesso'}
                 </Button>
@@ -128,19 +128,19 @@ export default function DashboardPage() {
 
   return (
     <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background gap-8">
-       <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-2xl border-accent/20 bg-card backdrop-blur-xl shadow-[0_0_20px_hsl(var(--accent-shadow))]">
+       <Card className="w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-3 mb-4">
-             <CheckCircle className="h-12 w-12 text-accent" />
+             <CheckCircle className="h-12 w-12 text-primary text-shadow-neon-red" />
           </div>
-           <CardTitle className="text-3xl">
+           <CardTitle className="text-3xl text-shadow-neon-red-light">
                 Login Bem-sucedido
             </CardTitle>
           <CardDescription>Bem-vindo ao seu painel seguro.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center space-x-4 border-b border-border pb-4">
-            <Avatar className="h-16 w-16">
+            <Avatar className="h-16 w-16 border-2 border-primary/50">
               <AvatarImage src="https://placehold.co/100x100.png" alt="Avatar do Usuário" data-ai-hint="profile avatar" />
               <AvatarFallback className="text-2xl bg-muted">U</AvatarFallback>
             </Avatar>
@@ -152,14 +152,14 @@ export default function DashboardPage() {
           
           <div className="space-y-4 text-sm">
             <div className="flex items-center gap-4">
-                <UserIcon className="h-5 w-5 text-accent" />
+                <UserIcon className="h-5 w-5 text-primary" />
                 <p>
                     <span className="text-muted-foreground">Status: </span>
                     <strong>Verificado</strong>
                 </p>
             </div>
             <div className="flex items-center gap-4">
-                <BellRing className="h-5 w-5 text-accent" />
+                <BellRing className="h-5 w-5 text-primary" />
                 <p>
                     <span className="text-muted-foreground">Notificações: </span>
                     <strong>Ativadas</strong>

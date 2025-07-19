@@ -25,7 +25,6 @@ const GPayIcon = () => (
     </svg>
 );
 
-
 const ApplePayIcon = () => (
     <svg width="48" height="20" viewBox="0 0 48 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12.2825 5.17498C13.6825 5.14498 15.2425 4.19998 16.3225 3.20998C15.5125 2.19998 14.2825 1.63498 13.0225 1.63498C10.5325 1.63498 8.5225 3.32998 8.5225 5.75998C8.5225 7.55998 9.7225 8.39998 11.0425 8.39998C12.3025 8.39998 12.9325 7.61998 14.2225 7.58998C14.2225 7.58998 12.9625 9.77998 11.1325 11.64C9.9325 12.87 9.0925 14.63 9.0925 16.5H10.5925C10.5925 14.93 11.2225 13.56 12.3025 12.48C13.3825 11.43 14.4325 9.92998 14.4325 9.89998C14.3725 9.89998 12.9925 9.17998 12.9925 7.43998C12.9925 7.43998 14.3125 6.62998 15.8425 6.62998C16.2925 6.62998 18.0025 6.80998 19.0525 5.39998C18.0625 3.53998 16.1425 2.84998 15.1525 2.75998C13.5925 2.60998 11.9725 3.32998 11.1325 3.32998C11.1325 3.32998 11.5825 1.70998 13.0525 0.53998C11.6425 0.0599805 10.0525 0 8.5825 0C6.0025 0 3.7525 1.52998 2.5825 3.89998C0.00250049 8.87998 3.8725 14.34 6.7825 16.5C7.9225 17.37 9.1225 18.39 10.6525 18.42C12.0325 18.42 12.5725 17.76 14.1925 17.76C15.8125 17.76 16.4125 18.42 17.8225 18.39C19.2325 18.36 20.2525 17.25 20.8825 16.26C21.4225 15.42 21.6025 14.61 21.6325 14.58C21.5725 14.58 19.3525 13.65 19.3525 11.1C19.3525 8.96998 21.0325 7.76998 21.3325 7.55998C19.9525 6.35998 18.1525 5.81998 17.4325 5.66998C15.8725 5.33998 14.5525 6.17998 14.2225 6.17998C14.2225 6.17998 13.0525 5.20498 12.2825 5.17498Z" fill="black" />
@@ -110,17 +109,17 @@ export default function HomePage() {
             alt="Hero background"
             width={1920}
             height={1080}
-            className="absolute inset-0 w-full h-full object-cover opacity-50"
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
             data-ai-hint="male model"
           />
-          <div className="relative border-4 border-white p-4">
-            <h1 className="text-6xl font-serif text-white">Italo Santos</h1>
+          <div className="relative border-4 border-primary p-4 shadow-neon-red-strong">
+            <h1 className="text-6xl font-serif text-white text-shadow-neon-red">Italo Santos</h1>
           </div>
         </div>
 
         <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6">
             <Button 
-                className="w-full max-w-sm h-14 bg-zinc-800 hover:bg-zinc-700 text-white text-xl font-semibold"
+                className="w-full max-w-sm h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
                 onClick={() => router.push('/auth')}>
                 <Fingerprint className="h-8 w-8 mr-4" />
                 Face ID
@@ -133,10 +132,10 @@ export default function HomePage() {
             </div>
             
             <div className="w-full max-w-sm grid grid-cols-2 gap-4">
-                <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-white text-black border border-black/20 hover:bg-zinc-200">
+                <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                     <GPayIcon />
                 </Button>
-                <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-white text-black border border-black/20 hover:bg-zinc-200">
+                <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                     <ApplePayIcon />
                 </Button>
             </div>
@@ -145,26 +144,26 @@ export default function HomePage() {
 
             <div className="text-center">
                 <p className="text-sm text-muted-foreground">ASSINATURA</p>
-                <p className="text-6xl font-bold text-amber-400 tracking-tight animate-pulse-glow">
+                <p className="text-6xl font-bold text-primary tracking-tight animate-pulse-glow">
                     99,00 <span className="text-lg font-medium text-muted-foreground">BRL</span>
                 </p>
             </div>
             
             <div className="mt-4 text-center">
-                <p className="text-4xl font-bold text-primary">IS</p>
+                <p className="text-4xl font-bold text-primary text-shadow-neon-red-light">IS</p>
             </div>
         </div>
         
         <div className="px-4 md:px-8 py-8 space-y-8">
             {galleries.map((gallery) => (
               <div key={gallery.id}>
-                 <h2 className="text-2xl font-bold mb-4 px-4">{gallery.title}</h2>
+                 <h2 className="text-2xl font-bold mb-4 px-4 text-shadow-neon-red-light">{gallery.title}</h2>
                  <Carousel className="w-full">
                     <CarouselContent>
                         {gallery.photos.map((photo) => (
                            <CarouselItem key={photo.id} className="md:basis-1/2 lg:basis-1/3">
                              <div className="p-1">
-                               <Card className="overflow-hidden">
+                               <Card className="overflow-hidden border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                                  <CardContent className="flex aspect-[2/3] items-center justify-center p-0">
                                    <Image
                                       src={photo.src}
@@ -180,8 +179,8 @@ export default function HomePage() {
                            </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="ml-14" />
-                    <CarouselNext className="mr-14" />
+                    <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
+                    <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                  </Carousel>
               </div>
             ))}
@@ -190,17 +189,17 @@ export default function HomePage() {
         <div className="px-4 md:px-8 py-12 bg-background">
           <Separator className="w-full max-w-4xl mx-auto bg-border/30" />
           <div className="max-w-4xl mx-auto mt-12">
-            <h2 className="text-3xl font-bold text-center mb-8">O que dizem sobre mim</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {reviews.map((review, index) => (
-                <Card key={index} className="flex flex-col p-6 bg-card/50 backdrop-blur-sm border-primary/20">
+                <Card key={index} className="flex flex-col p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                   <CardContent className="flex flex-col items-center text-center p-0 flex-grow">
                     <Avatar className="w-20 h-20 mb-4 border-2 border-primary">
                       <AvatarImage src={review.avatarSrc} data-ai-hint={review.aiHint} />
                       <AvatarFallback>{review.avatarFallback}</AvatarFallback>
                     </Avatar>
                     <h3 className="font-semibold text-lg">{review.name}</h3>
-                    <div className="flex gap-1 my-2 text-amber-400">
+                    <div className="flex gap-1 my-2 text-primary">
                       {[...Array(review.rating)].map((_, i) => (
                         <Star key={i} className="w-5 h-5 fill-current" />
                       ))}

@@ -6,13 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, ArrowLeft, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
 
 import { verifyFace } from '@/ai/flows/face-auth-flow';
 
@@ -167,11 +165,11 @@ export default function OldAuthPage() {
   };
 
   const VideoPanel = () => (
-    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border border-primary/20 shadow-[0_0_20px_hsl(var(--primary))]">
+    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border border-primary/50 shadow-neon-red-light">
       {isClient ? (
         <>
           <video ref={videoCallbackRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-          {isVerifying && <div className="absolute inset-0 laser-scanner"></div>}
+          {isVerifying && <div className="absolute inset-0 border-4 border-primary animate-pulse"></div>}
           {!hasCameraPermission && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
               <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
@@ -196,22 +194,22 @@ export default function OldAuthPage() {
       <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
         {icon} {label}
       </Label>
-      <Input id={id} type={type} value={value} onChange={onChange} required className="h-11 bg-background/50 border-primary/30 focus:shadow-primary-glow" />
+      <Input id={id} type={type} value={value} onChange={onChange} required className="h-11 bg-background/50 border-primary/30 focus:shadow-neon-red-light" />
     </div>
   );
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background font-sans relative isolate">
         <div className="absolute inset-0 -z-10 h-full w-full bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
-        <Card className="w-full max-w-md shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl">
+        <Card className="w-full max-w-md shadow-neon-red-strong border-primary/50 bg-card/80 backdrop-blur-xl">
             <CardHeader className="text-center pb-2 relative">
-            <Button variant="ghost" size="icon" className="absolute top-4 left-4" onClick={() => router.push('/')}>
+            <Button variant="ghost" size="icon" className="absolute top-4 left-4 text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => router.push('/')}>
               <ArrowLeft />
             </Button>
             <div className="flex justify-center items-center mb-4 pt-8">
-                <ShieldCheck className="h-12 w-12 text-primary" />
+                <ShieldCheck className="h-12 w-12 text-primary text-shadow-neon-red" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
+            <CardTitle className="text-3xl font-bold tracking-tight text-foreground text-shadow-neon-red-light">
                 AuthKit
             </CardTitle>
             <CardDescription className="text-muted-foreground pt-2">
@@ -221,13 +219,13 @@ export default function OldAuthPage() {
             <CardContent>
             <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+                <TabsTrigger value="signin" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Entrar</TabsTrigger>
+                <TabsTrigger value="signup" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Cadastrar</TabsTrigger>
                 </TabsList>
                 <TabsContent value="signin">
                     <div className="space-y-4 pt-4">
                         <VideoPanel />
-                        <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
+                        <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
                         </Button>
@@ -239,7 +237,7 @@ export default function OldAuthPage() {
                         <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         <VideoPanel />
-                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base">
+                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
                         </Button>
@@ -248,27 +246,6 @@ export default function OldAuthPage() {
             </Tabs>
             </CardContent>
         </Card>
-        <Separator className="my-8 bg-border/20 max-w-md w-full" />
-        <footer className="text-center text-sm text-muted-foreground max-w-md w-full">
-            <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
-            <p>
-                <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
-            </p>
-            <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
-            <div className="flex justify-center gap-4 mt-4">
-                <Link href="#" aria-label="Twitter">
-                    <Twitter className="h-5 w-5 hover:text-primary" />
-                </Link>
-                <Link href="#" aria-label="Instagram">
-                    <Instagram className="h-5 w-5 hover:text-primary" />
-                </Link>
-                <Link href="#" aria-label="YouTube">
-                    <Youtube className="h-5 w-5 hover:text-primary" />
-                </Link>
-            </div>
-        </footer>
     </main>
   );
 }
-
-    
