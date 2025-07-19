@@ -6,48 +6,27 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { fetishCategories, Fetish } from '@/lib/fetish-data';
 
-const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onFetishSelect: (fetish: Fetish) => void;
+}
+
+const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
   const router = useRouter();
   
   const handleNavigate = (path: string) => {
     router.push(path);
     onClose();
   };
-  
-  const fetishCategories = {
-    "Dirty": ["urinolagnia", "scat", "olfactofilia", "omorash", "pissing", "podolatria", "salirophilia", "ass-to-mouth"],
-    "Leather/Latex": ["leather-latex", "leather", "leather-clothed-sex"],
-    "Fantasy": ["cenoura-play", "daddyboy", "adult-nursing", "hirsutofilia", "clamping", "feederism", "tickling"],
-    "Knife-Play/E-Stim": ["knife-play-e-stim-play", "knife-play-axe-play", "knife-play-wax-play", "knife-play"],
-    "Muscle Worship": ["muscle-worship", "muscle-worship-thigh-worship"],
-    "Dominação e Submissão": [
-      "candle-wax-play", "military-play", "pet-play-pony-play", "pet-play",
-      "butt-plug-play", "medical-play", "ass-play", "food-play", "gender-play",
-      "temperature-play", "necro-play", "role-play", "diaper-play", "furry-play",
-      "blood-play", "public-play", "pet-play-puppy-play"
-    ],
-    "Sadomasoquismo": [
-      "masterslave", "anal-hook", "spanking", "nipple-torture", "tease-and-denial",
-      "candle-wax", "inflamation", "tickle-torture", "sounding", "asfixiofilia",
-      "castration-fantasy", "cbt", "choking", "breath-control"
-    ],
-    "Mumification": ["mumification", "breast-bondage", "shibari-cock-ring", "bondage", "shibari-chastity", "shibari-hogtie", "shibari"],
-    "Sex": [
-      "cuckolding", "oral-worship", "rimming", "voyeurismo", "gang-bang",
-      "voyeurismo-social", "voyeurismo-exibicionista", "garganta-profunda",
-      "dp", "glory-hole", "ball-gag"
-    ],
-    "Interracial Fetish": [
-      "super-hero-fetish", "inch-high-fetish", "barber-fetish", "armpit-fetish",
-      "inflatulabe-suit-fetish", "body-hair-fetish"
-    ],
-    "Sissy/Crossdresser": ["sissy-crossdresser-cd", "sissy", "sissy-drag"],
-    "Outros": ["cum-play", "humiliation-play", "uniform-play", "findom", "enema-play", "nipple-play"]
+
+  const handleFetishClick = (item: Fetish) => {
+    onFetishSelect(item);
+    onClose();
   };
   
-  const createSlug = (item: string) => item.toLowerCase().replace(/[\s_]+/g, '-').replace(/\//g, '-');
-
   return (
     <>
       <div 
@@ -78,7 +57,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
              <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="fetish-bdsm" className="border-none">
-                <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md">FETISH & BDSM</AccordionTrigger>
+                <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md">FETISH &amp; BDSM</AccordionTrigger>
                 <AccordionContent className="pl-4">
                   <Accordion type="multiple" className="w-full">
                     {Object.entries(fetishCategories).map(([category, items]) => (
@@ -86,16 +65,13 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                         <AccordionTrigger className="py-2 px-2 text-sm hover:no-underline hover:bg-muted/50 rounded-md">{category}</AccordionTrigger>
                         <AccordionContent className="pl-4">
                           <ul className="space-y-1 pt-1">
-                            {items.map((item) => {
-                              const slug = createSlug(item);
-                              return (
-                                <li key={item}>
-                                  <Link href={`/fetish/${slug}`} className="block p-2 text-xs rounded-md hover:bg-muted/50" onClick={onClose}>
-                                    {item.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                  </Link>
-                                </li>
-                              );
-                            })}
+                            {items.map((item) => (
+                               <li key={item.id}>
+                                <button onClick={() => handleFetishClick(item)} className="block w-full text-left p-2 text-xs rounded-md hover:bg-muted/50">
+                                  {item.title}
+                                </button>
+                              </li>
+                            ))}
                           </ul>
                         </AccordionContent>
                       </AccordionItem>
