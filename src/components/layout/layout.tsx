@@ -35,7 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const handleFetishSelect = (fetish: Fetish) => {
     setSelectedFetish(fetish);
-    onClose();
+    setSidebarOpen(false); // Fecha a sidebar ao selecionar um item
   };
 
   const handleCloseModal = () => {
@@ -51,6 +51,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header onMenuClick={toggleSidebar} />
+        <Sidebar 
+            isOpen={isSidebarOpen} 
+            onClose={toggleSidebar} 
+            onFetishSelect={handleFetishSelect} 
+        />
         <MainHeader />
         <main className="flex-grow">{children}</main>
         <MainFooter />
@@ -67,5 +72,3 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default Layout;
-
-    
