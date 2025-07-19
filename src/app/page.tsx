@@ -65,14 +65,6 @@ export default function HomePageContent() {
             Face ID
         </Button>
         
-        <FeatureList />
-        
-        <div className="flex w-full items-center gap-4">
-            <Separator className="flex-1 bg-border/30" />
-            <span className="text-xs text-muted-foreground">OU</span>
-            <Separator className="flex-1 bg-border/30" />
-        </div>
-        
         <div className="w-full grid grid-cols-2 gap-4">
             <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                 <GPayIcon />
@@ -81,6 +73,10 @@ export default function HomePageContent() {
                 <ApplePayIcon />
             </Button>
         </div>
+        
+        <Separator className="w-full bg-border/30" />
+
+        <FeatureList />
         
         <Separator className="w-full bg-border/30" />
 
@@ -103,4 +99,5 @@ export default function HomePageContent() {
     
 
     
+
 
