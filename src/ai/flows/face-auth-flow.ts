@@ -9,10 +9,14 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { appendToSheet } from '@/services/google-sheets';
+import serviceAccount from '../../../serviceAccountKey.json';
 
 // Inicializa o cliente da API Vision, garantindo que ele use a conta de serviço do projeto.
 const visionClient = new ImageAnnotatorClient({
-  keyFilename: './serviceAccountKey.json',
+  credentials: {
+    client_email: serviceAccount.client_email,
+    private_key: serviceAccount.private_key,
+  }
 });
 
 /**
