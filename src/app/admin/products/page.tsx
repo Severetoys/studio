@@ -1,8 +1,9 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { PlusCircle, File, MoreHorizontal } from "lucide-react";
+import { PlusCircle, MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,16 +41,136 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { getFirestore, collection, addDoc, getDocs, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { app as firebaseApp } from '@/lib/firebase';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  status: 'Ativo' | 'Inativo';
+  sales: number;
+  createdAt: Timestamp;
+  imageUrl: string;
+}
 
 export default function AdminProductsPage() {
+  const { toast } = useToast();
+  const db = getFirestore(firebaseApp);
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Form state
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
+      const productsCollection = collection(db, "products");
+      const querySnapshot = await getDocs(productsCollection);
+      const productsList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Product));
+      setProducts(productsList);
+    } catch (error) {
+      console.error("Error fetching products: ", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao carregar produtos",
+        description: "Não foi possível buscar os produtos do banco de dados.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const resetForm = () => {
+    setName('');
+    setDescription('');
+    setPrice('');
+  };
+
+  const handleAddProduct = async () => {
+    if (!name || !price) {
+      toast({
+        variant: "destructive",
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha o nome e o preço do produto.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, "products"), {
+        name,
+        description,
+        price: parseFloat(price),
+        status: 'Ativo',
+        sales: 0,
+        createdAt: Timestamp.now(),
+        imageUrl: 'https://placehold.co/600x400.png',
+      });
+      
+      toast({
+        title: "Produto Adicionado!",
+        description: "Seu novo produto foi salvo com sucesso.",
+      });
+      
+      resetForm();
+      setIsDialogOpen(false);
+      fetchProducts(); // Refresh the list
+    } catch (error) {
+      console.error("Error adding product: ", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao adicionar produto",
+        description: "Ocorreu um erro ao salvar o produto.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      await deleteDoc(doc(db, "products", productId));
+      toast({
+        title: "Produto Excluído",
+        description: "O produto foi removido com sucesso.",
+      });
+      fetchProducts(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting product: ", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao excluir produto",
+        description: "Não foi possível remover o produto.",
+      });
+    }
+  };
+
+
   return (
     <>
       <div className="flex items-center">
         <h1 className="text-lg font-semibold md:text-2xl">Produtos</h1>
         <div className="ml-auto flex items-center gap-2">
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" className="h-8 gap-1">
+                <Button size="sm" className="h-8 gap-1" onClick={() => setIsDialogOpen(true)}>
                     <PlusCircle className="h-3.5 w-3.5" />
                     <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                         Adicionar Produto
@@ -60,37 +181,34 @@ export default function AdminProductsPage() {
                 <DialogHeader>
                 <DialogTitle>Adicionar Novo Produto</DialogTitle>
                 <DialogDescription>
-                    Faça o upload de uma nova foto ou vídeo para sua loja.
+                    Insira os detalhes do seu novo produto.
                 </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="title" className="text-right">
-                    Título
+                    <Label htmlFor="name" className="text-right">
+                    Nome
                     </Label>
-                    <Input id="title" placeholder="Ex: Ensaio Sensual" className="col-span-3" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Vídeo Exclusivo" className="col-span-3" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="description" className="text-right">
                     Descrição
                     </Label>
-                    <Textarea id="description" placeholder="Descreva o conteúdo..." className="col-span-3" />
+                    <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descreva o conteúdo..." className="col-span-3" />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="price" className="text-right">
                     Preço (BRL)
                     </Label>
-                    <Input id="price" type="number" placeholder="99.90" className="col-span-3" />
-                </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="file" className="text-right">
-                    Arquivo
-                    </Label>
-                    <Input id="file" type="file" className="col-span-3" />
+                    <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="99.90" className="col-span-3" />
                 </div>
                 </div>
                 <DialogFooter>
-                <Button type="submit">Salvar Produto</Button>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+                  <Button type="submit" onClick={handleAddProduct} disabled={isSubmitting}>
+                    {isSubmitting ? "Salvando..." : "Salvar Produto"}
+                  </Button>
                 </DialogFooter>
             </DialogContent>
             </Dialog>
@@ -125,53 +243,64 @@ export default function AdminProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="hidden sm:table-cell">
-                  <Image
-                    alt="Product image"
-                    className="aspect-square rounded-md object-cover"
-                    height="64"
-                    src="https://placehold.co/64x64.png"
-                    data-ai-hint="product image"
-                    width="64"
-                  />
-                </TableCell>
-                <TableCell className="font-medium">
-                  Vídeo Exclusivo: Bastidores
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">Ativo</Badge>
-                </TableCell>
-                <TableCell>R$49,99</TableCell>
-                <TableCell className="hidden md:table-cell">
-                  25
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  2023-07-12 10:42 AM
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem>Editar</DropdownMenuItem>
-                      <DropdownMenuItem>Excluir</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-              {/* Outras linhas podem ser adicionadas aqui */}
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">Carregando produtos...</TableCell>
+                </TableRow>
+              ) : products.length > 0 ? (
+                products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="hidden sm:table-cell">
+                      <Image
+                        alt="Product image"
+                        className="aspect-square rounded-md object-cover"
+                        height="64"
+                        src={product.imageUrl}
+                        data-ai-hint="product image"
+                        width="64"
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={product.status === 'Ativo' ? 'default' : 'destructive'}>{product.status}</Badge>
+                    </TableCell>
+                    <TableCell>R${product.price.toFixed(2)}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {product.sales}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {product.createdAt.toDate().toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuItem>Editar</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteProduct(product.id)} className="text-destructive">Excluir</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">Nenhum produto encontrado.</TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Mostrando <strong>1-1</strong> de <strong>1</strong> produtos
+            Mostrando <strong>{products.length}</strong> de <strong>{products.length}</strong> produtos
           </div>
         </CardFooter>
       </Card>

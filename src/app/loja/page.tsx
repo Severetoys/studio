@@ -1,41 +1,63 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { app as firebaseApp } from '@/lib/firebase';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
+  description: string;
   price: number;
-  image: string;
-  aiHint: string;
+  imageUrl: string;
+  aiHint?: string;
 }
 
 interface CartItem extends Product {
   quantity: number;
 }
 
-const mockProducts: Product[] = [
-  { id: 1, name: "Sessão de Fotos Exclusiva", price: 250.00, image: "https://placehold.co/600x400.png", aiHint: "photo session" },
-  { id: 2, name: "Vídeo Personalizado (5 min)", price: 350.00, image: "https://placehold.co/600x400.png", aiHint: "video recording" },
-  { id: 3, name: "Acessório de Couro Artesanal", price: 180.00, image: "https://placehold.co/600x400.png", aiHint: "leather accessory" },
-  { id: 4, name: "Kit de Fetiche Iniciante", price: 450.00, image: "https://placehold.co/600x400.png", aiHint: "fetish kit" },
-  { id: 5, name: "Poster Autografado", price: 99.00, image: "https://placehold.co/600x400.png", aiHint: "autographed poster" },
-  { id: 6, name: "Consulta de Dominação (30 min)", price: 500.00, image: "https://placehold.co/600x400.png", aiHint: "dominant figure" },
-];
-
 export default function LojaPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const router = useRouter();
   const { toast } = useToast();
+  const db = getFirestore(firebaseApp);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const productsCollection = collection(db, "products");
+        const querySnapshot = await getDocs(productsCollection);
+        const productsList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Product));
+        setProducts(productsList);
+      } catch (error) {
+        console.error("Error fetching products: ", error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao carregar a loja",
+          description: "Não foi possível buscar os produtos.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [db, toast]);
 
   const handleConnectSocial = (platform: string) => {
     toast({
@@ -54,9 +76,13 @@ export default function LojaPage() {
       }
       return [...prevCart, { ...product, quantity: 1 }];
     });
+    toast({
+        title: `${product.name} adicionado!`,
+        description: "O item está no seu carrinho.",
+    });
   };
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = (productId: string, newQuantity: number) => {
     setCart(prevCart => {
       if (newQuantity <= 0) {
         return prevCart.filter(item => item.id !== productId);
@@ -67,7 +93,7 @@ export default function LojaPage() {
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
   };
 
@@ -121,7 +147,7 @@ export default function LojaPage() {
                       {cart.map(item => (
                         <div key={item.id} className="flex items-start gap-4">
                            <div className="w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                                <Image src={item.image} alt={item.name} width={80} height={80} className="object-cover w-full h-full" data-ai-hint={item.aiHint}/>
+                                <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="object-cover w-full h-full" data-ai-hint={item.aiHint}/>
                            </div>
                           <div className="flex-1">
                             <h4 className="font-semibold">{item.name}</h4>
@@ -163,28 +189,44 @@ export default function LojaPage() {
             </SheetContent>
           </Sheet>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-          {mockProducts.map(product => (
-            <Card key={product.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col group">
-              <CardHeader className="p-0">
-                 <div className="aspect-video bg-muted overflow-hidden">
-                    <Image src={product.image} alt={product.name} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={product.aiHint}/>
-                 </div>
-              </CardHeader>
-              <CardContent className="p-4 flex-1 flex flex-col">
-                <CardTitle className="text-lg text-foreground">{product.name}</CardTitle>
-                 <CardDescription className="text-primary font-semibold text-xl mt-2">
-                  {product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                </CardDescription>
-              </CardContent>
-              <CardFooter className="p-4 mt-auto">
-                <Button className="w-full h-11 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => addToCart(product)}>
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Adicionar ao Carrinho
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+        <CardContent className="p-6">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center min-h-[400px]">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="mt-4 text-muted-foreground">Carregando produtos...</p>
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map(product => (
+                <Card key={product.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col group">
+                  <CardHeader className="p-0">
+                     <div className="aspect-video bg-muted overflow-hidden">
+                        <Image src={product.imageUrl} alt={product.name} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint="product image"/>
+                     </div>
+                  </CardHeader>
+                  <CardContent className="p-4 flex-1 flex flex-col">
+                    <CardTitle className="text-lg text-foreground">{product.name}</CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground mt-1 flex-grow">{product.description}</CardDescription>
+                     <p className="text-primary font-semibold text-xl mt-2">
+                      {product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="p-4 mt-auto">
+                    <Button className="w-full h-11 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => addToCart(product)}>
+                      <ShoppingCart className="mr-2 h-5 w-5" />
+                      Adicionar ao Carrinho
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+             <div className="flex flex-col items-center justify-center min-h-[400px]">
+              <ShoppingCart className="h-16 w-16 text-muted-foreground" />
+              <p className="mt-4 text-xl font-semibold text-muted-foreground">Nenhum produto disponível no momento.</p>
+              <p className="text-sm text-muted-foreground">Volte em breve para novidades!</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </main>
