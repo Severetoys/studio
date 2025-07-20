@@ -129,9 +129,11 @@ export default function VideosPage() {
                                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                                           data-ai-hint="social media content"
                                         />
-                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <PlayCircle className="h-16 w-16 text-white" />
-                                        </div>
+                                        {tweet.media[0].type === 'video' && (
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <PlayCircle className="h-16 w-16 text-white" />
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                                 <p className="text-sm text-muted-foreground">{tweet.text}</p>
