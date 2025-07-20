@@ -27,7 +27,7 @@ export default function ChatSecretoPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [currentUser, setCurrentUser] = useState<'user' | 'admin'>('user'); // Simula o usuário atual
+  const currentUser = 'user'; // Na página do cliente, o remetente é sempre 'user'.
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const db = getFirestore(firebaseApp);
@@ -71,11 +71,6 @@ export default function ChatSecretoPage() {
     }
   };
   
-  // Função para simular a troca de usuário (para fins de teste)
-  const toggleUser = () => {
-    setCurrentUser(currentUser === 'user' ? 'admin' : 'user');
-  };
-
   return (
     <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-2xl h-[85vh] flex flex-col animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
@@ -86,9 +81,7 @@ export default function ChatSecretoPage() {
             <CardTitle className="text-xl text-primary text-shadow-neon-red-light">
                 Chat Secreto
             </CardTitle>
-            <Button variant="outline" onClick={toggleUser} className="text-xs h-8">
-              Mudar para {currentUser === 'user' ? 'Admin' : 'Usuário'}
-            </Button>
+            <div className="w-10"></div> {/* Espaço reservado para alinhar o título */}
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg) => (
