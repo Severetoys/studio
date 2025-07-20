@@ -28,6 +28,11 @@ export default function VideosPage() {
     setIsClient(true);
     const hasPaid = localStorage.getItem('hasPaid');
     if (hasPaid !== 'true') {
+      toast({
+          title: "Acesso Negado",
+          description: "Você precisa fazer um pagamento para ver esta página.",
+          variant: "destructive"
+      });
       router.replace('/dashboard');
       return;
     }
@@ -41,11 +46,12 @@ export default function VideosPage() {
         const result = await fetchTwitterMedia({ username: TWITTER_USERNAME });
         setTweets(result.tweets);
       } catch (e: any) {
-        setError("Não foi possível carregar o feed do Twitter. Tente novamente mais tarde.");
+        const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+        setError(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
         toast({
           variant: 'destructive',
-          title: 'Erro de Integração',
-          description: e.message || "Ocorreu um erro ao buscar os dados do Twitter.",
+          title: 'Erro de Integração com o Twitter',
+          description: errorMessage,
         });
         console.error(e);
       } finally {
@@ -97,14 +103,15 @@ export default function VideosPage() {
                 )}
 
                 {error && (
-                    <div className="text-center py-20 text-destructive bg-destructive/10 rounded-lg">
-                        <p>{error}</p>
+                    <div className="text-center py-20 text-destructive bg-destructive/10 rounded-lg p-4">
+                        <p className="font-semibold">Erro ao carregar o feed</p>
+                        <p className="text-sm">{error}</p>
                     </div>
                 )}
                 
                 {!isLoading && !error && tweets.length === 0 && (
                     <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-lg">
-                        <p>Nenhum tweet com mídia encontrado recentemente.</p>
+                        <p>Nenhum tweet com mídia encontrado recentemente para @{TWITTER_USERNAME}.</p>
                     </div>
                 )}
 
@@ -114,7 +121,14 @@ export default function VideosPage() {
                             <div key={tweet.id} className="space-y-3 group">
                                 {tweet.media && tweet.media[0] && (
                                     <div className="overflow-hidden rounded-lg aspect-video bg-muted border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 relative">
-                                        <Image src={tweet.media[0].url || tweet.media[0].preview_image_url || "https://placehold.co/600x400.png"} alt={`Mídia do tweet ${tweet.id}`} width={600} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint="social media content"/>
+                                        <Image 
+                                          src={tweet.media[0].type === 'video' ? tweet.media[0].preview_image_url || "https://placehold.co/600x400.png" : tweet.media[0].url || "https://placehold.co/600x400.png"} 
+                                          alt={`Mídia do tweet ${tweet.id}`} 
+                                          width={600} 
+                                          height={400} 
+                                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                                          data-ai-hint="social media content"
+                                        />
                                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                             <PlayCircle className="h-16 w-16 text-white" />
                                         </div>
