@@ -77,17 +77,13 @@ const fetchTwitterMediaFlow = ai.defineFlow(
             'tweet.fields': ['id', 'text', 'attachments', 'in_reply_to_user_id'],
             'media.fields': ['url', 'preview_image_url', 'type'],
             'expansions': 'attachments.media_keys',
-            'max_results': 20, // Busca os 20 tweets mais recentes
+            'max_results': 100, // Busca os 100 tweets mais recentes
+            'exclude': ['replies', 'retweets'], // Exclui respostas e retweets
         });
 
         const tweetsWithMedia: Tweet[] = [];
 
         for await (const tweet of timeline) {
-             // Ignora retweets e respostas
-            if (tweet.text.startsWith('RT @') || tweet.in_reply_to_user_id) {
-                continue;
-            }
-
             const media = timeline.includes.media(tweet);
             if (media && media.length > 0) {
                 tweetsWithMedia.push({
