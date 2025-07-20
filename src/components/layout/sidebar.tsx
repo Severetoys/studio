@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { X } from 'lucide-react';
+import { X, Video } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { fetishCategories, Fetish } from '@/lib/fetish-data';
@@ -72,12 +72,36 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
                   </Accordion>
                 </AccordionContent>
               </AccordionItem>
+
+              <AccordionItem value="videos" className="border-none">
+                <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">
+                  <div className="flex items-center gap-2">
+                    <Video className="h-4 w-4" />
+                    <span>VIDEOS</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pl-4">
+                   <ul className="space-y-1 pt-1">
+                      <li>
+                        <button onClick={() => handleNavigate('/videos/venda-avulsa')} className="block w-full text-left p-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                          Venda Avulsa
+                        </button>
+                      </li>
+                      <li>
+                        <button onClick={() => handleNavigate('/videos/assinatura')} className="block w-full text-left p-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                          Assinatura Mensal
+                        </button>
+                      </li>
+                   </ul>
+                </AccordionContent>
+              </AccordionItem>
+
               <li><Link href="/fotos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
-              <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
               <li><Button variant="ghost" className="w-full justify-start p-3 text-base hover:bg-muted hover:text-primary" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
               <li><Link href="/loja" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>LOJA ON-LINE</Link></li>
               <li><Link href="/aluga-se" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
               <li><Link href="/canais" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>CANAIS</Link></li>
+              
               <AccordionItem value="about" className="border-none">
                   <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">SOBRE</AccordionTrigger>
                   <AccordionContent className="pl-4 pt-2 text-muted-foreground text-sm space-y-4">

@@ -140,8 +140,21 @@ export default function OldAuthPage() {
             });
 
             if (result.isMatch) {
-                toast({ title: 'Face ID Verificado!', description: 'Redirecionando para o painel.' });
-                router.push('/dashboard');
+                toast({ title: 'Face ID Verificado!', description: 'Redirecionando...' });
+                
+                localStorage.setItem('justLoggedIn', 'true');
+
+                // Lógica de redirecionamento
+                const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
+                const purchaseIntent = localStorage.getItem('purchaseIntent');
+                const isSubscribing = redirectPath.includes('assinatura');
+
+                if (isSubscribing) {
+                    localStorage.setItem('hasSubscription', 'true');
+                }
+                
+                router.push(redirectPath);
+
             } else {
                 toast({
                     variant: 'destructive',
