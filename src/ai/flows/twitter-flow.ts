@@ -10,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -53,65 +54,62 @@ const fetchTwitterMediaFlow = ai.defineFlow(
     outputSchema: TwitterMediaOutputSchema,
   },
   async ({ username }) => {
-    // Importa a biblioteca dinamicamente para evitar erros de inicialização no Next.js
-    const { TwitterApi } = await import('twitter-api-v2');
-
-    // Inicializa o cliente da API do Twitter com as credenciais do ambiente.
-    // Usamos App-only (Bearer Token) para autenticação, que é suficiente para ler tweets públicos.
-    if (!process.env.TWITTER_BEARER_TOKEN) {
-        console.error('A variável de ambiente TWITTER_BEARER_TOKEN não está definida.');
-        throw new Error('A integração com o Twitter não está configurada. O Bearer Token está ausente.');
-    }
-    const twitterClient = new TwitterApi(process.env.TWITTER_BEARER_TOKEN);
-    const readOnlyClient = twitterClient.readOnly;
-
+    
     try {
-        // 1. Encontrar o ID do usuário a partir do nome de usuário.
-        const user = await readOnlyClient.v2.userByUsername(username);
-        if (!user.data) {
-            throw new Error(`Usuário do Twitter não encontrado: ${username}`);
-        }
-        const userId = user.data.id;
+      if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_APP_SECRET) {
+        console.error('As variáveis de ambiente do Twitter (APP_KEY, APP_SECRET) não estão definidas.');
+        throw new Error('A integração com o Twitter não está configurada corretamente.');
+      }
+      
+      const appOnlyClient = await new TwitterApi({
+        appKey: process.env.TWITTER_APP_KEY,
+        appSecret: process.env.TWITTER_APP_SECRET,
+      }).appLogin();
 
-        // 2. Buscar os tweets do usuário que contêm mídia, excluindo replies e retweets
-        const timeline = await readOnlyClient.v2.userTimeline(userId, {
-            'tweet.fields': ['id', 'text', 'attachments'],
-            'media.fields': ['url', 'preview_image_url', 'type'],
-            'expansions': 'attachments.media_keys',
-            'max_results': 100, // Busca os 100 tweets mais recentes
-            'exclude': ['replies', 'retweets'], // Exclui respostas e retweets
-        });
+      const readOnlyClient = appOnlyClient.readOnly;
         
-        const tweetsWithMedia: Tweet[] = [];
+      // 1. Encontrar o ID do usuário a partir do nome de usuário.
+      const user = await readOnlyClient.v2.userByUsername(username);
+      if (!user.data) {
+          throw new Error(`Usuário do Twitter não encontrado: ${username}`);
+      }
+      const userId = user.data.id;
 
-        // O 'timeline' é um iterador, então precisamos percorrer os resultados.
-        for await (const tweet of timeline) {
-            // timeline.includes.media() é uma função auxiliar para obter a mídia de um tweet
-            const media = timeline.includes.media(tweet);
-            
-            // Adiciona o tweet apenas se ele tiver mídia anexada
-            if (media && media.length > 0) {
-                tweetsWithMedia.push({
-                    id: tweet.id,
-                    text: tweet.text,
-                    media: media.map(m => ({
-                        type: m.type,
-                        url: m.url,
-                        preview_image_url: m.preview_image_url,
-                    }))
-                });
-            }
-        }
-        
-        return { tweets: tweetsWithMedia };
+      // 2. Buscar os tweets do usuário que contêm mídia, excluindo replies e retweets
+      const timeline = await readOnlyClient.v2.userTimeline(userId, {
+          'tweet.fields': ['id', 'text', 'attachments'],
+          'media.fields': ['url', 'preview_image_url', 'type'],
+          'expansions': 'attachments.media_keys',
+          'max_results': 100, // Busca os 100 tweets mais recentes
+          'exclude': ['replies', 'retweets'], // Exclui respostas e retweets
+      });
+      
+      const tweetsWithMedia: Tweet[] = [];
+
+      for await (const tweet of timeline) {
+          const media = timeline.includes.media(tweet);
+          
+          if (media && media.length > 0) {
+              tweetsWithMedia.push({
+                  id: tweet.id,
+                  text: tweet.text,
+                  media: media.map(m => ({
+                      type: m.type,
+                      url: m.url,
+                      preview_image_url: m.preview_image_url,
+                  }))
+              });
+          }
+      }
+      
+      return { tweets: tweetsWithMedia };
 
     } catch (error: any) {
         console.error('Erro ao buscar dados do Twitter:', error);
-        // Garante que o erro seja propagado de forma útil
         if (error.data && error.data.title === 'Unauthorized') {
-             throw new Error('Falha na autenticação com a API do Twitter. Verifique se o Bearer Token está correto.');
+             throw new Error('Falha na autenticação com a API do Twitter. Verifique se as chaves da API estão corretas.');
         }
-        throw new Error(`Falha na comunicação com a API do Twitter: ${error.message}`);
+        throw new Error(`Falha na comunicação com a API do Twitter: ${error.message || 'Erro desconhecido'}`);
     }
   }
 );
