@@ -84,6 +84,13 @@ export default function AdminLayout({
                 <Home className="h-4 w-4" />
                 Dashboard
               </Link>
+               <Link
+                href="/admin/subscribers"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === '/admin/subscribers' ? 'bg-muted text-primary' : ''}`}
+              >
+                <Users className="h-4 w-4" />
+                Assinantes
+              </Link>
               <Link
                 href="/admin/products"
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === '/admin/products' ? 'bg-muted text-primary' : ''}`}
