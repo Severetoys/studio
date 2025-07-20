@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi } from 'twitter-api-v2';
+// A importação estática foi removida para evitar o erro de inicialização.
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -40,6 +40,8 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username }) => {
     try {
+      const { TwitterApi } = await import('twitter-api-v2');
+
       if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET || !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
           throw new Error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
       }
