@@ -1,11 +1,12 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2, AlertCircle, Camera, Twitter } from 'lucide-react';
 import Image from "next/image";
-import { useToast } from '@/hooks/use-toast';
-import { fetchTwitterFeed, type TwitterMediaOutput } from '@/ai/flows/twitter-flow';
+import { useToast } from "@/hooks/use-toast";
+import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
 
 interface TweetWithMedia {
   id: string;
@@ -29,7 +30,15 @@ export default function FotosPage() {
       try {
         // Substitua 'Severepics' pelo seu nome de usuário do Twitter, se necessário.
         const response = await fetchTwitterFeed({ username: 'Severepics' });
-        setTweets(response.tweets);
+        
+        // Filtra para garantir que apenas tweets com mídia do tipo 'photo' sejam incluídos
+        const tweetsWithPhotos = response.tweets.map(tweet => ({
+          ...tweet,
+          media: tweet.media.filter(m => m.type === 'photo' && m.url),
+        })).filter(tweet => tweet.media.length > 0);
+
+        setTweets(tweetsWithPhotos);
+
       } catch (e: any) {
         const errorMessage = e.message || "Ocorreu um erro desconhecido.";
         setError(`Não foi possível carregar as fotos do Twitter. Motivo: ${errorMessage}`);
@@ -54,7 +63,7 @@ export default function FotosPage() {
           <CardTitle className="text-3xl text-primary text-shadow-neon-red-light flex items-center justify-center gap-3">
             <Twitter /> Galeria de Fotos do X
           </CardTitle>
-          <CardDescription>Feed de imagens e vídeos diretamente do meu perfil.</CardDescription>
+          <CardDescription>Feed de imagens diretamente do meu perfil.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (

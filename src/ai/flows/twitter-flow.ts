@@ -8,29 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-
-async function initializeTwitterClient() {
-    // Importa a biblioteca dinamicamente para evitar problemas de inicialização no Next.js
-    const { TwitterApi } = await import('twitter-api-v2');
-
-    // Valida se as credenciais do Twitter estão presentes no ambiente.
-    if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET || !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
-        console.error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
-        throw new Error("Credenciais da API do Twitter não configuradas.");
-    }
-
-    // Inicializa o cliente da API do Twitter com as credenciais (OAuth 1.0a)
-    const twitterClient = new TwitterApi({
-      appKey: process.env.TWITTER_API_KEY,
-      appSecret: process.env.TWITTER_API_SECRET,
-      accessToken: process.env.TWITTER_ACCESS_TOKEN,
-      accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    });
-
-    // Retorna o cliente com permissões de leitura e escrita
-    return twitterClient.readWrite;
-}
-
+import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -51,7 +29,6 @@ const TwitterMediaOutputSchema = z.object({
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
 
-
 /**
  * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter.
  */
@@ -63,7 +40,19 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username }) => {
     try {
-      const rwClient = await initializeTwitterClient();
+      if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET || !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
+          console.error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
+          throw new Error("Credenciais da API do Twitter não configuradas.");
+      }
+
+      const twitterClient = new TwitterApi({
+        appKey: process.env.TWITTER_API_KEY,
+        appSecret: process.env.TWITTER_API_SECRET,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN,
+        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+      });
+
+      const rwClient = twitterClient.readWrite;
       
       // 1. Obter o ID do usuário a partir do nome de usuário.
       const user = await rwClient.v2.userByUsername(username);
@@ -83,22 +72,24 @@ const fetchTwitterMediaFlow = ai.defineFlow(
       const tweetData = [];
 
       // 3. Processar os tweets para extrair a mídia.
-      for (const tweet of tweetsPaginator.data.data || []) {
-        const mediaAttachments = tweet.attachments?.media_keys?.map(key => {
-            const mediaInfo = includedMedia.find(m => m.media_key === key);
-            return {
-                url: mediaInfo?.type === 'video' ? mediaInfo.preview_image_url : mediaInfo?.url,
-                type: mediaInfo?.type || 'unknown'
-            };
-        }).filter(m => m.url); // Filtra mídias sem URL
-
-        if (mediaAttachments && mediaAttachments.length > 0) {
-            tweetData.push({
-                id: tweet.id,
-                text: tweet.text,
-                media: mediaAttachments,
-            });
-        }
+      if (tweetsPaginator.data.data) {
+          for (const tweet of tweetsPaginator.data.data) {
+            const mediaAttachments = tweet.attachments?.media_keys?.map(key => {
+                const mediaInfo = includedMedia.find(m => m.media_key === key);
+                return {
+                    url: mediaInfo?.type === 'video' ? mediaInfo.preview_image_url : mediaInfo?.url,
+                    type: mediaInfo?.type || 'unknown'
+                };
+            }).filter(m => m.url); // Filtra mídias sem URL
+    
+            if (mediaAttachments && mediaAttachments.length > 0) {
+                tweetData.push({
+                    id: tweet.id,
+                    text: tweet.text,
+                    media: mediaAttachments,
+                });
+            }
+          }
       }
 
       return { tweets: tweetData };
