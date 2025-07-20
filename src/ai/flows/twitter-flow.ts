@@ -10,7 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi } from 'twitter-api-v2';
+// A importação estática será removida e substituída por uma importação dinâmica dentro do fluxo.
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -56,6 +56,9 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   async ({ username }) => {
     
     try {
+      // Importa a biblioteca dinamicamente para evitar erros de inicialização no Next.js
+      const { TwitterApi } = await import('twitter-api-v2');
+
       if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_APP_SECRET) {
         console.error('As variáveis de ambiente do Twitter (APP_KEY, APP_SECRET) não estão definidas.');
         throw new Error('A integração com o Twitter não está configurada corretamente.');
