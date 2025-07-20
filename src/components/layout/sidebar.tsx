@@ -73,6 +73,8 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
                 </AccordionContent>
               </AccordionItem>
 
+              <li><Link href="/fotos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
+              
               <AccordionItem value="videos" className="border-none">
                 <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">
                   <div className="flex items-center gap-2">
@@ -96,8 +98,6 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
                 </AccordionContent>
               </AccordionItem>
 
-              <li><Link href="/fotos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
-              <li><Button variant="ghost" className="w-full justify-start p-3 text-base hover:bg-muted hover:text-primary" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
               <li><Link href="/loja" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>LOJA ON-LINE</Link></li>
               <li><Link href="/aluga-se" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
               <li><Link href="/canais" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>CANAIS</Link></li>
