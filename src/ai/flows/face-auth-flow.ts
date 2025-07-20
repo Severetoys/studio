@@ -77,7 +77,8 @@ export type VerifyFaceOutput = z.infer<typeof VerifyFaceOutputSchema>;
 
 /**
  * Fluxo Genkit para verificar o rosto de um usuário.
- * Se um rosto válido for detectado na imagem ao vivo, ele retorna sucesso.
+ * Se um rosto válido for detectado, ele retorna sucesso.
+ * Se for um registro (com nome, email, telefone), ele salva os dados na planilha.
  */
 const verifyFaceFlow = ai.defineFlow(
   {
@@ -87,7 +88,6 @@ const verifyFaceFlow = ai.defineFlow(
   },
   async ({ liveImage, name, email, phone }) => {
     
-    // Corrige a lógica para identificar corretamente uma tentativa de registro.
     const isRegistering = !!(name && email && phone);
     
     const faceCheckResult = await detectSingleFace(liveImage);
@@ -99,34 +99,32 @@ const verifyFaceFlow = ai.defineFlow(
       };
     }
     
-    // Se for um registro e a verificação facial for bem-sucedida, salve na planilha.
+    // Se for um registro e a verificação facial for bem-sucedida, salva na planilha.
     if (isRegistering) {
-        console.log(`Registrando novo usuário: ${name} (${email}) e salvando na planilha.`);
+        console.log(`Registrando novo usuário via Face Auth: ${name} (${email}) e salvando na planilha.`);
         try {
             await appendToSheet({
                 timestamp: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
                 name: name!,
                 email: email!,
-                // Salva um trecho da imagem para identificação, não a imagem inteira para não sobrecarregar
-                imageId: liveImage.substring(0, 50) + '...',
-                // Colunas de vídeo e pagamento são deixadas em branco, conforme a lógica atual
+                imageId: liveImage.substring(0, 50) + '...', // Salva um trecho da imagem para identificação
                 videoBase64: '', 
-                paymentId: '',
+                paymentId: 'N/A (Registro Facial)', // Indica que não foi via pagamento direto
             });
         } catch (error) {
-            console.error('Falha ao salvar na Planilha Google:', error);
-            // Decide se quer falhar a operação inteira se a planilha falhar.
-            // Por enquanto, vamos retornar um erro para o usuário.
+            console.error('Falha ao salvar na Planilha Google durante registro facial:', error);
             return {
                 isMatch: false,
                 reason: 'A verificação do rosto foi bem-sucedida, mas houve um erro ao salvar seu registro. Tente novamente.',
             };
         }
     } else {
-        console.log('Fazendo login de usuário existente.');
+        console.log('Realizando login de usuário existente via Face Auth.');
+        // Para um login, poderíamos verificar se o rosto corresponde a um usuário existente.
+        // Por agora, apenas o fato de ter um rosto é suficiente para o sucesso.
     }
     
-    // Para esta demonstração, se um rosto for encontrado, a verificação é bem-sucedida.
+    // Se um rosto for encontrado, a verificação é considerada um sucesso.
     return { isMatch: true };
   }
 );

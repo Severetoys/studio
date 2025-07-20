@@ -4,14 +4,16 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram, Loader2 } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
+import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram, Loader2, Mail } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
 import PayPalButton from '@/components/paypal-button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Product {
   id: string;
@@ -30,6 +32,8 @@ export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const router = useRouter();
   const { toast } = useToast();
   const db = getFirestore(firebaseApp);
@@ -101,13 +105,36 @@ export default function LojaPage() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handlePaymentSuccess = (details: any) => {
+  const handlePaymentSuccess = async (details: any) => {
     toast({
       title: "Pagamento bem-sucedido!",
       description: `O pagamento ${details.id} foi concluído.`,
     });
-    setCart([]); // Limpa o carrinho após o sucesso
-    // Redireciona para uma página de sucesso ou de autenticação para liberar o conteúdo.
+    
+    // Chama o webhook interno para registrar o pagamento na planilha
+    try {
+        await fetch('/api/payment-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                paymentId: details.id,
+                payer: {
+                  name: customerName,
+                  email: customerEmail,
+                }
+            }),
+        });
+    } catch (e) {
+        console.error("Falha ao chamar o webhook interno", e);
+        // A falha aqui não precisa ser mostrada ao usuário, pois o pagamento já foi feito.
+        // Apenas logamos o erro.
+    }
+
+    setCart([]); // Limpa o carrinho
+    setCustomerEmail(''); // Limpa o email
+    setCustomerName(''); // Limpa o nome
+
+    // Redireciona para a autenticação para liberar o conteúdo.
     router.push('/auth');
   };
 
@@ -146,6 +173,7 @@ export default function LojaPage() {
             <SheetContent className="bg-card border-primary/50 text-card-foreground">
               <SheetHeader>
                 <SheetTitle className="text-2xl text-primary text-shadow-neon-red-light">Seu Carrinho</SheetTitle>
+                <SheetDescription>Confira seus itens e dados antes de finalizar a compra.</SheetDescription>
               </SheetHeader>
               <div className="flex flex-col h-full">
                 {cart.length === 0 ? (
@@ -183,6 +211,14 @@ export default function LojaPage() {
                 )}
                 <SheetFooter className="mt-auto pt-6 border-t border-primary/20">
                     <div className="w-full space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Nome</Label>
+                            <Input id="name" placeholder="Seu nome completo" value={customerName} onChange={(e) => setCustomerName(e.target.value)} disabled={cart.length === 0}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} disabled={cart.length === 0}/>
+                        </div>
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total:</span>
                             <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
@@ -190,7 +226,8 @@ export default function LojaPage() {
                         <PayPalButton
                           amount={totalPrice.toFixed(2)}
                           onSuccess={handlePaymentSuccess}
-                          disabled={cart.length === 0}
+                          disabled={cart.length === 0 || !customerEmail || !customerName}
+                          customerInfo={{name: customerName, email: customerEmail}}
                         />
                     </div>
                 </SheetFooter>

@@ -10,6 +10,7 @@ interface PayPalButtonProps {
   amount: string;
   onSuccess: (details: any) => void;
   disabled: boolean;
+  customerInfo: { name: string, email: string };
 }
 
 declare global {
@@ -18,7 +19,7 @@ declare global {
     }
 }
 
-export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButtonProps) {
+export default function PayPalButton({ amount, onSuccess, disabled, customerInfo }: PayPalButtonProps) {
   const { toast } = useToast();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -30,6 +31,7 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
   }, []);
 
   const createOrder = (data: any, actions: any) => {
+    if (disabled) return;
     setIsProcessing(true);
     return actions.order.create({
       purchase_units: [
@@ -43,12 +45,19 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
       application_context: {
         shipping_preference: 'NO_SHIPPING',
       },
+       payer: {
+        email_address: customerInfo.email,
+        name: {
+          given_name: customerInfo.name.split(' ')[0],
+          surname: customerInfo.name.split(' ').slice(1).join(' ') || customerInfo.name.split(' ')[0],
+        }
+      }
     }).catch((err: any) => {
       console.error("Erro ao criar pedido PayPal:", err);
       toast({
         variant: "destructive",
         title: "Erro no PayPal",
-        description: "Não foi possível iniciar o pagamento. Tente novamente.",
+        description: "Não foi possível iniciar o pagamento. Verifique os dados e tente novamente.",
       });
       setIsProcessing(false);
       throw err;
@@ -89,7 +98,8 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
     );
   }
   
-  // O SDK do PayPal pode não renderizar botões se o valor for 0.00
+  const finalDisabledState = disabled || isProcessing || parseFloat(amount) <= 0;
+
   if (parseFloat(amount) <= 0) {
      return (
       <div className="flex items-center justify-center w-full h-12 bg-muted rounded-md text-muted-foreground cursor-not-allowed">
@@ -101,21 +111,20 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
   const PayPalButtonsComponent = window.paypal.Buttons.driver("react", { React, ReactDOM: null });
 
   return (
-    <div className={cn("relative", (disabled || isProcessing) && "opacity-50 cursor-not-allowed")}>
-       {(disabled || isProcessing) && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          {isProcessing && <Loader2 className="h-6 w-6 animate-spin text-primary" />}
+    <div className={cn("relative", finalDisabledState && "opacity-50 cursor-not-allowed")}>
+       {isProcessing && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       )}
       <PayPalButtonsComponent
         style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay', tagline: false }}
-        forceReRender={[amount, disabled]}
+        forceReRender={[amount, finalDisabledState]}
         createOrder={createOrder}
         onApprove={onApprove}
         onError={onError}
-        disabled={disabled}
+        disabled={finalDisabledState}
       />
     </div>
   );
 }
-
