@@ -35,7 +35,7 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
         { href: "/admin/photos", label: "Fotos", icon: ImageIcon },
         { href: "/admin/videos", label: "Vídeos", icon: Video },
         { href: "/admin/integrations", label: "Integrações", icon: Link2 },
-        { href: "/admin/chat", label: "Chat", icon: MessageSquare, badge: "6" },
+        { href: "/admin/conversations", label: "Conversas", icon: MessageSquare },
     ];
 
     return (
@@ -56,7 +56,7 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === link.href ? 'bg-muted text-primary' : ''}`}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname.startsWith(link.href) && (link.href !== '/admin' || pathname === '/admin') ? 'bg-muted text-primary' : ''}`}
                         >
                             <link.icon className="h-4 w-4" />
                             {link.label}
