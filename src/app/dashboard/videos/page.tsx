@@ -5,10 +5,17 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Twitter, Video } from 'lucide-react';
+import { ArrowLeft, Twitter, Video, PlayCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+
+const feedVideos = [
+  { id: 'vid_001', title: 'Vídeo do Feed: Fetiche de Pés', description: 'Uma exploração detalhada e artística da podolatria.', image: 'https://placehold.co/600x400.png', aiHint: 'sensual feet' },
+  { id: 'vid_002', title: 'Vídeo do Feed: Sessão de Spanking', description: 'Disciplina e prazer em uma sessão de spanking intensa e consensual.', image: 'https://placehold.co/600x400.png', aiHint: 'impact play' },
+  { id: 'vid_003', title: 'Vídeo do Feed: Jogo de Humilhação', description: 'Explore a dinâmica de poder com humilhação verbal e física.', image: 'https://placehold.co/600x400.png', aiHint: 'power exchange' },
+];
+
 
 export default function VideosPage() {
   const router = useRouter();
@@ -34,7 +41,6 @@ export default function VideosPage() {
   };
 
   if (!isClient || !hasAccess) {
-    // Renderiza um placeholder ou nada enquanto verifica o acesso para evitar flash de conteúdo.
     return (
         <div className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background">
             <p>Verificando acesso...</p>
@@ -44,7 +50,7 @@ export default function VideosPage() {
 
   return (
     <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-4xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
+      <Card className="w-full max-w-5xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
@@ -64,51 +70,28 @@ export default function VideosPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                <div className="space-y-3 group">
-                    <div className="overflow-hidden rounded-lg aspect-video bg-muted border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                        <Image src="https://placehold.co/600x400.png" alt="Thumbnail Vídeo 1" width={600} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint="security concepts" />
-                    </div>
-                    <h3 className="text-lg font-semibold">Vídeo 1: Introdução à Segurança</h3>
-                    <p className="text-sm text-muted-foreground">Aprenda os conceitos fundamentais para proteger seus dados e sistemas online.</p>
-                </div>
-                <div className="space-y-3 group">
-                    <div className="overflow-hidden rounded-lg aspect-video bg-muted border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                        <Image src="https://placehold.co/600x400.png" alt="Thumbnail Vídeo 2" width={600} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint="advanced configuration" />
-                    </div>
-                    <h3 className="text-lg font-semibold">Vídeo 2: Configuração Avançada</h3>
-                    <p className="text-sm text-muted-foreground">Explore técnicas avançadas de configuração para otimizar a segurança do seu ambiente.</p>
-                </div>
-                <div className="space-y-3 group">
-                    <div className="overflow-hidden rounded-lg aspect-video bg-muted border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                        <Image src="https://placehold.co/600x400.png" alt="Thumbnail Vídeo 3" width={600} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint="risk analysis" />
-                    </div>
-                    <h3 className="text-lg font-semibold">Vídeo 3: Análise de Riscos</h3>
-                    <p className="text-sm text-muted-foreground">Como identificar, analisar e mitigar riscos de segurança em seus projetos.</p>
-                </div>
-                <div className="space-y-3 group">
-                    <div className="overflow-hidden rounded-lg aspect-video bg-muted border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                        <Image src="https://placehold.co/600x400.png" alt="Thumbnail Vídeo 4" width={600} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint="incident response" />
-                    </div>
-                    <h3 className="text-lg font-semibold">Vídeo 4: Resposta a Incidentes</h3>
-                    <p className="text-sm text-muted-foreground">Passo a passo de como agir quando um incidente de segurança ocorre.</p>
-                </div>
-            </div>
-
             <Separator />
-
             <div>
-                <CardTitle className="text-2xl text-primary text-shadow-neon-red-light mb-4">Feed do X (Twitter)</CardTitle>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {Array.from({ length: 8 }).map((_, index) => (
-                        <div key={index} className="aspect-square bg-muted rounded-lg flex items-center justify-center border border-primary/20 animate-pulse">
-                            <Video className="h-10 w-10 text-muted-foreground" />
+                <CardTitle className="text-2xl text-primary text-shadow-neon-red-light mb-4 flex items-center gap-2">
+                  <Twitter /> Feed do X (Acesso Total)
+                </CardTitle>
+                <CardDescription className="mb-6">Como assinante, você tem acesso liberado a todos os vídeos do feed.</CardDescription>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {feedVideos.map((video) => (
+                        <div key={video.id} className="space-y-3 group">
+                            <div className="overflow-hidden rounded-lg aspect-video bg-muted border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 relative">
+                                <Image src={video.image} alt={`Thumbnail ${video.title}`} width={600} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={video.aiHint} />
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <PlayCircle className="h-16 w-16 text-white" />
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-semibold">{video.title}</h3>
+                            <p className="text-sm text-muted-foreground">{video.description}</p>
                         </div>
                     ))}
                 </div>
-                <p className="text-center text-muted-foreground mt-4 text-sm">A integração com o X (Twitter) está em desenvolvimento. Em breve, seu feed de mídia aparecerá aqui.</p>
+                 <p className="text-center text-muted-foreground mt-8 text-sm">A integração com o X (Twitter) está em desenvolvimento. Em breve, seu feed de mídia aparecerá aqui automaticamente.</p>
             </div>
-
         </CardContent>
       </Card>
     </main>
