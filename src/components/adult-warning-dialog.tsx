@@ -29,7 +29,7 @@ export default function AdultWarningDialog({ isOpen, onConfirm }: AdultWarningDi
             Aviso de Conteúdo Adulto
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center text-muted-foreground pt-2">
-            Este site contém conteúdo adulto (+18) e é restrito a maiores de idade.
+            CONTEÚDO ADULTO PODE CONTER CENAS DE SEXO EXTREMO E VIOLÊNCIA.
             <br />
             Pressione continuar apenas se você tiver 18 anos ou mais.
           </AlertDialogDescription>
