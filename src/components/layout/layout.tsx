@@ -49,6 +49,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
+  // Se estiver em uma rota do admin, renderiza apenas o children
+  if (pathname.startsWith('/admin')) {
+    return <>{children}</>;
+  }
+
   // Define as rotas que NÃO devem exibir o cabeçalho e rodapé principais.
   const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
   const showMainHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route));

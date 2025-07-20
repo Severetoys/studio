@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MessageSquare, X, BadgeCheck, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
     <svg 
@@ -74,7 +74,9 @@ const ContactButton = ({ href, bgColor, text, Icon, onClick, isLink }: ContactBu
 export default function WhatsAppButton() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const phoneNumber = "5511999999999";
+  const pathname = usePathname();
+  // Substitua '5511999999999' pelo seu número de telefone completo com código do país e DDD.
+  const phoneNumber = "5511999999999"; 
   const message = "Olá! Gostaria de mais informações.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
@@ -83,6 +85,10 @@ export default function WhatsAppButton() {
     router.push('/chat-secreto');
     setIsOpen(false);
   };
+  
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
