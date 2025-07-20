@@ -20,7 +20,7 @@ interface AdminLoginPageProps {
 }
 
 export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
-  const [step, setStep] = useState<'credentials' | 'face'>('credentials');
+  const [step, setStep] = useState<'password' | 'email' | 'face'>('password');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -60,19 +60,29 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
     }
   };
 
-  const handleCredentialsSubmit = async () => {
+  const handlePasswordSubmit = () => {
+    setError('');
+    if (password === ADMIN_PASSWORD) {
+      toast({ title: "Senha correta!", description: "Agora, insira o e-mail secreto." });
+      setStep('email');
+    } else {
+      setError("Senha incorreta.");
+      toast({ variant: "destructive", title: "Senha Inválida" });
+    }
+  };
+
+  const handleEmailSubmit = async () => {
     setIsLoggingIn(true);
     setError('');
-
-    if (password === ADMIN_PASSWORD && email.toLowerCase() === ADMIN_EMAIL) {
-      toast({ title: "Credenciais validadas!", description: "Por favor, complete a verificação facial." });
+    if (email.toLowerCase() === ADMIN_EMAIL) {
+      toast({ title: "E-mail validado!", description: "Por favor, complete a verificação facial." });
       const cameraReady = await requestCameraPermission();
       if (cameraReady) {
         setStep('face');
       }
     } else {
-      setError("Credenciais incorretas. Por favor, tente novamente.");
-      toast({ variant: "destructive", title: "Falha na Autenticação", description: "Senha ou email incorretos." });
+      setError("E-mail secreto incorreto.");
+      toast({ variant: "destructive", title: "Falha na Autenticação", description: "E-mail incorreto." });
     }
     setIsLoggingIn(false);
   };
@@ -132,6 +142,90 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
     </div>
   );
 
+  const renderStepContent = () => {
+    switch (step) {
+      case 'password':
+        return (
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                placeholder="********"
+              />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </CardContent>
+        );
+      case 'email':
+        return (
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Secreto</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleEmailSubmit()}
+                placeholder="seuemail@secreto.com"
+              />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </CardContent>
+        );
+      case 'face':
+        return (
+          <CardContent className="space-y-4">
+              <VideoPanel />
+          </CardContent>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderStepFooter = () => {
+    switch (step) {
+      case 'password':
+        return (
+          <Button type="button" className="w-full" onClick={handlePasswordSubmit} disabled={isLoggingIn || !password}>
+            <Lock className="mr-2 h-4 w-4" />
+            {isLoggingIn ? 'Verificando...' : 'Próxima Etapa'}
+          </Button>
+        );
+      case 'email':
+        return (
+          <Button type="button" className="w-full" onClick={handleEmailSubmit} disabled={isLoggingIn || !email}>
+            <Mail className="mr-2 h-4 w-4" />
+            {isLoggingIn ? 'Verificando...' : 'Próxima Etapa'}
+          </Button>
+        );
+      case 'face':
+        return (
+          <Button className="w-full" onClick={handleFaceVerification} disabled={isLoggingIn || !hasCameraPermission}>
+            <Fingerprint className="mr-2 h-4 w-4" />
+            {isLoggingIn ? 'Autenticando...' : 'Confirmar Login Facial'}
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
+  
+  const getDescription = () => {
+    switch(step) {
+      case 'password': return "Insira sua senha de administrador.";
+      case 'email': return "Agora, insira seu e-mail secreto.";
+      case 'face': return "Posicione seu rosto na câmera para finalizar.";
+      default: return "Acesso Restrito.";
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
@@ -141,55 +235,14 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
           </div>
           <CardTitle className="text-2xl">Acesso Restrito ao Painel</CardTitle>
           <CardDescription>
-            {step === 'credentials'
-              ? "Insira suas credenciais para continuar."
-              : "Posicione seu rosto na câmera para finalizar."}
+            {getDescription()}
           </CardDescription>
         </CardHeader>
         
-        {step === 'credentials' ? (
-            <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="seuemail@exemplo.com"
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleCredentialsSubmit()}
-                placeholder="********"
-                />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            </CardContent>
-        ) : (
-            <CardContent className="space-y-4">
-                <VideoPanel />
-            </CardContent>
-        )}
+        {renderStepContent()}
 
         <CardFooter>
-            {step === 'credentials' ? (
-                <Button type="button" className="w-full" onClick={handleCredentialsSubmit} disabled={isLoggingIn}>
-                    <Mail className="mr-2 h-4 w-4" />
-                    {isLoggingIn ? 'Verificando...' : 'Próximo Passo'}
-                </Button>
-            ) : (
-                 <Button className="w-full" onClick={handleFaceVerification} disabled={isLoggingIn || !hasCameraPermission}>
-                    <Fingerprint className="mr-2 h-4 w-4" />
-                    {isLoggingIn ? 'Autenticando...' : 'Confirmar Login Facial'}
-                </Button>
-            )}
+          {renderStepFooter()}
         </CardFooter>
       </Card>
     </div>
