@@ -48,31 +48,7 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
                 +18 ADULT WORK
               </Button>
             </li>
-            <li><Link href="/" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>INÍCIO</Link></li>
-            <li><Link href="/canais" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>CANAIS</Link></li>
-            <li><Link href="/loja" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>LOJA ON-LINE</Link></li>
-            <li><Link href="/aluga-se" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
-            <li><Link href="/fotos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
-            <li><Button variant="ghost" className="w-full justify-start p-3 text-base hover:bg-muted hover:text-primary" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
-            <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="about" className="border-none">
-                  <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">SOBRE</AccordionTrigger>
-                  <AccordionContent className="pl-4 pt-2 text-muted-foreground text-sm space-y-4">
-                      <div className="text-sm text-muted-foreground space-y-4">
-                        <h3 className="font-semibold text-primary/90">Características Físicas</h3>
-                        <p>1,69m de altura e 70kg com cabelo castanho claro corpo atlético magro definido um dote de 20cm.</p>
-                        <p>Fetichista elite. Costumo dizer isso pois para meus servos o cachê que pagam indiferente em suas vidas.</p>
-                        <p>Independentemente do status social trato todos igualmente mesmo aqueles que só possam ter o prazer de desfrutar da minha companhia uma vez ao mês.</p>
-                        <p>Sou cordial e autoritário, o acompanhante ideal para te iniciar em suas maiores fantasias sexuais.</p>
-                        
-                        <h3 className="font-semibold text-primary/90 mt-4">Durante as sessões</h3>
-                        <p>Gosto de proporcionar experiências únicas libertando os desejos mais obscuros e reprimidos. Realizo vários fetichessendo minhas práticas com mais experiência: D/s, fisting, pet-play, pissing, spit, leather, anal play, nipple play, ass play, spanking, humilhação, CBT, wax, sissificação, e-stim, bondage, asfixia. Disponho de acessórios e brinquedos para aquecer a relação.</p>
-                        <p>Para aqueles que não têm fantasias e fetiches, podemos ter uma relação sexual normal sem práticas.</p>
-                        <p>Tudo à disposição em um ambiente climatizado, seguro e confortável, com chuveiro quente, toalha limpa, sabonete, álcool gel, camisinha e lubrificante. Contrate-me no WhatsApp e me encontre aqui no meu local.</p>
-                      </div>
-                  </AccordionContent>
-                </AccordionItem>
               <AccordionItem value="fetish-bdsm" className="border-none">
                 <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">FETISH &amp; BDSM</AccordionTrigger>
                 <AccordionContent className="pl-4">
@@ -96,6 +72,29 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
                   </Accordion>
                 </AccordionContent>
               </AccordionItem>
+              <li><Link href="/fotos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>FOTOS</Link></li>
+              <li><Link href="/dashboard/videos" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>VIDEOS</Link></li>
+              <li><Button variant="ghost" className="w-full justify-start p-3 text-base hover:bg-muted hover:text-primary" onClick={() => handleNavigate('/auth')}>ASSINATURA</Button></li>
+              <li><Link href="/loja" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>LOJA ON-LINE</Link></li>
+              <li><Link href="/aluga-se" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>ALUGA-SE</Link></li>
+              <li><Link href="/canais" className="block p-3 rounded-md hover:bg-muted" onClick={onClose}>CANAIS</Link></li>
+              <AccordionItem value="about" className="border-none">
+                  <AccordionTrigger className="p-3 hover:no-underline hover:bg-muted rounded-md text-base">SOBRE</AccordionTrigger>
+                  <AccordionContent className="pl-4 pt-2 text-muted-foreground text-sm space-y-4">
+                      <div className="text-sm text-muted-foreground space-y-4">
+                        <h3 className="font-semibold text-primary/90">Características Físicas</h3>
+                        <p>1,69m de altura e 70kg com cabelo castanho claro corpo atlético magro definido um dote de 20cm.</p>
+                        <p>Fetichista elite. Costumo dizer isso pois para meus servos o cachê que pagam indiferente em suas vidas.</p>
+                        <p>Independentemente do status social trato todos igualmente mesmo aqueles que só possam ter o prazer de desfrutar da minha companhia uma vez ao mês.</p>
+                        <p>Sou cordial e autoritário, o acompanhante ideal para te iniciar em suas maiores fantasias sexuais.</p>
+                        
+                        <h3 className="font-semibold text-primary/90 mt-4">Durante as sessões</h3>
+                        <p>Gosto de proporcionar experiências únicas libertando os desejos mais obscuros e reprimidos. Realizo vários fetichessendo minhas práticas com mais experiência: D/s, fisting, pet-play, pissing, spit, leather, anal play, nipple play, ass play, spanking, humilhação, CBT, wax, sissificação, e-stim, bondage, asfixia. Disponho de acessórios e brinquedos para aquecer a relação.</p>
+                        <p>Para aqueles que não têm fantasias e fetiches, podemos ter uma relação sexual normal sem práticas.</p>
+                        <p>Tudo à disposição em um ambiente climatizado, seguro e confortável, com chuveiro quente, toalha limpa, sabonete, álcool gel, camisinha e lubrificante. Contrate-me no WhatsApp e me encontre aqui no meu local.</p>
+                      </div>
+                  </AccordionContent>
+                </AccordionItem>
             </Accordion>
           </ul>
         </nav>
