@@ -19,16 +19,17 @@ interface Review {
 
 const MainFooter = () => {
 
-    const galleries = Array.from({ length: 8 }, (_, i) => ({
+    const galleryWords = ["ACOMPANHANTE MASCULINO", "SENSUALIDADE", "PRAZER", "BDSM", "FETISH", "FANTASIA", "IS"];
+      
+    const galleries = galleryWords.map((word, i) => ({
         id: i,
-        title: `Galeria ${i + 1}`,
+        word: word,
         photos: Array.from({ length: 5 }, (_, p) => ({
           src: `https://placehold.co/400x800.png`,
           hint: p % 2 === 0 ? "fashion editorial" : "urban model",
-          id: p,
-          word: "Fetiche" // Palavra de exemplo
+          id: p
         }))
-      }));
+    }));
       
     const reviews: Review[] = [
         { author: 'top', time: '3 dias', text: 'faz passivo?' },
@@ -172,9 +173,6 @@ const MainFooter = () => {
                                           />
                                       </CardContent>
                                     </Card>
-                                    <p className="text-center text-primary text-shadow-neon-red-light text-xl tracking-widest uppercase">
-                                        {photo.word}
-                                    </p>
                                   </div>
                                 </CarouselItem>
                               ))}
@@ -182,6 +180,9 @@ const MainFooter = () => {
                           <CarouselPrevious className="ml-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                           <CarouselNext className="mr-14 bg-background/50 border-primary text-primary hover:bg-primary hover:text-primary-foreground" />
                       </Carousel>
+                      <p className="text-center text-primary text-shadow-neon-red-light text-4xl tracking-widest uppercase mt-2">
+                        {gallery.word}
+                      </p>
                     </div>
                     <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
                   </div>
@@ -248,5 +249,6 @@ const MainFooter = () => {
 };
 
 export default MainFooter;
+
 
 
