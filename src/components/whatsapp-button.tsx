@@ -75,10 +75,7 @@ export default function WhatsAppButton() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  // Substitua '5511999999999' pelo seu número de telefone completo com código do país e DDD.
-  const phoneNumber = "5511999999999"; 
-  const message = "Olá! Gostaria de mais informações.";
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const whatsappUrl = `https://wa.me/italosantos`;
 
   const handleChatSecretoClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
