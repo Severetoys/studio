@@ -13,15 +13,11 @@ import { z } from 'zod';
 
 // Define o schema esperado para os dados do corpo da requisição.
 const PaymentWebhookSchema = z.object({
-  // O e-mail deve ser opcional, pois nem todos os webhooks de sistema o enviam.
-  // A validação principal será se temos um paymentId.
-  email: z.string().email({ message: "Formato de email inválido." }).optional(),
   paymentId: z.string().min(1, { message: "O ID de pagamento não pode estar vazio." }),
-  // Adicionamos os detalhes do pagador para registrar um novo usuário se necessário.
   payer: z.object({
-    name: z.string(),
+    name: z.string().optional(), // Nome pode ser opcional
     email: z.string().email(),
-  }).optional(),
+  }),
 });
 
 /**
@@ -34,12 +30,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('[Webhook] Recebido payload:', JSON.stringify(body, null, 2));
 
-
     // Valida os dados recebidos contra o schema.
     const validationResult = PaymentWebhookSchema.safeParse(body);
 
     if (!validationResult.success) {
-      // Se a validação falhar, retorna um erro 400 com os detalhes.
       console.error('[Webhook] Falha na validação do payload:', validationResult.error.flatten());
       return NextResponse.json(
         { message: 'Dados inválidos.', errors: validationResult.error.flatten().fieldErrors },
@@ -48,19 +42,20 @@ export async function POST(request: NextRequest) {
     }
 
     const { paymentId, payer } = validationResult.data;
+    const { email, name } = payer;
 
-    if (!payer || !payer.email) {
-       console.error('[Webhook] Erro: Payer ou email do payer não fornecido no corpo da requisição.');
+    if (!email) {
+       console.error('[Webhook] Erro: Email do pagador não fornecido no corpo da requisição.');
        return NextResponse.json({ message: 'Dados do pagador são obrigatórios.' }, { status: 400 });
     }
 
-    console.log(`[Webhook] Recebida atualização de pagamento para o email: ${payer.email} com ID: ${paymentId}`);
+    console.log(`[Webhook] Recebida atualização de pagamento para o email: ${email} com ID: ${paymentId}`);
 
     // Chama a função de serviço para encontrar o usuário pelo email e atualizar a coluna de pagamento.
     // Esta função agora também pode registrar o usuário se ele não existir.
-    await updatePaymentIdForUser(payer.email, paymentId, payer.name);
+    await updatePaymentIdForUser(email, paymentId, name || 'Nome não fornecido');
 
-    console.log(`[Webhook] Planilha atualizada com sucesso para o email: ${payer.email}`);
+    console.log(`[Webhook] Planilha atualizada com sucesso para o email: ${email}`);
 
     // Retorna uma resposta de sucesso.
     return NextResponse.json({ message: 'Planilha atualizada com sucesso.' }, { status: 200 });

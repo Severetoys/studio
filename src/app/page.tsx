@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Fingerprint, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
+import PaymentButtons from '@/components/payment-buttons';
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -37,11 +38,6 @@ const FeatureList = () => (
 export default function HomePageContent() {
   const router = useRouter();
 
-  const handlePaymentClick = (method: 'google' | 'apple') => {
-    console.log(`Initiating payment with ${method}`);
-    router.push('/auth'); 
-  };
-  
   return (
     <div className="flex flex-col items-center">
       <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-md text-center">
@@ -52,14 +48,7 @@ export default function HomePageContent() {
             Face ID
         </Button>
         
-        <div className="w-full grid grid-cols-2 gap-4">
-            <Button onClick={() => handlePaymentClick('google')} variant="secondary" className="h-12 flex items-center justify-center bg-white text-black border border-zinc-300 hover:bg-zinc-100 hover:border-zinc-400 transition-all duration-300 font-bold uppercase tracking-wider">
-                GOOGLE
-            </Button>
-            <Button onClick={() => handlePaymentClick('apple')} variant="secondary" className="h-12 flex items-center justify-center bg-white text-black border border-zinc-300 hover:bg-zinc-100 hover:border-zinc-400 transition-all duration-300 font-bold uppercase tracking-wider">
-                APPLE
-            </Button>
-        </div>
+        <PaymentButtons amount="99.00" />
         
         <Separator className="w-full bg-border/30" />
 
@@ -86,6 +75,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
