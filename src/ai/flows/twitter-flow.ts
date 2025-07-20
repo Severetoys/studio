@@ -72,19 +72,23 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         }
         const userId = user.data.id;
 
-        // 2. Buscar os tweets do usuário que contêm mídia.
+        // 2. Buscar os tweets do usuário que contêm mídia, excluindo replies e retweets
         const timeline = await readOnlyClient.v2.userTimeline(userId, {
-            'tweet.fields': ['id', 'text', 'attachments', 'in_reply_to_user_id'],
+            'tweet.fields': ['id', 'text', 'attachments'],
             'media.fields': ['url', 'preview_image_url', 'type'],
             'expansions': 'attachments.media_keys',
             'max_results': 100, // Busca os 100 tweets mais recentes
             'exclude': ['replies', 'retweets'], // Exclui respostas e retweets
         });
-
+        
         const tweetsWithMedia: Tweet[] = [];
 
+        // O 'timeline' é um iterador, então precisamos percorrer os resultados.
         for await (const tweet of timeline) {
+            // timeline.includes.media() é uma função auxiliar para obter a mídia de um tweet
             const media = timeline.includes.media(tweet);
+            
+            // Adiciona o tweet apenas se ele tiver mídia anexada
             if (media && media.length > 0) {
                 tweetsWithMedia.push({
                     id: tweet.id,
@@ -97,7 +101,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                 });
             }
         }
-
+        
         return { tweets: tweetsWithMedia };
 
     } catch (error: any) {
