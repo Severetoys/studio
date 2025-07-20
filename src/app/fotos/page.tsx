@@ -8,7 +8,7 @@ import Image from "next/image";
 import { fetchTwitterMedia, type Tweet } from '@/ai/flows/twitter-flow';
 import { useToast } from '@/hooks/use-toast';
 
-const TWITTER_USERNAME = "ItaloSantosAM";
+const TWITTER_USERNAME = "Severepics";
 
 export default function FotosPage() {
   const { toast } = useToast();

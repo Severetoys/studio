@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { fetchTwitterMedia, type Tweet } from '@/ai/flows/twitter-flow';
 
-const TWITTER_USERNAME = "ItaloSantosAM";
+const TWITTER_USERNAME = "Severepics";
 
 const VideoCard = ({ tweet }: { tweet: Tweet }) => {
   const media = tweet.media?.[0];

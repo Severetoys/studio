@@ -13,7 +13,7 @@ import { fetchTwitterMedia, type Tweet } from '@/ai/flows/twitter-flow';
 
 // Este nome de usuário será usado para buscar o feed.
 // Poderia vir de um banco de dados ou configuração no futuro.
-const TWITTER_USERNAME = "ItaloSantosAM";
+const TWITTER_USERNAME = "Severepics";
 
 export default function VideosPage() {
   const router = useRouter();
