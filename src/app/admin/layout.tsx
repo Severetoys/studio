@@ -1,12 +1,11 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminHeader from '@/components/admin/header';
 import AdminSidebar from '@/components/admin/sidebar';
 import AdminLoginPage from './login/page';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function AdminLayout({
   children,
@@ -14,35 +13,37 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    setIsClient(true);
     const authStatus = localStorage.getItem("adminAuthenticated");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-      if (pathname !== "/admin/login") {
-        router.replace("/admin/login");
-      }
-    }
-  }, [router, pathname]);
+    setIsAuthenticated(authStatus === "true");
+  }, []);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    if (isAuthenticated === false && pathname !== "/admin/login") {
+      router.replace("/admin/login");
+    }
+  }, [isAuthenticated, pathname, router]);
+
+  const handleAuthSuccess = useCallback(() => {
+    setIsAuthenticated(true);
+    router.replace('/admin');
+  }, [router]);
+  
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("adminAuthenticated");
     setIsAuthenticated(false);
     router.replace("/admin/login");
-  };
+  }, [router]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
   
-  if (!isClient) {
+  if (isAuthenticated === null) {
     return (
        <div className="flex h-screen w-full items-center justify-center bg-background">
         <p className="text-muted-foreground">Carregando...</p>
@@ -51,10 +52,12 @@ export default function AdminLayout({
   }
 
   if (pathname === "/admin/login") {
-    return <AdminLoginPage onAuthSuccess={() => setIsAuthenticated(true)} />;
+    return <AdminLoginPage onAuthSuccess={handleAuthSuccess} />;
   }
 
   if (!isAuthenticated) {
+    // This case should be handled by the useEffect redirect,
+    // but it's a good fallback.
     return (
        <div className="flex h-screen w-full items-center justify-center bg-background">
         <p className="text-muted-foreground">Verificando autorização...</p>

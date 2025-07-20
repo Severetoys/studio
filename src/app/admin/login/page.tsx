@@ -117,7 +117,6 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
             toast({ title: "Login bem-sucedido!", description: "Bem-vindo ao painel." });
             localStorage.setItem("adminAuthenticated", "true");
             onAuthSuccess();
-            router.push('/admin');
         } else {
             toast({ variant: "destructive", title: "Falha no Face ID", description: result.reason || 'Rosto não reconhecido.' });
         }
