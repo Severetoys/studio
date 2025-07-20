@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body className={`font-sans ${inter.variable} antialiased bg-background`}>
         <Script 
-          src={`https://www.paypal.com/sdk/js?client-id=${process.env.PAYPAL_CLIENT_ID}&currency=BRL&enable-funding=venmo,paylater,card,googlepay,applepay`}
+          src={`https://www.paypal.com/sdk/js?client-id=${process.env.PAYPAL_CLIENT_ID}&currency=BRL&enable-funding=paylater,card,googlepay,applepay`}
           strategy="beforeInteractive"
         />
         <Layout>
