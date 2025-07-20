@@ -172,7 +172,7 @@ const MainFooter = () => {
                                           />
                                       </CardContent>
                                     </Card>
-                                    <p className="text-center text-primary text-shadow-neon-red-light text-sm tracking-widest uppercase">
+                                    <p className="text-center text-primary text-shadow-neon-red-light text-xl tracking-widest uppercase">
                                         {photo.word}
                                     </p>
                                   </div>
@@ -187,19 +187,10 @@ const MainFooter = () => {
                   </div>
                 ))}
             </div>
-
+            
             <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
-                <div className="max-w-4xl w-full mx-auto">
-                    <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
-                    <div className="flex flex-col items-center gap-6">
-                      {reviews.map((review, index) => (
-                        <ReviewCard key={index} review={review} />
-                      ))}
-                    </div>
-
-                    <Separator className="max-w-xl mx-auto my-12 bg-border/30" />
-
-                     <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red flex items-center justify-center gap-2">
+                 <div className="max-w-4xl w-full mx-auto">
+                    <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red flex items-center justify-center gap-2">
                         <MapPin className="h-8 w-8 text-primary"/>
                         Localização
                     </h2>
@@ -216,6 +207,17 @@ const MainFooter = () => {
                             ></iframe>
                         </CardContent>
                     </Card>
+                </div>
+            </div>
+
+            <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
+                <div className="max-w-4xl w-full mx-auto">
+                    <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
+                    <div className="flex flex-col items-center gap-6">
+                      {reviews.map((review, index) => (
+                        <ReviewCard key={index} review={review} />
+                      ))}
+                    </div>
                 </div>
             </div>
             
@@ -246,4 +248,5 @@ const MainFooter = () => {
 };
 
 export default MainFooter;
+
 
