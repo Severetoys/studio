@@ -45,7 +45,7 @@ const VideoCard = ({ video }: { video: IndividualVideo }) => {
     });
     localStorage.setItem('purchaseIntent', video.id);
     localStorage.setItem('redirectAfterLogin', `/videos/venda-avulsa`);
-    router.push('/auth');
+    router.push('/old-auth-page');
   };
 
   return (

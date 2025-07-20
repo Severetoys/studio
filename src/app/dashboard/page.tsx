@@ -9,15 +9,15 @@ import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, Arro
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 
-// Simula um email de usuário logado. Em uma aplicação real, isso viria de uma sessão.
-const FAKE_USER_EMAIL = "usuario.exemplo@email.com";
-
 export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isPaid, setIsPaid] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  
+  // Usaremos um email fictício. Numa aplicação real, viria da sessão do usuário.
+  const FAKE_USER_EMAIL = "usuario.exemplo@email.com";
 
   useEffect(() => {
     setIsClient(true);
@@ -28,56 +28,40 @@ export default function DashboardPage() {
 
   const handlePayment = async () => {
     setIsProcessingPayment(true);
-    toast({ title: 'Processando pagamento...', description: 'Aguarde um momento.' });
+    toast({ title: 'Redirecionando para autenticação...' });
 
-    try {
-      // Simula a geração de um ID de pagamento.
-      const paymentId = `PAY-SIM-${Date.now()}`;
-
-      // Chama o nosso próprio endpoint de webhook para simular um sistema de pagamento externo.
-      const response = await fetch('/api/payment-webhook', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: FAKE_USER_EMAIL,
-          paymentId: paymentId,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Falha ao processar o pagamento.');
-      }
-
+    // Em vez de chamar o webhook diretamente, redirecionamos para a autenticação.
+    // A lógica de pagamento/registro será tratada após a verificação facial.
+    // Podemos armazenar a intenção de pagamento para usar após o login.
+    localStorage.setItem('paymentIntent', 'true');
+    localStorage.setItem('redirectAfterLogin', '/dashboard');
+    router.push('/old-auth-page');
+    
+    // O código abaixo não será mais executado aqui
+    // setIsProcessingPayment(false);
+  };
+  
+  useEffect(() => {
+    // Verifica se o usuário acabou de logar e tinha uma intenção de pagamento.
+    if (localStorage.getItem('justLoggedIn') === 'true' && localStorage.getItem('paymentIntent') === 'true') {
+      setIsPaid(true);
+      localStorage.setItem('hasPaid', 'true');
       toast({
-        title: 'Pagamento bem-sucedido!',
+        title: 'Pagamento Confirmado!',
         description: 'Seu acesso foi liberado.',
       });
-      
-      // Persiste o estado de pagamento no localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('hasPaid', 'true');
-      }
-      setIsPaid(true);
-
-    } catch (error: any) {
-      console.error('Erro ao simular pagamento:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro no Pagamento',
-        description: error.message || 'Não foi possível concluir o pagamento. Tente novamente.',
-      });
-    } finally {
-      setIsProcessingPayment(false);
+      // Limpa os marcadores para não repetir a ação
+      localStorage.removeItem('justLoggedIn');
+      localStorage.removeItem('paymentIntent');
     }
-  };
+  }, []);
+
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('hasPaid');
+      localStorage.removeItem('justLoggedIn');
+      localStorage.removeItem('paymentIntent');
     }
     router.push('/');
   };

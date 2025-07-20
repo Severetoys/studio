@@ -38,7 +38,7 @@ export default function AssinaturaPage() {
     });
     // Armazena a intenção de assinar para redirecionar após o login
     localStorage.setItem('redirectAfterLogin', '/videos/assinatura');
-    router.push('/auth');
+    router.push('/old-auth-page');
   };
 
   if (!isClient) {

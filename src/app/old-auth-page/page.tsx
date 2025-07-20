@@ -142,18 +142,8 @@ export default function OldAuthPage() {
             if (result.isMatch) {
                 toast({ title: 'Face ID Verificado!', description: 'Redirecionando...' });
                 
-                localStorage.setItem('justLoggedIn', 'true');
-
-                // Lógica de redirecionamento
-                const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
-                const purchaseIntent = localStorage.getItem('purchaseIntent');
-                const isSubscribing = redirectPath.includes('assinatura');
-
-                if (isSubscribing) {
-                    localStorage.setItem('hasSubscription', 'true');
-                }
-                
-                router.push(redirectPath);
+                // Redireciona para o dashboard após um login/registro bem-sucedido
+                router.push('/dashboard'); 
 
             } else {
                 toast({

@@ -107,7 +107,8 @@ const verifyFaceFlow = ai.defineFlow(
                 timestamp: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
                 name: name!,
                 email: email!,
-                imageId: liveImage,
+                // Salva um trecho da imagem para identificação, não a imagem inteira para não sobrecarregar
+                imageId: liveImage.substring(0, 50) + '...',
                 // Colunas de vídeo e pagamento são deixadas em branco, conforme a lógica atual
                 videoBase64: '', 
                 paymentId: '',
