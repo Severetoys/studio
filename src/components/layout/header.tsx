@@ -22,7 +22,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
           </Link>
         </div>
         <div className="flex-1 flex justify-center px-4">
-           <Button variant="destructive" className="hidden sm:flex h-8 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300" onClick={() => router.push('/auth')}>
+           <Button variant="destructive" className="hidden sm:flex h-8 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300" onClick={() => router.push('/admin')}>
             +18 ADULT WORK
           </Button>
         </div>

@@ -44,7 +44,7 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
         <nav className="p-4 overflow-y-auto h-[calc(100%-65px)]">
           <ul className="space-y-2">
             <li>
-              <Button variant="destructive" className="w-full justify-start text-base py-6 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300" onClick={() => handleNavigate('/auth')}>
+              <Button variant="destructive" className="w-full justify-start text-base py-6 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300" onClick={() => handleNavigate('/admin')}>
                 +18 ADULT WORK
               </Button>
             </li>
