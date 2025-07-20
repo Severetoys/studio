@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { getFirestore, collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { app as firebaseApp } from '@/lib/firebase';
 
 interface Video {
@@ -37,6 +37,8 @@ interface Video {
   price: number;
   videoUrl: string;
   thumbnailUrl: string;
+  videoStoragePath: string;
+  thumbnailStoragePath?: string;
   createdAt: Timestamp;
 }
 
@@ -100,9 +102,10 @@ export default function AdminVideosPage() {
     }
 
     setIsSubmitting(true);
+    const videoStoragePath = `videos/${Date.now()}_${videoFile.name}`;
     try {
       // 1. Upload video file to Firebase Storage
-      const videoStorageRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
+      const videoStorageRef = ref(storage, videoStoragePath);
       const videoSnapshot = await uploadBytes(videoStorageRef, videoFile);
       const videoDownloadURL = await getDownloadURL(videoSnapshot.ref);
 
@@ -113,6 +116,7 @@ export default function AdminVideosPage() {
         price: parseFloat(price),
         videoUrl: videoDownloadURL,
         thumbnailUrl: 'https://placehold.co/600x400.png', // Placeholder thumbnail
+        videoStoragePath,
         createdAt: Timestamp.now(),
       });
       
@@ -123,26 +127,36 @@ export default function AdminVideosPage() {
       
       resetForm();
       setIsDialogOpen(false);
-      fetchVideos(); // Refresh the list
+      await fetchVideos(); // Refresh the list
     } catch (error) {
       console.error("Error adding video: ", error);
       toast({
         variant: "destructive",
         title: "Erro ao adicionar vídeo",
+        description: "Ocorreu um erro ao salvar o vídeo. Verifique as regras do Firebase Storage."
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteVideo = async (videoId: string) => {
-    if (!confirm("Tem certeza que deseja excluir este vídeo?")) return;
+  const handleDeleteVideo = async (video: Video) => {
+    if (!confirm("Tem certeza que deseja excluir este vídeo? Esta ação é irreversível.")) return;
     try {
-      await deleteDoc(doc(db, "videos", videoId));
+      await deleteDoc(doc(db, "videos", video.id));
+      
+      const videoRef = ref(storage, video.videoStoragePath);
+      await deleteObject(videoRef);
+
+      if (video.thumbnailStoragePath) {
+        const thumbRef = ref(storage, video.thumbnailStoragePath);
+        await deleteObject(thumbRef);
+      }
+
       toast({
         title: "Vídeo Excluído",
       });
-      fetchVideos(); // Refresh
+      await fetchVideos(); // Refresh
     } catch (error) {
       console.error("Error deleting video: ", error);
       toast({
@@ -229,7 +243,7 @@ export default function AdminVideosPage() {
                             </CardContent>
                             <CardFooter className="flex justify-end gap-2">
                                 <Button variant="outline" size="sm"><Edit className="h-3 w-3 mr-1"/> Editar</Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDeleteVideo(video.id)}>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteVideo(video)}>
                                     <Trash2 className="h-3 w-3 mr-1"/>Excluir
                                 </Button>
                             </CardFooter>

@@ -25,13 +25,14 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { getFirestore, collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { app as firebaseApp } from '@/lib/firebase';
 
 interface Photo {
   id: string;
   title: string;
   imageUrl: string;
+  storagePath: string;
   createdAt: Timestamp;
 }
 
@@ -92,9 +93,10 @@ export default function AdminPhotosPage() {
     }
 
     setIsSubmitting(true);
+    const storagePath = `photos/${Date.now()}_${file.name}`;
     try {
       // 1. Upload file to Firebase Storage
-      const storageRef = ref(storage, `photos/${Date.now()}_${file.name}`);
+      const storageRef = ref(storage, storagePath);
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
@@ -102,6 +104,7 @@ export default function AdminPhotosPage() {
       await addDoc(collection(db, "photos"), {
         title,
         imageUrl: downloadURL,
+        storagePath: storagePath,
         createdAt: Timestamp.now(),
       });
       
@@ -112,28 +115,37 @@ export default function AdminPhotosPage() {
       
       resetForm();
       setIsDialogOpen(false);
-      fetchPhotos(); // Refresh the list
+      await fetchPhotos(); // Refresh the list
     } catch (error) {
       console.error("Error adding photo: ", error);
       toast({
         variant: "destructive",
         title: "Erro ao adicionar foto",
-        description: "Ocorreu um erro ao salvar a foto.",
+        description: "Ocorreu um erro ao salvar a foto. Verifique as regras do Firebase Storage.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeletePhoto = async (photoId: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta foto?")) return;
+  const handleDeletePhoto = async (photo: Photo) => {
+    if (!confirm("Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.")) return;
+    
     try {
-      await deleteDoc(doc(db, "photos", photoId));
+      // Delete from Firestore
+      await deleteDoc(doc(db, "photos", photo.id));
+      
+      // Delete from Storage
+      if (photo.storagePath) {
+        const photoRef = ref(storage, photo.storagePath);
+        await deleteObject(photoRef);
+      }
+      
       toast({
         title: "Foto Excluída",
         description: "A foto foi removida com sucesso.",
       });
-      fetchPhotos(); // Refresh the list
+      await fetchPhotos(); // Refresh the list
     } catch (error) {
       console.error("Error deleting photo: ", error);
       toast({
@@ -210,7 +222,7 @@ export default function AdminPhotosPage() {
                     />
                     <div className="absolute inset-0 bg-black/70 p-2 text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between">
                         <p className="text-sm font-bold">{photo.title}</p>
-                        <Button variant="destructive" size="sm" className="mt-1 h-7 text-xs self-end" onClick={() => handleDeletePhoto(photo.id)}>
+                        <Button variant="destructive" size="sm" className="mt-1 h-7 text-xs self-end" onClick={() => handleDeletePhoto(photo)}>
                             <Trash2 className="h-3 w-3 mr-1"/> Excluir
                         </Button>
                     </div>
