@@ -190,11 +190,20 @@ const MainFooter = () => {
 
             <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
                 <div className="max-w-4xl w-full mx-auto">
+                    <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
+                    <div className="flex flex-col items-center gap-6">
+                      {reviews.map((review, index) => (
+                        <ReviewCard key={index} review={review} />
+                      ))}
+                    </div>
+
+                    <Separator className="max-w-xl mx-auto my-12 bg-border/30" />
+
                      <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red flex items-center justify-center gap-2">
                         <MapPin className="h-8 w-8 text-primary"/>
                         Localização
                     </h2>
-                    <Card className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 mb-12">
+                    <Card className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
                         <CardContent className="p-2">
                              <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.145944983025!2d-46.656539084476!3d-23.56306366754635!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0x2665c5b4e7b6a4b!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%20Brasil!5e0!3m2!1spt-BR!2sus!4v1625845012345!5m2!1spt-BR!2sus"
@@ -207,15 +216,6 @@ const MainFooter = () => {
                             ></iframe>
                         </CardContent>
                     </Card>
-
-                    <Separator className="max-w-xl mx-auto my-8 bg-border/30" />
-                
-                    <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
-                    <div className="flex flex-col items-center gap-6">
-                      {reviews.map((review, index) => (
-                        <ReviewCard key={index} review={review} />
-                      ))}
-                    </div>
                 </div>
             </div>
             
@@ -246,3 +246,4 @@ const MainFooter = () => {
 };
 
 export default MainFooter;
+
