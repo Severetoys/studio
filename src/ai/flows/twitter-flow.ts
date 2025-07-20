@@ -29,6 +29,17 @@ const TwitterMediaOutputSchema = z.object({
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
 
+
+const twitterClient = new TwitterApi({
+    appKey: process.env.TWITTER_API_KEY,
+    appSecret: process.env.TWITTER_API_SECRET,
+    accessToken: process.env.TWITTER_ACCESS_TOKEN,
+    accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+});
+
+const rwClient = twitterClient.readWrite;
+
+
 /**
  * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter.
  */
@@ -43,15 +54,6 @@ const fetchTwitterMediaFlow = ai.defineFlow(
       if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET || !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
           throw new Error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
       }
-
-      const twitterClient = new TwitterApi({
-        appKey: process.env.TWITTER_API_KEY,
-        appSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-      });
-
-      const rwClient = twitterClient.readWrite;
       
       // 1. Obter o ID do usuário a partir do nome de usuário.
       const user = await rwClient.v2.userByUsername(username);
