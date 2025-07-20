@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
+import PayPalButton from '@/components/paypal-button';
 
 interface Product {
   id: string;
@@ -100,6 +101,16 @@ export default function LojaPage() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  const handlePaymentSuccess = (details: any) => {
+    toast({
+      title: "Pagamento bem-sucedido!",
+      description: `O pagamento ${details.id} foi concluído.`,
+    });
+    setCart([]); // Limpa o carrinho após o sucesso
+    // Redireciona para uma página de sucesso ou de autenticação para liberar o conteúdo.
+    router.push('/auth');
+  };
+
   return (
     <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
@@ -147,7 +158,7 @@ export default function LojaPage() {
                       {cart.map(item => (
                         <div key={item.id} className="flex items-start gap-4">
                            <div className="w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                                <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="object-cover w-full h-full" data-ai-hint={item.aiHint}/>
+                                <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="object-cover w-full h-full" data-ai-hint={item.aiHint || 'product'}/>
                            </div>
                           <div className="flex-1">
                             <h4 className="font-semibold">{item.name}</h4>
@@ -176,13 +187,11 @@ export default function LojaPage() {
                             <span>Total:</span>
                             <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                         </div>
-                         <Button 
-                            className="w-full h-12 text-lg bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" 
-                            disabled={cart.length === 0}
-                            onClick={() => router.push('/auth')}
-                         >
-                            Finalizar Compra
-                        </Button>
+                        <PayPalButton
+                          amount={totalPrice.toFixed(2)}
+                          onSuccess={handlePaymentSuccess}
+                          disabled={cart.length === 0}
+                        />
                     </div>
                 </SheetFooter>
               </div>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
 import Layout from '@/components/layout/layout';
 import WhatsAppButton from '@/components/whatsapp-button';
+import Script from 'next/script';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -24,6 +25,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body className={`font-sans ${inter.variable} antialiased bg-background`}>
+        <Script 
+          src={`https://www.paypal.com/sdk/js?client-id=${process.env.PAYPAL_CLIENT_ID}&currency=BRL`}
+          strategy="beforeInteractive"
+        />
         <Layout>
           {children}
         </Layout>
