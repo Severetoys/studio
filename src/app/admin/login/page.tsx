@@ -180,7 +180,7 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
 
         <CardFooter>
             {step === 'credentials' ? (
-                <Button className="w-full" onClick={handleCredentialsSubmit} disabled={isLoggingIn}>
+                <Button type="button" className="w-full" onClick={handleCredentialsSubmit} disabled={isLoggingIn}>
                     <Mail className="mr-2 h-4 w-4" />
                     {isLoggingIn ? 'Verificando...' : 'Próximo Passo'}
                 </Button>
