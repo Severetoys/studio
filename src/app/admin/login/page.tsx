@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail, Fingerprint, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, Fingerprint, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { verifyFace } from '@/ai/flows/face-auth-flow';
 
@@ -229,8 +229,12 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+        <CardHeader className="text-center relative">
+          <Button variant="ghost" size="icon" className="absolute top-4 left-4 text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => router.push('/')}>
+            <ArrowLeft />
+            <span className="sr-only">Voltar para a página inicial</span>
+          </Button>
+          <div className="flex justify-center mb-4 pt-8">
              <ShieldCheck className="h-10 w-10 text-primary"/>
           </div>
           <CardTitle className="text-2xl">Acesso Restrito ao Painel</CardTitle>
