@@ -12,6 +12,9 @@ import {
   Users,
   MessageSquare,
   LogOut,
+  Image as ImageIcon,
+  Video,
+  Link2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,6 +90,27 @@ export default function AdminLayout({
               >
                 <Package className="h-4 w-4" />
                 Produtos
+              </Link>
+               <Link
+                href="/admin/photos"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === '/admin/photos' ? 'bg-muted text-primary' : ''}`}
+              >
+                <ImageIcon className="h-4 w-4" />
+                Fotos
+              </Link>
+               <Link
+                href="/admin/videos"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === '/admin/videos' ? 'bg-muted text-primary' : ''}`}
+              >
+                <Video className="h-4 w-4" />
+                Vídeos
+              </Link>
+               <Link
+                href="/admin/integrations"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === '/admin/integrations' ? 'bg-muted text-primary' : ''}`}
+              >
+                <Link2 className="h-4 w-4" />
+                Integrações
               </Link>
               <Link
                 href="/admin/chat"
