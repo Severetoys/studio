@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface PayPalButtonProps {
   amount: string;
@@ -23,7 +24,7 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (window.paypal) {
+    if (window.paypal && window.paypal.Buttons) {
       setIsSdkReady(true);
     }
   }, []);
@@ -79,7 +80,7 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
     });
     setIsProcessing(false);
   };
-
+  
   if (!isSdkReady) {
     return (
       <div className="flex items-center justify-center w-full h-12">
@@ -87,19 +88,28 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
       </div>
     );
   }
+  
+  // O SDK do PayPal pode não renderizar botões se o valor for 0.00
+  if (parseFloat(amount) <= 0) {
+     return (
+      <div className="flex items-center justify-center w-full h-12 bg-muted rounded-md text-muted-foreground cursor-not-allowed">
+        Selecione itens para pagar
+      </div>
+    );
+  }
 
   const PayPalButtonsComponent = window.paypal.Buttons.driver("react", { React, ReactDOM: null });
 
   return (
-    <div className="relative">
-      {(disabled || isProcessing) && (
-        <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10 cursor-not-allowed">
+    <div className={cn("relative", (disabled || isProcessing) && "opacity-50 cursor-not-allowed")}>
+       {(disabled || isProcessing) && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
           {isProcessing && <Loader2 className="h-6 w-6 animate-spin text-primary" />}
         </div>
       )}
       <PayPalButtonsComponent
-        style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' }}
-        forceReRender={[amount]}
+        style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay', tagline: false }}
+        forceReRender={[amount, disabled]}
         createOrder={createOrder}
         onApprove={onApprove}
         onError={onError}
@@ -108,3 +118,4 @@ export default function PayPalButton({ amount, onSuccess, disabled }: PayPalButt
     </div>
   );
 }
+
