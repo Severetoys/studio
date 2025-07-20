@@ -8,12 +8,10 @@ import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
 
 const GPayIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="20" viewBox="0 0 51.998 20.768">
-        <g transform="translate(-256.346 -393.662)">
-            <path fill="#5f6368" d="M42.348,22.212v3.468H50.5c-.432,4.2-3.6,8.46-8.148,8.46a9.444,9.444,0,0,1,0-18.888,8.8,8.8,0,0,1,5.964,2.256l2.7-2.7a14.7,14.7,0,0,0-8.664-3.2A15.1,15.1,0,0,0,27.25,31.5a15.1,15.1,0,0,0,15.1-15.1,13.632,13.632,0,0,0-.324-3.468H42.348Z" transform="translate(244.244 382.023)"></path>
-            <path fill="#34a853" d="M72.012,30.768a4.522,4.522,0,0,1-4.608-4.608V17.028h2.364V26.16a2.231,2.231,0,0,0,2.244,2.244,2.231,2.231,0,0,0,2.244-2.244V17.028h2.364V26.16A4.522,4.522,0,0,1,72.012,30.768Z" transform="translate(204.654 376.634)"></path>
-            <path fill="#ea4335" d="M85.4,30.768a4.8,4.8,0,0,1,5.256-4.608c2.4,0,4.032,1.464,4.032,3.624,0,1.9-1.2,2.832-2.76,3.408l2.928,5.436H92.2l-2.832-5.328H88.24V30.768Zm2.364-3.12a2.3,2.3,0,0,0-2.364-2.208,2.3,2.3,0,0,0-2.364,2.208,2.153,2.153,0,0,0,2.364,2.208A2.153,2.153,0,0,0,87.764,27.648Z" transform="translate(189.65 376.634)"></path>
-            <path fill="#4285f4" d="M106.3,22.272l-3.072,11.2H100.7l3.12-11.2h2.556Z" transform="translate(170.81 373.862)"></path>
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="20" viewBox="0 0 48 20">
+        <g fill="none" fillRule="evenodd">
+            <path fill="#5F6368" d="M16.538 4.5h-5.076a1.442 1.442 0 0 0-1.44 1.44v6.12a1.442 1.442 0 0 0 1.44 1.44h5.076c.795 0 1.44-.645 1.44-1.44V5.94c0-.795-.645-1.44-1.44-1.44zm-5.076 7.02h3.368v-1.92h-3.368v1.92zm-.96-5.58h4.328a.482.482 0 0 1 .48.48v1.44h-5.28V6.42c0-.265.215-.48.48-.48z"></path>
+            <path fill="#000000" d="M2.923 11.875V8.215h2.18v3.66zm5.34-3.66h1.56v1.36h.04c.3-.58 1.02-1.4 2.4-1.4.92 0 1.66.28 2.22.84.56.56.84 1.3.84 2.22v4.03h-2.18V9.315c0-.62-.16-1.08-.48-1.38-.32-.3-.8-.45-1.44-.45-.64 0-1.17.2-1.58.6-.41.4-.62.9-.62 1.5v3.6h-2.18V8.215zm16.89 3.12c0 .92.31 1.68.93 2.28.62.6 1.43.9 2.43.9.84 0 1.5-.22 2-66s.76-.98.76-1.62v-3.3h-2.12v3.12c0 .54-.1.95-.3 1.23-.2.28-.5.42-.9.42-.38 0-.67-.14-.87-.42-.2-.28-.3-.69-.3-1.23V6.615h-2.15v4.68zm8.6-4.68h2.17v1.18h.04c.34-.52.87-1.03 1.6-1.28.32-.1.68-.15 1.08-.15.4 0 .73.04 1 .12V8.4c-.23-.04-.5-.06-.8-.06-.52 0-1.01.13-1.44.4-.43.26-.72.62-.87 1.08v3.37h2.17v-3.3c0-.62-.16-1.08-.48-1.38-.32-.3-.8-.45-1.44-.45-.64 0-1.17.2-1.58.6-.41.4-.62.9-.62 1.5v3.6h-2.18V6.615z"></path>
         </g>
     </svg>
 );
@@ -73,10 +71,10 @@ export default function HomePageContent() {
         </Button>
         
         <div className="w-full grid grid-cols-2 gap-4">
-            <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+            <Button onClick={() => handlePaymentClick('gpay')} variant="secondary" className="h-12 bg-white text-black border border-zinc-300 hover:bg-zinc-100 hover:border-zinc-400 transition-all duration-300">
                 <GPayIcon />
             </Button>
-            <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-zinc-900 text-white border border-zinc-700 hover:bg-zinc-800 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
+            <Button onClick={() => handlePaymentClick('applepay')} variant="secondary" className="h-12 bg-white text-black border border-zinc-300 hover:bg-zinc-100 hover:border-zinc-400 transition-all duration-300">
                 <ApplePayIcon />
             </Button>
         </div>
@@ -106,6 +104,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
