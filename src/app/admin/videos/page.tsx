@@ -106,8 +106,8 @@ export default function AdminVideosPage() {
     try {
       // 1. Upload video file to Firebase Storage
       const videoStorageRef = ref(storage, videoStoragePath);
-      const videoSnapshot = await uploadBytes(videoStorageRef, videoFile);
-      const videoDownloadURL = await getDownloadURL(videoSnapshot.ref);
+      await uploadBytes(videoStorageRef, videoFile);
+      const videoDownloadURL = await getDownloadURL(videoStorageRef);
 
       // 2. Add video metadata to Firestore
       await addDoc(collection(db, "videos"), {
@@ -148,7 +148,7 @@ export default function AdminVideosPage() {
       const videoRef = ref(storage, video.videoStoragePath);
       await deleteObject(videoRef);
 
-      if (video.thumbnailStoragePath) {
+      if (video.thumbnailStoragePath && !video.thumbnailUrl.startsWith('https://placehold.co')) {
         const thumbRef = ref(storage, video.thumbnailStoragePath);
         await deleteObject(thumbRef);
       }

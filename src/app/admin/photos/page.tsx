@@ -97,8 +97,8 @@ export default function AdminPhotosPage() {
     try {
       // 1. Upload file to Firebase Storage
       const storageRef = ref(storage, storagePath);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
 
       // 2. Add photo metadata to Firestore
       await addDoc(collection(db, "photos"), {
