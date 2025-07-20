@@ -14,6 +14,7 @@ interface TweetWithMedia {
   media: {
     url?: string;
     type: string;
+    media_key: string;
   }[];
 }
 
@@ -28,7 +29,6 @@ export default function FotosPage() {
       setIsLoading(true);
       setError(null);
       try {
-        // Substitua 'Severepics' pelo seu nome de usuário do Twitter, se necessário.
         const response = await fetchTwitterFeed({ username: 'Severepics' });
         
         // Filtra para garantir que apenas tweets com mídia do tipo 'photo' sejam incluídos
@@ -86,9 +86,9 @@ export default function FotosPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {tweets.flatMap(tweet => 
-                tweet.media.map((media, index) => (
+                tweet.media.map((media) => (
                   media.url && (
-                    <div key={`${tweet.id}-${index}`} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
+                    <div key={media.media_key} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
                       <Image
                         src={media.url}
                         alt={tweet.text}

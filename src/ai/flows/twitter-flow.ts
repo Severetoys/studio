@@ -1,14 +1,13 @@
 
 'use server';
 /**
- * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter.
- * Este fluxo se autentica na API do Twitter v2, busca os tweets mais recentes
+ * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando fetch direto.
+ * Este fluxo se autentica na API do Twitter v2 com um Bearer Token, busca os tweets mais recentes
  * de um usuário específico e extrai as URLs das mídias anexadas.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -24,6 +23,7 @@ const TwitterMediaOutputSchema = z.object({
         media: z.array(z.object({
             url: z.string().optional(),
             type: z.string(),
+            media_key: z.string(),
         })),
     })),
 });
@@ -40,58 +40,44 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username }) => {
     try {
-      if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET || !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
-          throw new Error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
+      const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+      if (!bearerToken) {
+          throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no arquivo .env");
       }
       
-      const twitterClient = new TwitterApi({
-          appKey: process.env.TWITTER_API_KEY!,
-          appSecret: process.env.TWITTER_API_SECRET!,
-          accessToken: process.env.TWITTER_ACCESS_TOKEN!,
-          accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET!,
+      const url = `https://api.twitter.com/2/tweets/search/recent?query=from:${username} has:media&expansions=attachments.media_keys&media.fields=url,type&tweet.fields=text`;
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${bearerToken}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Erro da API do Twitter:', errorBody);
+        throw new Error(`Erro ao buscar tweets: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+
+      // Mapeia os dados da resposta para o formato de saída esperado
+      const includedMedia = data.includes?.media || [];
+
+      const tweets = (data.data || []).map((tweet: any) => {
+        const mediaKeys = tweet.attachments?.media_keys || [];
+        const mediaForTweet = mediaKeys.map((key: string) => {
+          return includedMedia.find((m: any) => m.media_key === key);
+        }).filter(Boolean); // Filtra mídias não encontradas
+
+        return {
+          id: tweet.id,
+          text: tweet.text,
+          media: mediaForTweet,
+        };
       });
 
-      const rwClient = twitterClient.readWrite;
-
-      // 1. Obter o ID do usuário a partir do nome de usuário.
-      const user = await rwClient.v2.userByUsername(username);
-      if (!user.data) {
-          throw new Error(`Usuário do Twitter não encontrado: ${username}`);
-      }
-      const userId = user.data.id;
-
-      // 2. Buscar a timeline do usuário, solicitando a expansão de mídias.
-      const tweetsPaginator = await rwClient.v2.userTimeline(userId, {
-        expansions: ['attachments.media_keys'],
-        'media.fields': ['url', 'type', 'preview_image_url'],
-        max_results: 20, // Busca os 20 tweets mais recentes
-      });
-
-      const includedMedia = tweetsPaginator.includes?.media || [];
-      const tweetData = [];
-
-      // 3. Processar os tweets para extrair a mídia.
-      if (tweetsPaginator.data.data) {
-          for (const tweet of tweetsPaginator.data.data) {
-            const mediaAttachments = tweet.attachments?.media_keys?.map(key => {
-                const mediaInfo = includedMedia.find(m => m.media_key === key);
-                return {
-                    url: mediaInfo?.type === 'video' ? mediaInfo.preview_image_url : mediaInfo?.url,
-                    type: mediaInfo?.type || 'unknown'
-                };
-            }).filter(m => m.url); // Filtra mídias sem URL
-    
-            if (mediaAttachments && mediaAttachments.length > 0) {
-                tweetData.push({
-                    id: tweet.id,
-                    text: tweet.text,
-                    media: mediaAttachments,
-                });
-            }
-          }
-      }
-
-      return { tweets: tweetData };
+      return { tweets };
 
     } catch (error: any) {
       console.error('Erro ao buscar o feed do Twitter:', error);
