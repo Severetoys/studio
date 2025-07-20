@@ -41,8 +41,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   async ({ username }) => {
     try {
       if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET || !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
-          console.error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
-          throw new Error("Credenciais da API do Twitter não configuradas.");
+          throw new Error("As credenciais da API do Twitter não estão configuradas no arquivo .env");
       }
 
       const twitterClient = new TwitterApi({
