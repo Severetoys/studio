@@ -10,7 +10,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -54,7 +53,9 @@ const fetchTwitterMediaFlow = ai.defineFlow(
     outputSchema: TwitterMediaOutputSchema,
   },
   async ({ username }) => {
-    
+    // Importa a biblioteca dinamicamente para evitar erros de inicialização no Next.js
+    const { TwitterApi } = await import('twitter-api-v2');
+
     // Inicializa o cliente da API do Twitter com as credenciais do ambiente.
     // Usamos App-only (Bearer Token) para autenticação, que é suficiente para ler tweets públicos.
     if (!process.env.TWITTER_BEARER_TOKEN) {
