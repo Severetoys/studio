@@ -24,7 +24,6 @@ interface VideoContent {
 export default function VideosPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const db = getFirestore(firebaseApp);
   const [isClient, setIsClient] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +49,7 @@ export default function VideosPage() {
         setIsLoading(true);
         setError(null);
         try {
+            const db = getFirestore(firebaseApp);
             const videosCollection = collection(db, "videos");
             const q = query(videosCollection, orderBy("createdAt", "desc"));
             const querySnapshot = await getDocs(q);
@@ -73,7 +73,7 @@ export default function VideosPage() {
     };
     
     fetchVideos();
-  }, [router, toast, db]);
+  }, [router, toast]);
 
   if (!isClient || !hasAccess) {
     return (
@@ -149,6 +149,4 @@ export default function VideosPage() {
             )}
         </CardContent>
       </Card>
-    </main>
-  );
-}
+    </
