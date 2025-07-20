@@ -95,7 +95,7 @@ const MainFooter = () => {
         { author: 'Branquinha', time: '3 anos', text: 'Virei puta de vestidinho vagabundo. Apanhei como merecia. Levei porra na cara. Só fiz o que ele mandava. Gostei tanto de ser tratada assim que voltei e não queria ir embora. Me arregaçou. Domínio sedutor. Ítalo é daqueles personagens da literatura erótica e sdm. Nível internacional. Ele é escavador de desejos não ditos.' },
         { author: 'Putão', time: '3 anos', text: 'Foda sensacional, já fiz várias sessões de dominação e putaria sem limites com Italo. Sabe dominar, humilhar, soca e fista até arrombar meu cu. Já me deu muita porra e mijo. Sem contar q ele tem todos os brinquedos e acessórios q eu podia imaginar. Até anaconda gigante ele enfiou em mim. Recomendo pra quem tem experiência e também pra quem quer ser iniciado, porque além de muito puto, ele é educado, limpo e seguro.' },
         { author: 'Rogfaria', time: '3 anos', text: 'Se você gosta de ser tratado como puta, apanhar e tomar leite, esse é o cara! Macho, bonito, gostoso, educado e puto. Super recomendo!' },
-        { author: 'Gato bh 32a', time: '3 anos', text: 'Lindo, educado, respeita os limites e sabe dominar. Não vejo a hora dele voltar pra BH pra servi-lo novamente. Bebi mijao, me vestiu de puta, usei coleirinha, algemas, me exibiu pro pessoal da República como sua putinha, fiz video. Tesão. Qro denovo hehehe. Saudades lindo.' },
+        { author: 'Gato bh 32a', time: '3 anos', text: 'Lindo, educado, respeita os limites e sabe dominar. Não vejo a hora dele voltar pra BH pra servi-lo novamente. Bebi mijao, me vestiu de puta, usei coleirinha, algemas, me exibiu pro pessoal da República como sua putinha, fiz video.Tesão. Qro denovo hehehe. Saudades lindo.' },
         { author: 'Lu', time: '3 anos', text: 'É bem difícil achar um garoto que conheça de verdade bdsm, mas o Ítalo é um mestre no assunto, sem falar que tem ótimos acessórios, e sabe muito bem usar, fiquei o tempo todo babando de tesão, valeu cada centavo...o bom é que no dia seguinte vai se olhar no espelho e lembrar....' },
         { author: 'Diego-Florwsta-Bh-Rj', time: '4 anos', text: 'Ele MOLEQUE melhor que nas fotos.e vídeos.... Melhor que.vc magina.. Recomemdo' },
         { author: 'Luixx', time: '4 anos', text: 'Sai com ele ontem, melhor de todos.' },
@@ -240,7 +240,7 @@ const MainFooter = () => {
                 </a>
               </div>
               <p>
-                  <a href="#" className="underline hover:text-primary">Termos & Condições</a> | <a href="#" className="underline hover:text-primary">Política de Privacidade</a>
+                  <a href="/termos-condicoes" className="underline hover:text-primary">Termos & Condições</a> | <a href="/politica-de-privacidade" className="underline hover:text-primary">Política de Privacidade</a>
               </p>
               <p className="mt-2">Este site inclui conteúdo protegido por direitos autorais, é proibida reprodução total ou parcial deste conteúdo sem autorização prévia do proprietário do site.</p>
             </footer>
@@ -249,6 +249,3 @@ const MainFooter = () => {
 };
 
 export default MainFooter;
-
-
-
