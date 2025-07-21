@@ -16,6 +16,7 @@ import {
   Video,
   Link2,
   Star,
+  UploadCloud,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
         { href: "/admin/products", label: "Produtos", icon: Package },
         { href: "/admin/photos", label: "Fotos", icon: ImageIcon },
         { href: "/admin/videos", label: "Vídeos", icon: Video },
+        { href: "/admin/uploads", label: "Uploads", icon: UploadCloud },
         { href: "/admin/integrations", label: "Integrações", icon: Link2 },
         { href: "/admin/conversations", label: "Conversas", icon: MessageSquare },
     ];
