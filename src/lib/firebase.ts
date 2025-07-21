@@ -1,11 +1,15 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration - This is for client-side SDKs if needed, not for Admin.
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyC7yaXjEFWFORvyLyHh1O5SPYjRCzptTg8",
   authDomain: "authkit-y9vjx.firebaseapp.com",
+  databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com",
   projectId: "authkit-y9vjx",
   storageBucket: "authkit-y9vjx.appspot.com",
   messagingSenderId: "308487499277",
