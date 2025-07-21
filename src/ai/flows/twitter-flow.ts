@@ -33,28 +33,6 @@ const TwitterMediaOutputSchema = z.object({
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
 
-
-// Função para inicializar o cliente do Twitter.
-// Isso evita que o cliente seja recriado em cada chamada se o módulo for mantido em cache.
-function initializeTwitterClient() {
-    const appKey = process.env.TWITTER_API_KEY;
-    const appSecret = process.env.TWITTER_API_SECRET;
-    const accessToken = process.env.TWITTER_ACCESS_TOKEN;
-    const accessSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
-
-    if (!appKey || !appSecret || !accessToken || !accessSecret) {
-        throw new Error("As credenciais da API do Twitter não estão configuradas corretamente no arquivo .env");
-    }
-
-    // Instancia o cliente com as credenciais corretas
-    return new TwitterApi({
-        appKey,
-        appSecret,
-        accessToken,
-        accessSecret,
-    });
-}
-
 /**
  * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter.
  */
@@ -66,8 +44,22 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username, maxResults }) => {
     try {
-        const twitterClient = initializeTwitterClient();
-        // Acessa o cliente de leitura e escrita através da propriedade .readWrite
+        const appKey = process.env.TWITTER_API_KEY;
+        const appSecret = process.env.TWITTER_API_SECRET;
+        const accessToken = process.env.TWITTER_ACCESS_TOKEN;
+        const accessSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+
+        if (!appKey || !appSecret || !accessToken || !accessSecret) {
+            throw new Error("As credenciais da API do Twitter não estão configuradas corretamente no arquivo .env");
+        }
+
+        const twitterClient = new TwitterApi({
+            appKey,
+            appSecret,
+            accessToken,
+            accessSecret,
+        });
+
         const rwClient = twitterClient.readWrite;
 
         const user = await rwClient.v2.userByUsername(username);
@@ -83,7 +75,6 @@ const fetchTwitterMediaFlow = ai.defineFlow(
             max_results: maxResults,
         });
 
-        // Mapeia mídias para fácil acesso
         const mediaMap = new Map<string, any>();
         if (timeline.includes && timeline.includes.media) {
             for (const media of timeline.includes.media) {
@@ -96,7 +87,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
             .map(tweet => {
                 const medias = tweet.attachments.media_keys
                     .map(key => mediaMap.get(key))
-                    .filter(Boolean); // Filtra mídias não encontradas
+                    .filter(Boolean);
                 
                 return {
                     id: tweet.id,
@@ -110,17 +101,15 @@ const fetchTwitterMediaFlow = ai.defineFlow(
 
     } catch (error: any) {
         console.error('Erro ao buscar o feed do Twitter:', error);
-        // Lança um erro mais descritivo para o cliente.
         throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${error.message}`);
     }
   }
 );
-
 
 /**
  * Função exportada para ser chamada do lado do cliente.
  * Invoca o fluxo Genkit e retorna seu resultado.
  */
 export async function fetchTwitterFeed(input: TwitterMediaInput): Promise<TwitterMediaOutput> {
-    return await fetchTwitterMediaFlow(input);
+    return fetchTwitterMediaFlow(input);
 }
