@@ -84,7 +84,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         });
 
         // Mapeia mídias para fácil acesso
-        const mediaMap = new Map();
+        const mediaMap = new Map<string, any>();
         if (timeline.includes && timeline.includes.media) {
             for (const media of timeline.includes.media) {
                 mediaMap.set(media.media_key, media);
