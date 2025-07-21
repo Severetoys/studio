@@ -16,32 +16,9 @@ export default function DashboardPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isClient, setIsClient] = useState(false);
   
-  // Usaremos um email fictício. Numa aplicação real, viria da sessão do usuário.
-  const FAKE_USER_EMAIL = "usuario.exemplo@email.com";
-
   useEffect(() => {
     setIsClient(true);
-    if (localStorage.getItem('hasPaid') === 'true') {
-      setIsPaid(true);
-    }
-  }, []);
-
-  const handlePayment = async () => {
-    setIsProcessingPayment(true);
-    toast({ title: 'Redirecionando para autenticação...' });
-
-    // Em vez de chamar o webhook diretamente, redirecionamos para a autenticação.
-    // A lógica de pagamento/registro será tratada após a verificação facial.
-    // Podemos armazenar a intenção de pagamento para usar após o login.
-    localStorage.setItem('paymentIntent', 'true');
-    localStorage.setItem('redirectAfterLogin', '/dashboard');
-    router.push('/old-auth-page');
     
-    // O código abaixo não será mais executado aqui
-    // setIsProcessingPayment(false);
-  };
-  
-  useEffect(() => {
     // Verifica se o usuário acabou de logar e tinha uma intenção de pagamento.
     if (localStorage.getItem('justLoggedIn') === 'true' && localStorage.getItem('paymentIntent') === 'true') {
       setIsPaid(true);
@@ -53,9 +30,20 @@ export default function DashboardPage() {
       // Limpa os marcadores para não repetir a ação
       localStorage.removeItem('justLoggedIn');
       localStorage.removeItem('paymentIntent');
+    } else if (localStorage.getItem('hasPaid') === 'true') {
+      setIsPaid(true);
     }
   }, []);
 
+  const handlePayment = async () => {
+    setIsProcessingPayment(true);
+    toast({ title: 'Redirecionando para autenticação...' });
+
+    // Armazena a intenção de pagamento para usar após o login.
+    localStorage.setItem('paymentIntent', 'true');
+    localStorage.setItem('redirectAfterLogin', '/dashboard');
+    router.push('/old-auth-page');
+  };
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {

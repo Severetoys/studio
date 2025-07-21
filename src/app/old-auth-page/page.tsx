@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { verifyFace } from '@/ai/flows/face-auth-flow';
+import { verifyFace, type VerifyFaceInput } from '@/ai/flows/face-auth-flow';
 
 export default function OldAuthPage() {
   const { toast } = useToast();
@@ -134,16 +134,23 @@ export default function OldAuthPage() {
     
     if (imageBase64) {
         try {
-            const result = await verifyFace({ 
-              liveImage: imageBase64,
-              ...(action === 'register' && { name, email, phone })
-            });
+            const payload: VerifyFaceInput = { liveImage: imageBase64 };
+            if (action === 'register') {
+                payload.name = name;
+                payload.email = email;
+                payload.phone = phone;
+            }
+
+            const result = await verifyFace(payload);
 
             if (result.isMatch) {
                 toast({ title: 'Face ID Verificado!', description: 'Redirecionando...' });
                 
                 // Redireciona para o dashboard após um login/registro bem-sucedido
-                router.push('/dashboard'); 
+                localStorage.setItem('justLoggedIn', 'true');
+                const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
+                localStorage.removeItem('redirectAfterLogin'); // Limpa para não redirecionar sempre
+                router.push(redirectPath); 
 
             } else {
                 toast({

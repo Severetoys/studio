@@ -112,7 +112,7 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
     }
     
     try {
-        const result = await verifyFace({ liveImage: imageBase64 });
+        const result = await verifyFace({ liveImage: imageBase64, email: ADMIN_EMAIL });
         if (result.isMatch) {
             toast({ title: "Login bem-sucedido!", description: "Bem-vindo ao painel." });
             localStorage.setItem("adminAuthenticated", "true");
