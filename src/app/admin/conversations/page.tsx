@@ -34,35 +34,40 @@ export default function AdminConversationsPage() {
         setIsLoading(true);
         const chatsCollectionRef = collection(db, 'chats');
 
-        const unsubscribe = onSnapshot(chatsCollectionRef, async (querySnapshot) => {
-            const chatsData: Chat[] = [];
-            
-            for (const doc of querySnapshot.docs) {
-                const messagesCollectionRef = collection(doc.ref, 'messages');
+        // Escuta por mudanças na coleção de chats.
+        const unsubscribe = onSnapshot(chatsCollectionRef, (chatsSnapshot) => {
+            const promises = chatsSnapshot.docs.map(async (chatDoc) => {
+                const messagesCollectionRef = collection(chatDoc.ref, 'messages');
                 const lastMessageQuery = query(messagesCollectionRef, orderBy('timestamp', 'desc'), limit(1));
+                
                 const lastMessageSnapshot = await getDocs(lastMessageQuery);
-
                 let lastMessage: LastMessage | null = null;
                 if (!lastMessageSnapshot.empty) {
                     const lastMessageDoc = lastMessageSnapshot.docs[0];
                     lastMessage = lastMessageDoc.data() as LastMessage;
                 }
 
-                chatsData.push({
-                    id: doc.id,
+                return {
+                    id: chatDoc.id,
                     lastMessage,
-                });
-            }
+                };
+            });
             
-            // Sort chats by last message timestamp
-            chatsData.sort((a, b) => {
-                if (!a.lastMessage) return 1;
-                if (!b.lastMessage) return -1;
-                return b.lastMessage.timestamp.toMillis() - a.lastMessage.timestamp.toMillis();
+            Promise.all(promises).then(chatsData => {
+                 // Filtra chats sem mensagens, pois não são úteis no painel
+                const activeChats = chatsData.filter(chat => chat.lastMessage !== null);
+                
+                // Ordena os chats pela data da última mensagem
+                activeChats.sort((a, b) => {
+                    if (!a.lastMessage) return 1;
+                    if (!b.lastMessage) return -1;
+                    return b.lastMessage.timestamp.toMillis() - a.lastMessage.timestamp.toMillis();
+                });
+
+                setChats(activeChats);
+                setIsLoading(false);
             });
 
-            setChats(chatsData);
-            setIsLoading(false);
         }, (error) => {
             console.error("Erro ao buscar conversas: ", error);
             setIsLoading(false);
@@ -70,6 +75,13 @@ export default function AdminConversationsPage() {
 
         return () => unsubscribe();
     }, [db]);
+    
+    const getChatParticipantName = (chatId: string) => {
+        if (chatId.startsWith('secret-chat-')) {
+          return `Cliente ${chatId.substring(12)}`;
+        }
+        return chatId;
+    }
 
     return (
         <div className="flex flex-col gap-4">
@@ -112,7 +124,7 @@ export default function AdminConversationsPage() {
                                             </Avatar>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="font-medium">{chat.id.replace('secret-chat-', '')}</div>
+                                            <div className="font-medium">{getChatParticipantName(chat.id)}</div>
                                             <div className="text-sm text-muted-foreground">ID: {chat.id}</div>
                                         </TableCell>
                                         <TableCell className="max-w-sm truncate">

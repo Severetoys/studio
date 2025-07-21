@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Send } from 'lucide-react';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, setDoc, getDoc } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,21 +19,39 @@ interface Message {
   timestamp: Timestamp | null;
 }
 
-// Para esta demo, o ID do chat é fixo. Em uma aplicação real, isso seria dinâmico.
-const CHAT_ID = "secret-chat-1"; 
+const getOrCreateChatId = (): string => {
+    if (typeof window === 'undefined') {
+        return '';
+    }
+    let chatId = localStorage.getItem('secretChatId');
+    if (!chatId) {
+        // Gera um ID aleatório mais descritivo
+        const randomId = Math.random().toString(36).substring(2, 8);
+        chatId = `secret-chat-${randomId}`;
+        localStorage.setItem('secretChatId', chatId);
+    }
+    return chatId;
+};
 
 export default function ChatSecretoPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const currentUser = 'user'; // Na página do cliente, o remetente é sempre 'user'.
+  const [chatId, setChatId] = useState('');
+  const currentUser = 'user';
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const db = getFirestore(firebaseApp);
 
   useEffect(() => {
-    const messagesCollection = collection(db, 'chats', CHAT_ID, 'messages');
+    const id = getOrCreateChatId();
+    setChatId(id);
+  }, []);
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    const messagesCollection = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesCollection, orderBy('timestamp', 'asc'));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -42,27 +60,38 @@ export default function ChatSecretoPage() {
         msgs.push({ id: doc.id, ...doc.data() } as Message);
       });
       setMessages(msgs);
+    }, (error) => {
+      console.error("Erro ao carregar mensagens:", error);
     });
 
     return () => unsubscribe();
-  }, [db]);
+  }, [db, chatId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === '' || isSending) return;
+    if (newMessage.trim() === '' || isSending || !chatId) return;
 
     setIsSending(true);
-    const messagesCollection = collection(db, 'chats', CHAT_ID, 'messages');
-
+    
     try {
-      await addDoc(messagesCollection, {
-        text: newMessage.trim(),
-        senderId: currentUser,
-        timestamp: serverTimestamp(),
-      });
+        const chatDocRef = doc(db, 'chats', chatId);
+        const messagesCollection = collection(chatDocRef, 'messages');
+
+        // Garante que o documento do chat exista antes de adicionar a mensagem.
+        const chatDoc = await getDoc(chatDocRef);
+        if (!chatDoc.exists()) {
+            await setDoc(chatDocRef, { createdAt: serverTimestamp() });
+        }
+
+        await addDoc(messagesCollection, {
+            text: newMessage.trim(),
+            senderId: currentUser,
+            timestamp: serverTimestamp(),
+        });
+
       setNewMessage('');
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);

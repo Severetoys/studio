@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -65,20 +65,21 @@ export default function AdminChatPage() {
     if (newMessage.trim() === '' || isSending || !chatId) return;
 
     setIsSending(true);
-    const messagesCollection = collection(db, 'chats', chatId, 'messages');
-
+    
     try {
+      const chatDocRef = doc(db, 'chats', chatId);
+      const messagesCollection = collection(chatDocRef, 'messages');
+
+      // Garante que o documento do chat exista (caso o admin inicie)
+      const chatDoc = await getDoc(chatDocRef);
+      if (!chatDoc.exists()) {
+        await setDoc(chatDocRef, { createdAt: serverTimestamp() });
+      }
+
       await addDoc(messagesCollection, {
         text: newMessage.trim(),
         senderId: currentUser,
         timestamp: serverTimestamp(),
-      });
-      // Update last message on chat document
-      const chatDocRef = doc(db, 'chats', chatId);
-      await addDoc(collection(chatDocRef, 'messages'), {
-          text: newMessage.trim(),
-          senderId: currentUser,
-          timestamp: serverTimestamp(),
       });
       setNewMessage('');
     } catch (error) {
@@ -98,6 +99,13 @@ export default function AdminChatPage() {
     );
   }
 
+  const getChatParticipantName = (chatId: string) => {
+    if (chatId.startsWith('secret-chat-')) {
+      return `Cliente ${chatId.substring(12)}`;
+    }
+    return chatId;
+  }
+
   return (
     <Card className="w-full h-[85vh] flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between border-b">
@@ -105,7 +113,7 @@ export default function AdminChatPage() {
                 <ArrowLeft className="h-4 w-4" />
             </Button>
             <CardTitle className="text-xl">
-                Chat com {chatId.replace('secret-chat-', '')}
+                Chat com {getChatParticipantName(chatId)}
             </CardTitle>
             <div className="w-9 h-9" />
         </CardHeader>
