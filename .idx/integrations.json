@@ -1,5 +1,5 @@
 {
   "firebase_hosting": {},
   "cloud_run_deploy": {},
-  "secrets_manager": {}
+  "gemini_api": {}
 }
