@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import fetch from 'node-fetch';
+import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -50,48 +50,35 @@ const fetchTwitterMediaFlow = ai.defineFlow(
             throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no arquivo .env");
         }
 
+        // Instancia o cliente da API em modo read-only (App-only authentication)
+        const twitterClient = new TwitterApi(bearerToken);
+        const readOnlyClient = twitterClient.readOnly;
+
         // Primeiro, obtemos o ID do usuário a partir do nome de usuário.
-        const userLookupUrl = `https://api.twitter.com/2/users/by/username/${username}`;
-        const userResponse = await fetch(userLookupUrl, {
-            headers: { 'Authorization': `Bearer ${bearerToken}` }
-        });
-
-        if (!userResponse.ok) {
-            const errorData = await userResponse.json();
-            console.error('Erro ao buscar usuário do Twitter:', errorData);
-            throw new Error(`Usuário do Twitter "${username}" não encontrado ou erro na API: ${userResponse.statusText}`);
-        }
+        const user = await readOnlyClient.v2.userByUsername(username);
         
-        const userData = await userResponse.json();
-        const userId = userData.data.id;
-
-        if (!userId) {
-             throw new Error(`Não foi possível encontrar o ID para o usuário "${username}".`);
+        if (!user.data) {
+            throw new Error(`Usuário do Twitter "${username}" não encontrado.`);
         }
+        const userId = user.data.id;
 
         // Agora, buscamos a timeline do usuário usando seu ID.
-        const timelineUrl = `https://api.twitter.com/2/users/${userId}/tweets?tweet.fields=attachments,created_at,text&expansions=attachments.media_keys&media.fields=url,preview_image_url,type&exclude=retweets,replies&max_results=${maxResults}`;
-
-        const timelineResponse = await fetch(timelineUrl, {
-            headers: { 'Authorization': `Bearer ${bearerToken}` }
+        const timeline = await readOnlyClient.v2.userTimeline(userId, {
+            'tweet.fields': ['attachments', 'created_at', 'text'],
+            'expansions': ['attachments.media_keys'],
+            'media.fields': ['url', 'preview_image_url', 'type'],
+            'exclude': ['retweets', 'replies'],
+            'max_results': maxResults,
         });
-
-        if (!timelineResponse.ok) {
-            const errorData = await timelineResponse.json();
-            console.error('Erro ao buscar timeline do Twitter:', errorData);
-            throw new Error(`Erro ao buscar timeline: ${timelineResponse.statusText}`);
-        }
-
-        const timelineData = await timelineResponse.json();
-
+        
         const mediaMap = new Map<string, any>();
-        if (timelineData.includes && timelineData.includes.media) {
-            for (const media of timelineData.includes.media) {
+        if (timeline.includes?.media) {
+            for (const media of timeline.includes.media) {
                 mediaMap.set(media.media_key, media);
             }
         }
         
-        const tweetsWithMedia = (timelineData.data || [])
+        const tweetsWithMedia = (timeline.data.data || [])
             .filter((tweet: any) => tweet.attachments && tweet.attachments.media_keys)
             .map((tweet: any) => {
                 const medias = (tweet.attachments.media_keys || [])
@@ -110,7 +97,9 @@ const fetchTwitterMediaFlow = ai.defineFlow(
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar feed do Twitter:', error);
-        throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${error.message}`);
+        // Garante que a mensagem de erro seja útil para o frontend.
+        const errorMessage = error.data?.detail || error.message || "Erro desconhecido ao acessar a API do Twitter.";
+        throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
     }
   }
 );

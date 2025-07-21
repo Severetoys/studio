@@ -33,6 +33,7 @@ export default function FotosPage() {
       setIsLoading(true);
       setError(null);
       try {
+        // Usa um nome de usuário fixo para buscar no feed. Mude se necessário.
         const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 50 });
         
         const tweetsWithPhotos = response.tweets.map(tweet => ({
