@@ -25,6 +25,30 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body className={`font-sans ${inter.variable} antialiased bg-background`}>
+        <div id="fb-root"></div>
+        <Script id="facebook-jssdk" strategy="afterInteractive">
+          {`
+            window.fbAsyncInit = function() {
+              FB.init({
+                appId      : '${process.env.FACEBOOK_APP_ID}',
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v19.0'
+              });
+              
+              FB.AppEvents.logPageView();   
+                
+            };
+
+            (function(d, s, id){
+               var js, fjs = d.getElementsByTagName(s)[0];
+               if (d.getElementById(id)) {return;}
+               js = d.createElement(s); js.id = id;
+               js.src = "https://connect.facebook.net/en_US/sdk.js";
+               fjs.parentNode.insertBefore(js, fjs);
+             }(document, 'script', 'facebook-jssdk'));
+          `}
+        </Script>
         <Script 
           src={`https://www.paypal.com/sdk/js?client-id=${process.env.PAYPAL_CLIENT_ID}&currency=BRL&enable-funding=paylater,card,googlepay,applepay`}
           strategy="beforeInteractive"

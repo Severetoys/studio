@@ -28,6 +28,12 @@ interface CartItem extends Product {
   quantity: number;
 }
 
+declare global {
+  interface Window {
+    FB: any;
+  }
+}
+
 export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,11 +70,52 @@ export default function LojaPage() {
     fetchProducts();
   }, [db, toast]);
 
+  const statusChangeCallback = (response: any) => {
+    if (response.status === 'connected') {
+      toast({
+        title: "Login com Facebook bem-sucedido!",
+        description: "Você foi autenticado com sucesso.",
+      });
+      // Aqui você pode buscar os dados do usuário, se necessário
+      // FB.api('/me', function(response) { ... });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Login com Facebook falhou.",
+        description: "Não foi possível autenticar com o Facebook.",
+      });
+    }
+  };
+
+  const checkLoginState = () => {
+    if (window.FB) {
+        window.FB.getLoginStatus(function(response: any) {
+            statusChangeCallback(response);
+        });
+    } else {
+        toast({ variant: "destructive", title: "SDK do Facebook não carregado."})
+    }
+  };
+
+  const handleFacebookLogin = () => {
+     if (window.FB) {
+        window.FB.login(function(response: any){
+            statusChangeCallback(response);
+        }, {scope: 'public_profile,email'});
+    } else {
+        toast({ variant: "destructive", title: "SDK do Facebook não carregado."})
+    }
+  };
+
   const handleConnectSocial = (platform: string) => {
-    toast({
-      title: `Integração com ${platform}`,
-      description: `A funcionalidade para conectar com ${platform} está em desenvolvimento e será implementada em breve.`,
-    });
+    if (platform === 'Facebook') {
+      handleFacebookLogin();
+    } else {
+      toast({
+        title: `Integração com ${platform}`,
+        description: `A funcionalidade para conectar com ${platform} está em desenvolvimento.`,
+      });
+    }
   };
 
   const addToCart = (product: Product) => {
