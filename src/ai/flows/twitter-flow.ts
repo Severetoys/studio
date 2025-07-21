@@ -46,6 +46,7 @@ function initializeTwitterClient() {
         throw new Error("As credenciais da API do Twitter não estão configuradas corretamente no arquivo .env");
     }
 
+    // Instancia o cliente com as credenciais corretas
     return new TwitterApi({
         appKey,
         appSecret,
@@ -66,6 +67,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   async ({ username, maxResults }) => {
     try {
         const twitterClient = initializeTwitterClient();
+        // Acessa o cliente de leitura e escrita através da propriedade .readWrite
         const rwClient = twitterClient.readWrite;
 
         const user = await rwClient.v2.userByUsername(username);
