@@ -33,10 +33,8 @@ export default function FotosPage() {
       setIsLoading(true);
       setError(null);
       try {
-        // Substitua 'Severepics' pelo nome de usuário que deseja buscar
-        const response = await fetchTwitterFeed({ username: 'Severepics' });
+        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 50 });
         
-        // Filtra para garantir que apenas tweets com mídia do tipo 'photo' sejam incluídos
         const tweetsWithPhotos = response.tweets.map(tweet => ({
           ...tweet,
           media: tweet.media.filter(m => m.type === 'photo' && m.url),

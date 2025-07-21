@@ -1,14 +1,14 @@
 
 'use server';
 /**
- * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a biblioteca twitter-api-v2.
- * Este fluxo se autentica na API do Twitter v2 com as credenciais de App (OAuth 1.0a), busca os tweets mais recentes
- * de um usuário específico e extrai as URLs das mídias anexadas.
+ * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a API v2.
+ * Este fluxo se autentica usando um Bearer Token e busca os tweets mais recentes
+ * de um usuário específico, extraindo as URLs das mídias anexadas.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi } from 'twitter-api-v2';
+import fetch from 'node-fetch';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -44,49 +44,58 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username, maxResults }) => {
     try {
-        const appKey = process.env.TWITTER_API_KEY;
-        const appSecret = process.env.TWITTER_API_SECRET;
-        const accessToken = process.env.TWITTER_ACCESS_TOKEN;
-        const accessSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+        const bearerToken = process.env.TWITTER_BEARER_TOKEN;
 
-        if (!appKey || !appSecret || !accessToken || !accessSecret) {
-            throw new Error("As credenciais da API do Twitter não estão configuradas corretamente no arquivo .env");
+        if (!bearerToken) {
+            throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no arquivo .env");
         }
 
-        const twitterClient = new TwitterApi({
-            appKey,
-            appSecret,
-            accessToken,
-            accessSecret,
+        // Primeiro, obtemos o ID do usuário a partir do nome de usuário.
+        const userLookupUrl = `https://api.twitter.com/2/users/by/username/${username}`;
+        const userResponse = await fetch(userLookupUrl, {
+            headers: { 'Authorization': `Bearer ${bearerToken}` }
         });
 
-        const rwClient = twitterClient.readWrite;
+        if (!userResponse.ok) {
+            const errorData = await userResponse.json();
+            console.error('Erro ao buscar usuário do Twitter:', errorData);
+            throw new Error(`Usuário do Twitter "${username}" não encontrado ou erro na API: ${userResponse.statusText}`);
+        }
+        
+        const userData = await userResponse.json();
+        const userId = userData.data.id;
 
-        const user = await rwClient.v2.userByUsername(username);
-        if (!user.data) {
-            throw new Error(`Usuário do Twitter "${username}" não encontrado.`);
+        if (!userId) {
+             throw new Error(`Não foi possível encontrar o ID para o usuário "${username}".`);
         }
 
-        const timeline = await rwClient.v2.userTimeline(user.data.id, {
-            'tweet.fields': 'attachments,created_at,text',
-            'expansions': 'attachments.media_keys',
-            'media.fields': 'url,preview_image_url,type',
-            exclude: ['retweets', 'replies'],
-            max_results: maxResults,
+        // Agora, buscamos a timeline do usuário usando seu ID.
+        const timelineUrl = `https://api.twitter.com/2/users/${userId}/tweets?tweet.fields=attachments,created_at,text&expansions=attachments.media_keys&media.fields=url,preview_image_url,type&exclude=retweets,replies&max_results=${maxResults}`;
+
+        const timelineResponse = await fetch(timelineUrl, {
+            headers: { 'Authorization': `Bearer ${bearerToken}` }
         });
+
+        if (!timelineResponse.ok) {
+            const errorData = await timelineResponse.json();
+            console.error('Erro ao buscar timeline do Twitter:', errorData);
+            throw new Error(`Erro ao buscar timeline: ${timelineResponse.statusText}`);
+        }
+
+        const timelineData = await timelineResponse.json();
 
         const mediaMap = new Map<string, any>();
-        if (timeline.includes && timeline.includes.media) {
-            for (const media of timeline.includes.media) {
+        if (timelineData.includes && timelineData.includes.media) {
+            for (const media of timelineData.includes.media) {
                 mediaMap.set(media.media_key, media);
             }
         }
         
-        const tweetsWithMedia = (timeline.data.data || [])
-            .filter(tweet => tweet.attachments && tweet.attachments.media_keys)
-            .map(tweet => {
-                const medias = tweet.attachments.media_keys
-                    .map(key => mediaMap.get(key))
+        const tweetsWithMedia = (timelineData.data || [])
+            .filter((tweet: any) => tweet.attachments && tweet.attachments.media_keys)
+            .map((tweet: any) => {
+                const medias = (tweet.attachments.media_keys || [])
+                    .map((key: string) => mediaMap.get(key))
                     .filter(Boolean);
                 
                 return {
@@ -100,7 +109,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         return { tweets: tweetsWithMedia };
 
     } catch (error: any) {
-        console.error('Erro ao buscar o feed do Twitter:', error);
+        console.error('Erro no fluxo ao buscar feed do Twitter:', error);
         throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${error.message}`);
     }
   }
