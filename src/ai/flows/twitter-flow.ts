@@ -1,17 +1,19 @@
 
 'use server';
 /**
- * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando fetch direto.
- * Este fluxo se autentica na API do Twitter v2 com um Bearer Token, busca os tweets mais recentes
+ * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a biblioteca twitter-api-v2.
+ * Este fluxo se autentica na API do Twitter v2 com as credenciais de App (OAuth 1.0a), busca os tweets mais recentes
  * de um usuário específico e extrai as URLs das mídias anexadas.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
   username: z.string().describe("O nome de usuário do Twitter para buscar as mídias."),
+  maxResults: z.number().optional().default(25).describe("Número máximo de tweets a serem retornados."),
 });
 export type TwitterMediaInput = z.infer<typeof TwitterMediaInputSchema>;
 
@@ -20,14 +22,37 @@ const TwitterMediaOutputSchema = z.object({
     tweets: z.array(z.object({
         id: z.string(),
         text: z.string(),
+        created_at: z.string().optional(),
         media: z.array(z.object({
-            url: z.string().optional(),
-            type: z.string(),
             media_key: z.string(),
+            type: z.string(),
+            url: z.string().optional(),
+            preview_image_url: z.string().optional(),
         })),
     })),
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
+
+
+// Função para inicializar o cliente do Twitter.
+// Isso evita que o cliente seja recriado em cada chamada se o módulo for mantido em cache.
+function initializeTwitterClient() {
+    const appKey = process.env.TWITTER_API_KEY;
+    const appSecret = process.env.TWITTER_API_SECRET;
+    const accessToken = process.env.TWITTER_ACCESS_TOKEN;
+    const accessSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+
+    if (!appKey || !appSecret || !accessToken || !accessSecret) {
+        throw new Error("As credenciais da API do Twitter não estão configuradas corretamente no arquivo .env");
+    }
+
+    return new TwitterApi({
+        appKey,
+        appSecret,
+        accessToken,
+        accessSecret,
+    });
+}
 
 /**
  * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter.
@@ -38,51 +63,53 @@ const fetchTwitterMediaFlow = ai.defineFlow(
     inputSchema: TwitterMediaInputSchema,
     outputSchema: TwitterMediaOutputSchema,
   },
-  async ({ username }) => {
+  async ({ username, maxResults }) => {
     try {
-      const bearerToken = process.env.TWITTER_BEARER_TOKEN;
-      if (!bearerToken) {
-          throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no arquivo .env");
-      }
-      
-      const url = `https://api.twitter.com/2/tweets/search/recent?query=from:${username} has:media&expansions=attachments.media_keys&media.fields=url,type&tweet.fields=text`;
+        const twitterClient = initializeTwitterClient();
+        const rwClient = twitterClient.readWrite;
 
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${bearerToken}`
+        const user = await rwClient.v2.userByUsername(username);
+        if (!user.data) {
+            throw new Error(`Usuário do Twitter "${username}" não encontrado.`);
         }
-      });
-      
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Erro da API do Twitter:', errorBody);
-        throw new Error(`Erro ao buscar tweets: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
 
-      // Mapeia os dados da resposta para o formato de saída esperado
-      const includedMedia = data.includes?.media || [];
+        const timeline = await rwClient.v2.userTimeline(user.data.id, {
+            'tweet.fields': 'attachments,created_at,text',
+            'expansions': 'attachments.media_keys',
+            'media.fields': 'url,preview_image_url,type',
+            exclude: ['retweets', 'replies'],
+            max_results: maxResults,
+        });
 
-      const tweets = (data.data || []).map((tweet: any) => {
-        const mediaKeys = tweet.attachments?.media_keys || [];
-        const mediaForTweet = mediaKeys.map((key: string) => {
-          return includedMedia.find((m: any) => m.media_key === key);
-        }).filter(Boolean); // Filtra mídias não encontradas
+        // Mapeia mídias para fácil acesso
+        const mediaMap = new Map();
+        if (timeline.includes && timeline.includes.media) {
+            for (const media of timeline.includes.media) {
+                mediaMap.set(media.media_key, media);
+            }
+        }
+        
+        const tweetsWithMedia = (timeline.data.data || [])
+            .filter(tweet => tweet.attachments && tweet.attachments.media_keys)
+            .map(tweet => {
+                const medias = tweet.attachments.media_keys
+                    .map(key => mediaMap.get(key))
+                    .filter(Boolean); // Filtra mídias não encontradas
+                
+                return {
+                    id: tweet.id,
+                    text: tweet.text,
+                    created_at: tweet.created_at,
+                    media: medias,
+                };
+            });
 
-        return {
-          id: tweet.id,
-          text: tweet.text,
-          media: mediaForTweet,
-        };
-      });
-
-      return { tweets };
+        return { tweets: tweetsWithMedia };
 
     } catch (error: any) {
-      console.error('Erro ao buscar o feed do Twitter:', error);
-      // Lança um erro mais descritivo para o cliente.
-      throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${error.message}`);
+        console.error('Erro ao buscar o feed do Twitter:', error);
+        // Lança um erro mais descritivo para o cliente.
+        throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${error.message}`);
     }
   }
 );

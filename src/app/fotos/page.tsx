@@ -8,14 +8,18 @@ import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
 
+interface Media {
+  url?: string;
+  preview_image_url?: string;
+  type: string;
+  media_key: string;
+}
+
 interface TweetWithMedia {
   id: string;
   text: string;
-  media: {
-    url?: string;
-    type: string;
-    media_key: string;
-  }[];
+  created_at?: string;
+  media: Media[];
 }
 
 export default function FotosPage() {
@@ -29,6 +33,7 @@ export default function FotosPage() {
       setIsLoading(true);
       setError(null);
       try {
+        // Substitua 'Severepics' pelo nome de usuário que deseja buscar
         const response = await fetchTwitterFeed({ username: 'Severepics' });
         
         // Filtra para garantir que apenas tweets com mídia do tipo 'photo' sejam incluídos
