@@ -69,14 +69,18 @@ export default function AdminIntegrationsPage() {
       };
       setIntegrations(savedState);
 
-      // Check Facebook's login status when the component loads, but don't auto-connect
       if (window.FB) {
         window.FB.getLoginStatus((response: any) => {
-          if (response.status === 'connected' && localStorage.getItem("integration_facebook") === "true") {
-            // Already connected and session is valid
+          if (response.status === 'connected') {
+            if (localStorage.getItem("integration_facebook") !== "true") {
+              updateIntegrationStatus('facebook', true, false);
+            }
+             if (localStorage.getItem("integration_instagram") !== "true") {
+              updateIntegrationStatus('instagram', true, false);
+            }
           } else {
-            // Not connected in our state, or session is invalid, so ensure we are logged out locally.
             updateIntegrationStatus('facebook', false, false);
+            updateIntegrationStatus('instagram', false, false);
           }
         });
       }
@@ -108,10 +112,11 @@ export default function AdminIntegrationsPage() {
     window.FB.login((response: any) => {
         if (response.status === 'connected') {
             updateIntegrationStatus('facebook', true);
+            updateIntegrationStatus('instagram', true); // Assume Instagram connects with Facebook
         } else {
             toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
         }
-    }, { scope: 'public_profile,email', auth_type: 'rerequest' }); // auth_type forces a dialog
+    }, { scope: 'public_profile,email,instagram_basic,pages_show_list', auth_type: 'rerequest' });
   };
 
   const handleFacebookLogout = () => {
@@ -123,10 +128,11 @@ export default function AdminIntegrationsPage() {
         if (response.status === 'connected') {
             window.FB.logout(() => {
                 updateIntegrationStatus('facebook', false);
+                updateIntegrationStatus('instagram', false);
             });
         } else {
-            // If not connected in FB, just update our local state
             updateIntegrationStatus('facebook', false);
+            updateIntegrationStatus('instagram', false);
         }
     });
   };
@@ -134,7 +140,7 @@ export default function AdminIntegrationsPage() {
   const handleToggleIntegration = (integration: Integration) => {
     const isConnected = integrations[integration];
 
-    if (integration === 'facebook') {
+    if (integration === 'facebook' || integration === 'instagram') {
         if (isConnected) {
             handleFacebookLogout();
         } else {
@@ -142,7 +148,7 @@ export default function AdminIntegrationsPage() {
         }
         return;
     }
-
+    
     // For other integrations, we still show a placeholder toast.
     if (isConnected) {
         updateIntegrationStatus(integration, false);
@@ -168,7 +174,6 @@ export default function AdminIntegrationsPage() {
     isConnected: boolean;
   }) => {
     
-    // Twitter has a special case with an AlertDialog for a simulated connection.
     if (platform === 'twitter') {
         return (
             <Card className="p-4">
@@ -287,5 +292,3 @@ export default function AdminIntegrationsPage() {
     </>
   );
 }
-
-    
