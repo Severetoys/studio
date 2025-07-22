@@ -34,11 +34,16 @@ const PAYMENT_ID_COLUMN_LETTER = 'F';
  * @returns A instância da API do Sheets.
  */
 function getSheetsClient() {
-    const auth = new google.auth.GoogleAuth({
-        keyFile: path.resolve('./serviceAccountKey.json'),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    return google.sheets({ version: 'v4', auth });
+    try {
+        const auth = new google.auth.GoogleAuth({
+            keyFile: path.resolve('./serviceAccountKey.json'),
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+        return google.sheets({ version: 'v4', auth });
+    } catch (error: any) {
+        console.error('Erro ao inicializar o cliente do Google Sheets:', error);
+        throw new Error('Falha ao autenticar com a API do Google Sheets.');
+    }
 }
 
 
@@ -82,20 +87,30 @@ export async function updatePaymentIdForUser(email: string, paymentId: string, n
     try {
         const sheets = getSheetsClient();
 
-        // 1. Tentar encontrar a linha do usuário pelo email.
+        // 1. Tentar encontrar a linha do usuário pelo email de forma otimizada.
         const getResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!A:F`,
+            range: `${SHEET_NAME}!C:C`, // Busca apenas a coluna de email
         });
 
-        const rows = getResponse.data.values;
-        const rowIndex = rows ? rows.findIndex(row => row[EMAIL_COLUMN_INDEX] === email) : -1;
+        const emailColumn = getResponse.data.values;
+        let rowIndex = -1;
+        if (emailColumn) {
+            // Itera sobre a coluna para encontrar o email, tratando linhas vazias
+            for (let i = 0; i < emailColumn.length; i++) {
+                if (emailColumn[i] && emailColumn[i][0] === email) {
+                    rowIndex = i;
+                    break;
+                }
+            }
+        }
 
         if (rowIndex !== -1) {
             // Usuário encontrado, atualiza o ID de pagamento.
             const sheetRowNumber = rowIndex + 1;
             const updateRange = `${SHEET_NAME}!${PAYMENT_ID_COLUMN_LETTER}${sheetRowNumber}`;
-
+            
+            console.log(`Atualizando pagamento para ${email} na linha ${sheetRowNumber}...`);
             await sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
                 range: updateRange,
@@ -122,7 +137,7 @@ export async function updatePaymentIdForUser(email: string, paymentId: string, n
     } catch (error: any) {
         console.error('Erro ao atualizar a Planilha Google:', error.message);
         if (error.response?.data?.error) {
-            console.error('Detalhes do erro da API:', error.response.data.error);
+            console.error('Detalhes do erro da API:', JSON.stringify(error.response.data.error));
         }
         throw new Error('Falha ao atualizar a planilha com os dados do pagamento.');
     }
