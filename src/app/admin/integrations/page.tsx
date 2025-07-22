@@ -10,17 +10,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { Facebook, Instagram, Twitter, LogOut, LogIn } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-type Integration = "twitter" | "instagram" | "facebook";
+// Placeholder icons for PayPal and Mercado Pago
+const PayPalIcon = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7.74,2.42,7.36,5.1a.21.21,0,0,0,.2.23l2.88-.1a.21.21,0,0,1,.21.23L9.6,13.75a.21.21,0,0,0,.21.22l2.37-.08a.21.21,0,0,1,.21.23L11.23,21.8a.22.22,0,0,0,.21.21h2.82a.22.22,0,0,0,.22-.2l2-13.43a.22.22,0,0,0-.21-.24l-3.23.11a.22.22,0,0,1-.21-.24L12.7,2.42a.21.21,0,0,0-.21-.21H8a.21.21,0,0,0-.24.21Z"/>
+        <path d="M10.87,14.57,11.82.93A.21.21,0,0,0,11.61.71H8.69a.21.21,0,0,0-.21.2L7.36,7.59a.22.22,0,0,0,.21.24l2.58-.09a.21.21,0,0,1,.21.23l-.93,6.3a.21.21,0,0,0,.21.22l2.74-.09a.21.21,0,0,0,.2-.23Z"/>
+    </svg>
+);
+
+const MercadoPagoIcon = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.3,4.22a.5.5,0,0,0-.49-.49l-13,1.45a.5.5,0,0,0-.42.5V18.17a.5.5,0,0,0,.35.48l13.3,2.44a.5.5,0,0,0,.55-.38l.68-15A.5.5,0,0,0,18.3,4.22ZM12,14.07a3.5,3.5,0,1,1,3.5-3.5A3.5,3.5,0,0,1,12,14.07Z"/>
+    </svg>
+);
+
+
+type Integration = "twitter" | "instagram" | "facebook" | "paypal" | "mercadopago";
 
 export default function AdminIntegrationsPage() {
+  const { toast } = useToast();
   const [integrations, setIntegrations] = useState({
     twitter: false,
     instagram: false,
     facebook: false,
+    paypal: false,
+    mercadopago: false,
   });
   const [isClient, setIsClient] = useState(false);
 
@@ -31,6 +48,8 @@ export default function AdminIntegrationsPage() {
         twitter: localStorage.getItem("integration_twitter") === "true",
         instagram: localStorage.getItem("integration_instagram") === "true",
         facebook: localStorage.getItem("integration_facebook") === "true",
+        paypal: localStorage.getItem("integration_paypal") === "true",
+        mercadopago: localStorage.getItem("integration_mercadopago") === "true",
       };
       setIntegrations(savedState);
     } catch (error) {
@@ -38,14 +57,25 @@ export default function AdminIntegrationsPage() {
     }
   }, []);
 
-  const handleSwitchChange = (integration: Integration, checked: boolean) => {
+  const handleToggleIntegration = (integration: Integration) => {
     setIntegrations(prevState => {
-      const newState = { ...prevState, [integration]: checked };
+      const isConnected = !prevState[integration];
+      const newState = { ...prevState, [integration]: isConnected };
+      
       try {
-        localStorage.setItem(`integration_${integration}`, String(checked));
+        localStorage.setItem(`integration_${integration}`, String(isConnected));
+        toast({
+            title: `Integração ${isConnected ? 'Conectada' : 'Desconectada'}`,
+            description: `A integração com ${integration} foi ${isConnected ? 'ativada' : 'desativada'}.`,
+        });
       } catch (error) {
         console.error("Failed to write to localStorage", error);
       }
+      
+      // Aqui você chamaria a API de login/logout real
+      // Ex: if (isConnected) { loginTo(integration); } else { logoutFrom(integration); }
+      console.log(`Toggling ${integration} to ${isConnected}`);
+      
       return newState;
     });
   };
@@ -73,20 +103,13 @@ export default function AdminIntegrationsPage() {
           </div>
         </div>
         {isClient && (
-          <div className="flex items-center gap-2">
-            <Label htmlFor={`${platform}-switch`} className="text-sm text-muted-foreground">
-              Desconectado
-            </Label>
-            <Switch
-              id={`${platform}-switch`}
-              checked={isConnected}
-              onCheckedChange={(checked) => handleSwitchChange(platform, checked)}
-              aria-label={`Toggle ${platform} integration`}
-            />
-            <Label htmlFor={`${platform}-switch`} className="text-sm font-medium">
-              Conectado
-            </Label>
-          </div>
+           <Button
+              variant={isConnected ? "destructive" : "default"}
+              onClick={() => handleToggleIntegration(platform)}
+            >
+              {isConnected ? <LogOut className="mr-2 h-4 w-4" /> : <LogIn className="mr-2 h-4 w-4" />}
+              {isConnected ? "Desconectar" : "Conectar"}
+            </Button>
         )}
       </div>
     </Card>
@@ -95,39 +118,54 @@ export default function AdminIntegrationsPage() {
   return (
     <>
       <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">Integrações de Redes Sociais</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Integrações de Plataformas</h1>
       </div>
       <Card>
         <CardHeader>
           <CardTitle>Conectar Contas</CardTitle>
           <CardDescription>
-            Gerencie a conexão com suas redes sociais para sincronizar conteúdo.
+            Gerencie as conexões com redes sociais e serviços de pagamento.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <IntegrationCard
-            platform="twitter"
-            icon={Twitter}
-            color="text-[#1DA1F2]"
-            description="Sincronize seu feed de vídeos."
-            isConnected={integrations.twitter}
-          />
-          <IntegrationCard
-            platform="instagram"
-            icon={Instagram}
-            color="text-[#E4405F]"
-            description="Importe sua galeria de fotos."
-            isConnected={integrations.instagram}
-          />
-          <IntegrationCard
             platform="facebook"
             icon={Facebook}
             color="text-[#1877F2]"
-            description="Conecte sua página para posts."
+            description="Conecte sua página para posts e login."
             isConnected={integrations.facebook}
+          />
+           <IntegrationCard
+            platform="instagram"
+            icon={Instagram}
+            color="text-[#E4405F]"
+            description="Importe sua galeria de fotos e login."
+            isConnected={integrations.instagram}
+          />
+          <IntegrationCard
+            platform="twitter"
+            icon={Twitter}
+            color="text-[#1DA1F2]"
+            description="Sincronize seu feed de vídeos e login."
+            isConnected={integrations.twitter}
+          />
+           <IntegrationCard
+            platform="paypal"
+            icon={PayPalIcon}
+            color="text-[#0070BA]"
+            description="Conecte para processar pagamentos e login."
+            isConnected={integrations.paypal}
+          />
+           <IntegrationCard
+            platform="mercadopago"
+            icon={MercadoPagoIcon}
+            color="text-[#00B1EA]"
+            description="Habilite o checkout do Mercado Pago e login."
+            isConnected={integrations.mercadopago}
           />
         </CardContent>
       </Card>
     </>
   );
 }
+
