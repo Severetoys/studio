@@ -109,5 +109,5 @@ const fetchTwitterMediaFlow = ai.defineFlow(
  * Invoca o fluxo Genkit e retorna seu resultado.
  */
 export async function fetchTwitterFeed(input: TwitterMediaInput): Promise<TwitterMediaOutput> {
-    return await fetchTwitterMediaFlow(input);
+    return fetchTwitterMediaFlow(input);
 }
