@@ -76,5 +76,15 @@
   "engines": {
     "node": ">=18.0.0 <22.0.0"
   }
-  // Added to trigger a clean build
+ graphql
+type User {
+  id: ID!
+  name: String!
+}
+
+type Query {
+  getUser(id: ID!): User
+  listUsers: [User!]!
+}
+
 }

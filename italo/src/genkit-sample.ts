@@ -1,10 +1,10 @@
 // Import the Genkit core libraries and plugins.
 import {genkit, z} from "genkit";
-import {googleAI} from "@genkit-ai/googleai";
+import {vertexAI} from "@genkit-ai/vertexai";
 
-// Import models from the Google AI plugin. The Google AI API provides access to
+// Import models from the Vertex AI plugin. The Vertex AI API provides access to
 // several generative models. Here, we import Gemini 2.0 Flash.
-import {gemini20Flash} from "@genkit-ai/googleai";
+import {gemini20Flash} from "@genkit-ai/vertexai";
 
 // Cloud Functions for Firebase supports Genkit natively. The onCallGenkit function creates a callable
 // function from a Genkit action. It automatically implements streaming if your flow does.
@@ -25,11 +25,10 @@ enableFirebaseTelemetry();
 
 const ai = genkit({
   plugins: [
-    // Load the Google AI plugin. You can optionally specify your API key
-    // by passing in a config object; if you don't, the Google AI plugin uses
-    // the value from the GOOGLE_GENAI_API_KEY environment variable, which is
-    // the recommended practice.
-    googleAI(),
+    // Load the Vertex AI plugin. You can optionally specify your project ID
+    // by passing in a config object; if you don't, the Vertex AI plugin uses
+    // the value from the GCLOUD_PROJECT environment variable.
+    vertexAI({location: "us-central1"}),
   ],
 });
 

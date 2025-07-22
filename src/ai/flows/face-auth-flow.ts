@@ -11,13 +11,6 @@ import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { appendToSheet } from '@/services/google-sheets';
 import serviceAccount from '../../../serviceAccountKey.json';
 
-// Inicializa o cliente da API Vision, garantindo que ele use a conta de serviço do projeto.
-const visionClient = new ImageAnnotatorClient({
-  credentials: {
-    client_email: serviceAccount.client_email,
-    private_key: serviceAccount.private_key,
-  }
-});
 
 /**
  * Função auxiliar para detectar um único rosto em uma imagem codificada em base64.
@@ -34,7 +27,21 @@ async function detectSingleFace(imageBase64: string): Promise<{
         return { faceFound: false, error: 'Dados de imagem inválidos ou vazios recebidos.' };
     }
 
-    const [result] = await visionClient.faceDetection(Buffer.from(imageBase64.split(',')[1], 'base64'));
+    const visionClient = new ImageAnnotatorClient({
+      credentials: {
+        client_email: serviceAccount.client_email,
+        private_key: serviceAccount.private_key,
+      }
+    });
+
+    const request = {
+      image: {
+        content: imageBase64.split(',')[1],
+      },
+      features: [{ type: 'FACE_DETECTION' }],
+    };
+    
+    const [result] = await visionClient.faceDetection(request);
     const faces = result.faceAnnotations;
 
     if (!faces || faces.length === 0) {

@@ -1,0 +1,72 @@
+type User @table {
+  displayName: String!
+  email: String!
+  createdAt: Timestamp!
+  photoUrl: String
+  paypalEmail: String
+  publicProfileSlug: String
+}
+
+type SocialAccount @table {
+  platform: String!
+  accessToken: String!
+  accountIdentifier: String!
+  refreshToken: String
+  status: String
+  lastSyncedAt: Timestamp
+  user: User!
+}
+
+type MediaAsset @table {
+  fileName: String!
+  url: String!
+  mediaType: String!
+  createdAt: Timestamp!
+  width: Int
+  height: Int
+  duration: Int
+  user: User!
+}
+
+type Post @table {
+  status: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  caption: String
+  scheduledAt: Timestamp
+  publishedAt: Timestamp
+  mediaAssetIds: [UUID]
+  user: User!
+}
+
+type PlatformPost @table(key: ["post", "socialAccount"]) {
+  status: String!
+  platformPostId: String
+  publishedUrl: String
+  errorDetails: String
+  post: Post!
+  socialAccount: SocialAccount!
+}
+
+type ProductService @table {
+  name: String!
+  price: Float!
+  currency: String!
+  isActive: Boolean!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  imageUrl: String
+  user: User!
+}
+
+type Transaction @table {
+  paypalTransactionId: String!
+  amount: Float!
+  currency: String!
+  status: String!
+  receivedAt: Timestamp!
+  payerEmail: String
+  user: User!
+  productService: ProductService
+}
