@@ -18,7 +18,6 @@ interface PayPalButtonProps {
 declare global {
     interface Window {
         paypal?: any;
-        ReactDOM?: any;
     }
 }
 
@@ -27,7 +26,8 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const paypalButtonContainerRef = useRef<HTMLDivElement>(null);
+  const buttonContainerRef = useRef<HTMLDivElement>(null);
+  const buttonRendered = useRef(false);
 
   useEffect(() => {
     if (window.paypal) {
@@ -60,15 +60,14 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   };
 
   useEffect(() => {
-    if (isSdkReady && paypalButtonContainerRef.current && paypalButtonContainerRef.current.childElementCount === 0) {
-      
-      const finalDisabledState = disabled || isProcessing || parseFloat(amount) <= 0;
-
-      if (finalDisabledState) {
-        return;
+    if (isSdkReady && buttonContainerRef.current && !buttonRendered.current) {
+      if (disabled || parseFloat(amount) <= 0) {
+        return; 
       }
       
-      const buttons = window.paypal.Buttons({
+      buttonRendered.current = true; // Mark as rendered to prevent re-rendering
+      
+      window.paypal.Buttons({
         style: { 
           layout: 'vertical', 
           color: 'blue', 
@@ -76,82 +75,68 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
           label: 'pay', 
           tagline: false 
         },
-        createOrder: (_: any, actions: any) => {
+        async createOrder(_: any, actions: any) {
           setIsProcessing(true);
           const payerInfo = customerInfo?.email ? {
             payer: {
               email_address: customerInfo.email,
               name: {
-                given_name: customerInfo.name.split(' ')[0],
+                given_name: customerInfo.name.split(' ')[0] || '',
                 surname: customerInfo.name.split(' ').slice(1).join(' ') || customerInfo.name.split(' ')[0],
               }
             }
           } : {};
 
-          return actions.order.create({
-            purchase_units: [{
-              amount: {
-                value: amount,
-                currency_code: 'BRL',
+          try {
+            return await actions.order.create({
+              purchase_units: [{
+                amount: {
+                  value: amount,
+                  currency_code: 'BRL',
+                },
+              }],
+              application_context: {
+                shipping_preference: 'NO_SHIPPING',
               },
-            }],
-            application_context: {
-              shipping_preference: 'NO_SHIPPING',
-            },
-            ...payerInfo
-          }).catch((err: any) => {
-            console.error("Erro ao criar pedido PayPal:", err);
-            toast({
-              variant: "destructive",
-              title: "Erro no PayPal",
-              description: "Não foi possível iniciar o pagamento.",
+              ...payerInfo
             });
+          } catch (err) {
+            console.error("Erro ao criar pedido PayPal:", err);
+            toast({ variant: "destructive", title: "Erro no PayPal", description: "Não foi possível iniciar o pagamento." });
             setIsProcessing(false);
             throw err;
-          });
+          }
         },
-        onApprove: (_: any, actions: any) => {
-          return actions.order.capture().then((details: any) => {
+        async onApprove(_: any, actions: any) {
+          try {
+            const details = await actions.order.capture();
             if (isQuickPay) {
-                handleQuickPaySuccess(details);
+                await handleQuickPaySuccess(details);
             } else {
                 onSuccess(details);
             }
-            setIsProcessing(false);
-          }).catch((err: any) => {
+          } catch (err) {
             console.error("Erro ao capturar pagamento PayPal:", err);
-            toast({
-              variant: "destructive",
-              title: "Erro no Pagamento",
-              description: "Houve um problema ao processar seu pagamento.",
-            });
+            toast({ variant: "destructive", title: "Erro no Pagamento", description: "Houve um problema ao processar seu pagamento." });
+          } finally {
             setIsProcessing(false);
-            throw err;
-          });
+          }
         },
         onError: (err: any) => {
           console.error("Erro no botão do PayPal:", err);
-          toast({
-            variant: "destructive",
-            title: "Erro no PayPal",
-            description: "Ocorreu um erro inesperado ou o pagamento foi cancelado.",
-          });
+          toast({ variant: "destructive", title: "Erro no PayPal", description: "Ocorreu um erro inesperado ou o pagamento foi cancelado." });
           setIsProcessing(false);
         },
         onCancel: () => {
           setIsProcessing(false);
-          toast({
-            title: 'Pagamento Cancelado',
-            description: 'Você cancelou o processo de pagamento.',
-          });
+          toast({ title: 'Pagamento Cancelado', description: 'Você cancelou o processo de pagamento.' });
         }
-      });
-      
-      buttons.render(paypalButtonContainerRef.current).catch((err: any) => {
-        console.error("Failed to render paypal buttons", err);
+      }).render(buttonContainerRef.current).catch((err: any) => {
+          console.error("Falha ao renderizar botões do PayPal", err);
+          buttonRendered.current = false; // Allow re-render on failure
       });
     }
-  }, [isSdkReady, amount, disabled, customerInfo, isQuickPay, onSuccess, toast, router]);
+  }, [isSdkReady, amount, disabled]); 
 
   const finalDisabledState = disabled || isProcessing || parseFloat(amount) <= 0;
 
@@ -166,11 +151,11 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   return (
     <div className={cn("relative min-h-[100px]", finalDisabledState && "opacity-50 cursor-not-allowed")}>
        {isProcessing && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/50">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/50 rounded-lg">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       )}
-      <div ref={paypalButtonContainerRef} className={cn(isProcessing ? 'blur-sm' : '')} />
+      <div ref={buttonContainerRef} className={cn((isProcessing || finalDisabledState) ? 'blur-sm pointer-events-none' : '')} />
     </div>
   );
 }
