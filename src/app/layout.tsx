@@ -30,7 +30,7 @@ export default function RootLayout({
           {`
             window.fbAsyncInit = function() {
               FB.init({
-                appId      : '1029313609296207',
+                appId      : '${process.env.FACEBOOK_APP_ID}',
                 cookie     : true,
                 xfbml      : true,
                 version    : 'v19.0'

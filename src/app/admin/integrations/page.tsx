@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Facebook, Instagram, Twitter, LogOut, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { TwitterApi } from "twitter-api-v2";
 
 // Placeholder icons for PayPal and Mercado Pago
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -117,6 +118,19 @@ export default function AdminIntegrationsPage() {
     });
   };
 
+  const handleTwitterLogin = async () => {
+      // Twitter's v2 API doesn't have a simple client-side login flow like Facebook.
+      // This would typically involve a server-side OAuth2 process.
+      // For this demonstration, we'll simulate a successful connection
+      // as the backend setup is out of scope for this component.
+      toast({
+          title: "Conectado ao Twitter (Simulado)",
+          description: "A conexão real requer um fluxo OAuth2 no servidor.",
+      });
+      updateIntegrationStatus('twitter', true);
+  };
+
+
   const handleToggleIntegration = (integration: Integration) => {
     const isConnected = integrations[integration];
 
@@ -128,6 +142,16 @@ export default function AdminIntegrationsPage() {
         }
         return;
     }
+    
+    if (integration === 'twitter') {
+        if (isConnected) {
+            updateIntegrationStatus('twitter', false);
+        } else {
+            handleTwitterLogin();
+        }
+        return;
+    }
+
 
     // Placeholder logic for other integrations
     if (isConnected) {
@@ -135,13 +159,10 @@ export default function AdminIntegrationsPage() {
         updateIntegrationStatus(integration, false);
     } else {
         console.log(`Conectando a ${integration}...`);
-        // Here you would trigger the OAuth flow for the specific service
         toast({
             title: 'Funcionalidade em Desenvolvimento',
             description: `A lógica de conexão real para ${integration} ainda não foi implementada.`,
         });
-        // For demonstration, we can toggle the state
-        // updateIntegrationStatus(integration, true);
     }
   };
 
