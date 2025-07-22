@@ -27,6 +27,11 @@ const MercadoPagoIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+declare global {
+  interface Window {
+    FB: any;
+  }
+}
 
 type Integration = "twitter" | "instagram" | "facebook" | "paypal" | "mercadopago";
 
@@ -52,32 +57,92 @@ export default function AdminIntegrationsPage() {
         mercadopago: localStorage.getItem("integration_mercadopago") === "true",
       };
       setIntegrations(savedState);
+
+      // Check Facebook's login status when the component loads
+      if (window.FB) {
+        window.FB.getLoginStatus((response: any) => {
+          if (response.status === 'connected') {
+            updateIntegrationStatus('facebook', true, false);
+          }
+        });
+      }
     } catch (error) {
-      console.error("Failed to access localStorage", error);
+      console.error("Failed to access localStorage or FB SDK", error);
     }
   }, []);
 
-  const handleToggleIntegration = (integration: Integration) => {
-    setIntegrations(prevState => {
-      const isConnected = !prevState[integration];
-      const newState = { ...prevState, [integration]: isConnected };
-      
-      try {
-        localStorage.setItem(`integration_${integration}`, String(isConnected));
+  const updateIntegrationStatus = (integration: Integration, isConnected: boolean, showToast: boolean = true) => {
+    setIntegrations(prevState => ({ ...prevState, [integration]: isConnected }));
+    try {
+      localStorage.setItem(`integration_${integration}`, String(isConnected));
+      if (showToast) {
         toast({
             title: `Integração ${isConnected ? 'Conectada' : 'Desconectada'}`,
             description: `A integração com ${integration} foi ${isConnected ? 'ativada' : 'desativada'}.`,
         });
-      } catch (error) {
-        console.error("Failed to write to localStorage", error);
       }
-      
-      // Aqui você chamaria a API de login/logout real
-      // Ex: if (isConnected) { loginTo(integration); } else { logoutFrom(integration); }
-      console.log(`Toggling ${integration} to ${isConnected}`);
-      
-      return newState;
+    } catch (error) {
+      console.error("Failed to write to localStorage", error);
+    }
+  };
+
+  const handleFacebookLogin = () => {
+    if (!window.FB) {
+        toast({ variant: "destructive", title: "SDK do Facebook não carregado."});
+        return;
+    }
+    window.FB.login((response: any) => {
+        if (response.status === 'connected') {
+            updateIntegrationStatus('facebook', true);
+        } else {
+            toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
+        }
+    }, { scope: 'public_profile,email' });
+  };
+
+  const handleFacebookLogout = () => {
+    if (!window.FB) {
+        toast({ variant: "destructive", title: "SDK do Facebook não carregado."});
+        return;
+    }
+    window.FB.getLoginStatus((response: any) => {
+        if (response.status === 'connected') {
+            window.FB.logout(() => {
+                updateIntegrationStatus('facebook', false);
+            });
+        } else {
+            // If not connected in FB, just update our local state
+            updateIntegrationStatus('facebook', false);
+        }
     });
+  };
+
+  const handleToggleIntegration = (integration: Integration) => {
+    const isConnected = integrations[integration];
+
+    if (integration === 'facebook') {
+        if (isConnected) {
+            handleFacebookLogout();
+        } else {
+            handleFacebookLogin();
+        }
+        return;
+    }
+
+    // Placeholder logic for other integrations
+    if (isConnected) {
+        console.log(`Desconectando de ${integration}...`);
+        updateIntegrationStatus(integration, false);
+    } else {
+        console.log(`Conectando a ${integration}...`);
+        // Here you would trigger the OAuth flow for the specific service
+        toast({
+            title: 'Funcionalidade em Desenvolvimento',
+            description: `A lógica de conexão real para ${integration} ainda não foi implementada.`,
+        });
+        // For demonstration, we can toggle the state
+        // updateIntegrationStatus(integration, true);
+    }
   };
 
   const IntegrationCard = ({
