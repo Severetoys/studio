@@ -27,10 +27,10 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const paypalButtonContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (window.paypal && window.paypal.Buttons) {
+    if (window.paypal) {
       setIsSdkReady(true);
     }
   }, []);
@@ -48,7 +48,7 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
             body: JSON.stringify({
                 paymentId: details.id,
                 payer: {
-                  name: details.payer.name.given_name,
+                  name: details.payer.name.given_name + ' ' + details.payer.name.surname,
                   email: details.payer.email_address,
                 }
             }),
@@ -60,12 +60,11 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   };
 
   useEffect(() => {
-    if (isSdkReady && buttonRef.current && buttonRef.current.childElementCount === 0) {
-      setIsProcessing(true);
+    if (isSdkReady && paypalButtonContainerRef.current && paypalButtonContainerRef.current.childElementCount === 0) {
+      
       const finalDisabledState = disabled || isProcessing || parseFloat(amount) <= 0;
 
       if (finalDisabledState) {
-        setIsProcessing(false);
         return;
       }
       
@@ -77,8 +76,18 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
           label: 'pay', 
           tagline: false 
         },
-        createOrder: (data: any, actions: any) => {
+        createOrder: (_: any, actions: any) => {
           setIsProcessing(true);
+          const payerInfo = customerInfo?.email ? {
+            payer: {
+              email_address: customerInfo.email,
+              name: {
+                given_name: customerInfo.name.split(' ')[0],
+                surname: customerInfo.name.split(' ').slice(1).join(' ') || customerInfo.name.split(' ')[0],
+              }
+            }
+          } : {};
+
           return actions.order.create({
             purchase_units: [{
               amount: {
@@ -89,13 +98,7 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
             application_context: {
               shipping_preference: 'NO_SHIPPING',
             },
-            payer: customerInfo?.email ? {
-              email_address: customerInfo.email,
-              name: {
-                given_name: customerInfo.name.split(' ')[0],
-                surname: customerInfo.name.split(' ').slice(1).join(' ') || customerInfo.name.split(' ')[0],
-              }
-            } : undefined
+            ...payerInfo
           }).catch((err: any) => {
             console.error("Erro ao criar pedido PayPal:", err);
             toast({
@@ -107,7 +110,7 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
             throw err;
           });
         },
-        onApprove: (data: any, actions: any) => {
+        onApprove: (_: any, actions: any) => {
           return actions.order.capture().then((details: any) => {
             if (isQuickPay) {
                 handleQuickPaySuccess(details);
@@ -143,14 +146,12 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
           });
         }
       });
-
-      buttons.render(buttonRef.current).then(() => {
-        setIsProcessing(false);
-      }).catch((err: any) => {
+      
+      buttons.render(paypalButtonContainerRef.current).catch((err: any) => {
         console.error("Failed to render paypal buttons", err);
       });
     }
-  }, [isSdkReady, amount, disabled, customerInfo]);
+  }, [isSdkReady, amount, disabled, customerInfo, isQuickPay, onSuccess, toast, router]);
 
   const finalDisabledState = disabled || isProcessing || parseFloat(amount) <= 0;
 
@@ -169,7 +170,7 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       )}
-      <div ref={buttonRef} className={cn(isProcessing ? 'blur-sm' : '')} />
+      <div ref={paypalButtonContainerRef} className={cn(isProcessing ? 'blur-sm' : '')} />
     </div>
   );
 }

@@ -16,7 +16,7 @@ const PaymentWebhookSchema = z.object({
   paymentId: z.string().min(1, { message: "O ID de pagamento não pode estar vazio." }),
   payer: z.object({
     name: z.string().optional(), // Nome pode ser opcional
-    email: z.string().email(),
+    email: z.string().email({ message: "O email fornecido é inválido." }),
   }),
 });
 
@@ -43,11 +43,6 @@ export async function POST(request: NextRequest) {
 
     const { paymentId, payer } = validationResult.data;
     const { email, name } = payer;
-
-    if (!email) {
-       console.error('[Webhook] Erro: Email do pagador não fornecido no corpo da requisição.');
-       return NextResponse.json({ message: 'Dados do pagador são obrigatórios.' }, { status: 400 });
-    }
 
     console.log(`[Webhook] Recebida atualização de pagamento para o email: ${email} com ID: ${paymentId}`);
 
