@@ -11,6 +11,10 @@ import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { appendToSheet } from '@/services/google-sheets';
 import serviceAccount from '../../../serviceAccountKey.json';
 
+// Valida se as credenciais da conta de serviço estão presentes.
+if (!serviceAccount || !serviceAccount.client_email || !serviceAccount.private_key) {
+  throw new Error("As credenciais da conta de serviço (serviceAccountKey.json) estão ausentes ou incompletas.");
+}
 
 /**
  * Função auxiliar para detectar um único rosto em uma imagem codificada em base64.

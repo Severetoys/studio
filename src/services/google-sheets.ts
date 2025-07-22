@@ -6,7 +6,7 @@
  */
 
 import { google } from 'googleapis';
-import path from 'path';
+import serviceAccount from '../../serviceAccountKey.json';
 
 // Interface para definir a estrutura dos dados a serem adicionados na planilha.
 interface SheetRow {
@@ -34,9 +34,17 @@ const PAYMENT_ID_COLUMN_LETTER = 'F';
  * @returns A instância da API do Sheets.
  */
 function getSheetsClient() {
+    // Valida se as credenciais da conta de serviço estão presentes.
+    if (!serviceAccount || !serviceAccount.client_email || !serviceAccount.private_key) {
+        throw new Error("As credenciais da conta de serviço (serviceAccountKey.json) estão ausentes ou incompletas.");
+    }
+
     try {
         const auth = new google.auth.GoogleAuth({
-            keyFile: path.resolve('./serviceAccountKey.json'),
+            credentials: {
+                client_email: serviceAccount.client_email,
+                private_key: serviceAccount.private_key,
+            },
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
         return google.sheets({ version: 'v4', auth });

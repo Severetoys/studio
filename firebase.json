@@ -1,34 +1,22 @@
+
 {
   "storage": {
     "rules": "storage.rules"
   },
-  "apphosting": [
-    {
-      "source": ".",
-      "backend": {
+  "apphosting": {
+    "backends": [
+      {
         "id": "my-web-app",
         "region": "us-central1"
-      },
-      "ignore": [
-        ".firebase",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "functions"
-      ]
-    },
-    {
-      "backendId": "my-web-app",
-      "rootDir": "/",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "functions"
-      ]
-    }
-  ],
+      }
+    ],
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
   "functions": [
     {
       "source": "functions",

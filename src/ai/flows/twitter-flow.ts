@@ -47,14 +47,12 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         const bearerToken = process.env.TWITTER_BEARER_TOKEN;
 
         if (!bearerToken) {
-            throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no arquivo .env");
+            throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
         }
 
-        // Instancia o cliente da API em modo read-only (App-only authentication)
         const twitterClient = new TwitterApi(bearerToken);
         const readOnlyClient = twitterClient.readOnly;
 
-        // Primeiro, obtemos o ID do usuário a partir do nome de usuário.
         const user = await readOnlyClient.v2.userByUsername(username);
         
         if (!user.data) {
@@ -62,7 +60,6 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         }
         const userId = user.data.id;
 
-        // Agora, buscamos a timeline do usuário usando seu ID.
         const timeline = await readOnlyClient.v2.userTimeline(userId, {
             'tweet.fields': ['attachments', 'created_at', 'text'],
             'expansions': ['attachments.media_keys'],
@@ -85,7 +82,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                 }
                 const medias = (tweet.attachments.media_keys || [])
                     .map((key: string) => mediaMap.get(key))
-                    .filter(Boolean); // Remove quaisquer mídias não encontradas
+                    .filter(Boolean);
                 
                 if (medias.length === 0) {
                     return null;
@@ -98,13 +95,12 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                     media: medias,
                 };
             })
-            .filter(Boolean); // Remove tweets nulos (que não tinham mídia válida)
+            .filter(Boolean);
 
         return { tweets: tweetsWithMedia as any };
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar feed do Twitter:', error);
-        // Garante que a mensagem de erro seja útil para o frontend.
         const errorMessage = error.data?.detail || error.message || "Erro desconhecido ao acessar a API do Twitter.";
         throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
     }
