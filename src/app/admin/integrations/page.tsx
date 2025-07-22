@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Facebook, Instagram, Twitter, LogOut, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { TwitterApi } from "twitter-api-v2";
 
 // Placeholder icons for PayPal and Mercado Pago
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -155,14 +154,14 @@ export default function AdminIntegrationsPage() {
 
     // Placeholder logic for other integrations
     if (isConnected) {
-        console.log(`Desconectando de ${integration}...`);
         updateIntegrationStatus(integration, false);
     } else {
-        console.log(`Conectando a ${integration}...`);
         toast({
             title: 'Funcionalidade em Desenvolvimento',
             description: `A lógica de conexão real para ${integration} ainda não foi implementada.`,
         });
+        // Apenas para visualização, simulamos a conexão
+        // updateIntegrationStatus(integration, true);
     }
   };
 
