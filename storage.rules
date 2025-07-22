@@ -1,0 +1,11 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow read and write access to everyone
+    match /{allPaths=**} {
+      allow read, write;
+    }
+  }
+}
