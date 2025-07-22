@@ -62,11 +62,6 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
                         >
                             <link.icon className="h-4 w-4" />
                             {link.label}
-                            {link.badge && (
-                                <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                                    {link.badge}
-                                </Badge>
-                            )}
                         </Link>
                     ))}
                 </nav>
