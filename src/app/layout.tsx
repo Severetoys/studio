@@ -30,7 +30,7 @@ export default function RootLayout({
           {`
             window.fbAsyncInit = function() {
               FB.init({
-                appId      : '${process.env.FACEBOOK_APP_ID}',
+                appId      : '${process.env.NEXT_PUBLIC_FACEBOOK_APP_ID}',
                 cookie     : true,
                 xfbml      : true,
                 version    : 'v19.0'
@@ -50,7 +50,7 @@ export default function RootLayout({
           `}
         </Script>
         <Script 
-          src={`https://www.paypal.com/sdk/js?client-id=${process.env.PAYPAL_CLIENT_ID}&currency=BRL&enable-funding=paylater,card,googlepay,applepay`}
+          src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=BRL&enable-funding=paylater,card,googlepay,applepay`}
           strategy="beforeInteractive"
         />
         <Layout>

@@ -26,9 +26,8 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const buttonContainerRef = useRef<HTMLDivElement>(null);
-  const buttonRendered = useRef(false);
-
+  const paypalButtonContainer = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     if (window.paypal) {
       setIsSdkReady(true);
@@ -60,83 +59,87 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
   };
 
   useEffect(() => {
-    if (isSdkReady && buttonContainerRef.current && !buttonRendered.current) {
-      if (disabled || parseFloat(amount) <= 0) {
-        return; 
-      }
-      
-      buttonRendered.current = true; // Mark as rendered to prevent re-rendering
-      
-      window.paypal.Buttons({
-        style: { 
-          layout: 'vertical', 
-          color: 'blue', 
-          shape: 'rect', 
-          label: 'pay', 
-          tagline: false 
-        },
-        async createOrder(_: any, actions: any) {
-          setIsProcessing(true);
-          const payerInfo = customerInfo?.email ? {
-            payer: {
-              email_address: customerInfo.email,
-              name: {
-                given_name: customerInfo.name.split(' ')[0] || '',
-                surname: customerInfo.name.split(' ').slice(1).join(' ') || customerInfo.name.split(' ')[0],
-              }
+    if (isSdkReady && paypalButtonContainer.current) {
+        if (disabled || parseFloat(amount) <= 0) {
+            // Clear previous buttons if disabled
+            if(paypalButtonContainer.current) {
+              paypalButtonContainer.current.innerHTML = '';
             }
-          } : {};
-
-          try {
-            return await actions.order.create({
-              purchase_units: [{
-                amount: {
-                  value: amount,
-                  currency_code: 'BRL',
-                },
-              }],
-              application_context: {
-                shipping_preference: 'NO_SHIPPING',
-              },
-              ...payerInfo
-            });
-          } catch (err) {
-            console.error("Erro ao criar pedido PayPal:", err);
-            toast({ variant: "destructive", title: "Erro no PayPal", description: "Não foi possível iniciar o pagamento." });
-            setIsProcessing(false);
-            throw err;
-          }
-        },
-        async onApprove(_: any, actions: any) {
-          try {
-            const details = await actions.order.capture();
-            if (isQuickPay) {
-                await handleQuickPaySuccess(details);
-            } else {
-                onSuccess(details);
-            }
-          } catch (err) {
-            console.error("Erro ao capturar pagamento PayPal:", err);
-            toast({ variant: "destructive", title: "Erro no Pagamento", description: "Houve um problema ao processar seu pagamento." });
-          } finally {
-            setIsProcessing(false);
-          }
-        },
-        onError: (err: any) => {
-          console.error("Erro no botão do PayPal:", err);
-          toast({ variant: "destructive", title: "Erro no PayPal", description: "Ocorreu um erro inesperado ou o pagamento foi cancelado." });
-          setIsProcessing(false);
-        },
-        onCancel: () => {
-          setIsProcessing(false);
-          toast({ title: 'Pagamento Cancelado', description: 'Você cancelou o processo de pagamento.' });
+            return;
         }
-      }).render(buttonContainerRef.current).catch((err: any) => {
-          console.error("Falha ao renderizar botões do PayPal", err);
-          buttonRendered.current = false; // Allow re-render on failure
-      });
+
+        // Prevent re-rendering if already rendered
+        if(paypalButtonContainer.current.childElementCount > 0) return;
+
+        window.paypal.Buttons({
+          style: { 
+            layout: 'vertical', 
+            color: 'blue', 
+            shape: 'rect', 
+            label: 'pay', 
+            tagline: false 
+          },
+          async createOrder(_: any, actions: any) {
+            setIsProcessing(true);
+            const payerInfo = customerInfo?.email ? {
+              payer: {
+                email_address: customerInfo.email,
+                name: {
+                  given_name: customerInfo.name.split(' ')[0] || '',
+                  surname: customerInfo.name.split(' ').slice(1).join(' ') || customerInfo.name.split(' ')[0],
+                }
+              }
+            } : {};
+
+            try {
+              return await actions.order.create({
+                purchase_units: [{
+                  amount: {
+                    value: amount,
+                    currency_code: 'BRL',
+                  },
+                }],
+                application_context: {
+                  shipping_preference: 'NO_SHIPPING',
+                },
+                ...payerInfo
+              });
+            } catch (err) {
+              console.error("Erro ao criar pedido PayPal:", err);
+              toast({ variant: "destructive", title: "Erro no PayPal", description: "Não foi possível iniciar o pagamento." });
+              setIsProcessing(false);
+              throw err;
+            }
+          },
+          async onApprove(_: any, actions: any) {
+            try {
+              const details = await actions.order.capture();
+              if (isQuickPay) {
+                  await handleQuickPaySuccess(details);
+              } else {
+                  onSuccess(details);
+              }
+            } catch (err) {
+              console.error("Erro ao capturar pagamento PayPal:", err);
+              toast({ variant: "destructive", title: "Erro no Pagamento", description: "Houve um problema ao processar seu pagamento." });
+            } finally {
+              setIsProcessing(false);
+            }
+          },
+          onError: (err: any) => {
+            console.error("Erro no botão do PayPal:", err);
+            toast({ variant: "destructive", title: "Erro no PayPal", description: "Ocorreu um erro inesperado ou o pagamento foi cancelado." });
+            setIsProcessing(false);
+          },
+          onCancel: () => {
+            setIsProcessing(false);
+            toast({ title: 'Pagamento Cancelado', description: 'Você cancelou o processo de pagamento.' });
+          }
+        }).render(paypalButtonContainer.current).catch((err: any) => {
+            console.error("Falha ao renderizar botões do PayPal", err);
+        });
     }
-  }, [isSdkReady, amount, disabled]); 
+  }, [isSdkReady, amount, disabled, customerInfo, isQuickPay, onSuccess, router, toast]);
 
   const finalDisabledState = disabled || isProcessing || parseFloat(amount) <= 0;
 
@@ -155,7 +158,7 @@ export default function PayPalButton({ amount, onSuccess, disabled = false, cust
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       )}
-      <div ref={buttonContainerRef} className={cn((isProcessing || finalDisabledState) ? 'blur-sm pointer-events-none' : '')} />
+      <div ref={paypalButtonContainer} className={cn((isProcessing || finalDisabledState) ? 'blur-sm pointer-events-none' : '')} />
     </div>
   );
 }
