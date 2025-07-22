@@ -79,21 +79,28 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         }
         
         const tweetsWithMedia = (timeline.data.data || [])
-            .filter((tweet: any) => tweet.attachments && tweet.attachments.media_keys)
             .map((tweet: any) => {
+                 if (!tweet.attachments || !tweet.attachments.media_keys) {
+                    return null;
+                }
                 const medias = (tweet.attachments.media_keys || [])
                     .map((key: string) => mediaMap.get(key))
-                    .filter(Boolean);
+                    .filter(Boolean); // Remove quaisquer mídias não encontradas
                 
+                if (medias.length === 0) {
+                    return null;
+                }
+
                 return {
                     id: tweet.id,
                     text: tweet.text,
                     created_at: tweet.created_at,
                     media: medias,
                 };
-            });
+            })
+            .filter(Boolean); // Remove tweets nulos (que não tinham mídia válida)
 
-        return { tweets: tweetsWithMedia };
+        return { tweets: tweetsWithMedia as any };
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar feed do Twitter:', error);
