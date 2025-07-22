@@ -50,7 +50,7 @@ export default function RootLayout({
           `}
         </Script>
         <Script 
-          src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=BRL&enable-funding=paylater,card,googlepay,applepay`}
+          src="https://sdk.mercadopago.com/js/v2"
           strategy="beforeInteractive"
         />
         <Layout>
@@ -62,3 +62,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import PayPalButton from './paypal-button';
+import MercadoPagoButton from './mercadopago-button';
 
 interface PaymentButtonsProps {
   amount: string;
@@ -11,14 +11,14 @@ interface PaymentButtonsProps {
 export default function PaymentButtons({ amount }: PaymentButtonsProps) {
   
   const handleSuccess = (details: any) => {
-    // This function is required by PayPalButton but the logic is self-contained for quick pay
+    // This function is required by MercadoPagoButton but the logic is self-contained for quick pay
     console.log("Quick Payment successful on parent:", details);
   };
 
   return (
     <div className="w-full">
-      <PayPalButton 
-        amount={amount}
+      <MercadoPagoButton 
+        amount={parseFloat(amount)}
         onSuccess={handleSuccess}
         isQuickPay={true}
       />

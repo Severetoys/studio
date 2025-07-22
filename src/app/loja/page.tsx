@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
-import PayPalButton from '@/components/paypal-button';
+import MercadoPagoButton from '@/components/mercadopago-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -270,8 +270,8 @@ export default function LojaPage() {
                             <span>Total:</span>
                             <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                         </div>
-                        <PayPalButton
-                          amount={totalPrice.toFixed(2)}
+                        <MercadoPagoButton
+                          amount={totalPrice}
                           onSuccess={handlePaymentSuccess}
                           disabled={cart.length === 0 || !customerEmail || !customerName}
                           customerInfo={{name: customerName, email: customerEmail}}
