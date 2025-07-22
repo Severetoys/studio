@@ -12,6 +12,17 @@ import {
 } from "@/components/ui/card";
 import { Facebook, Instagram, Twitter, LogOut, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog"
 
 // Placeholder icons for PayPal and Mercado Pago
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -58,11 +69,14 @@ export default function AdminIntegrationsPage() {
       };
       setIntegrations(savedState);
 
-      // Check Facebook's login status when the component loads
+      // Check Facebook's login status when the component loads, but don't auto-connect
       if (window.FB) {
         window.FB.getLoginStatus((response: any) => {
-          if (response.status === 'connected') {
-            updateIntegrationStatus('facebook', true, false);
+          if (response.status === 'connected' && localStorage.getItem("integration_facebook") === "true") {
+            // Already connected and session is valid
+          } else {
+            // Not connected in our state, or session is invalid, so ensure we are logged out locally.
+            updateIntegrationStatus('facebook', false, false);
           }
         });
       }
@@ -97,7 +111,7 @@ export default function AdminIntegrationsPage() {
         } else {
             toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
         }
-    }, { scope: 'public_profile,email' });
+    }, { scope: 'public_profile,email', auth_type: 'rerequest' }); // auth_type forces a dialog
   };
 
   const handleFacebookLogout = () => {
@@ -117,19 +131,6 @@ export default function AdminIntegrationsPage() {
     });
   };
 
-  const handleTwitterLogin = async () => {
-      // Twitter's v2 API doesn't have a simple client-side login flow like Facebook.
-      // This would typically involve a server-side OAuth2 process.
-      // For this demonstration, we'll simulate a successful connection
-      // as the backend setup is out of scope for this component.
-      toast({
-          title: "Conectado ao Twitter (Simulado)",
-          description: "A conexão real requer um fluxo OAuth2 no servidor.",
-      });
-      updateIntegrationStatus('twitter', true);
-  };
-
-
   const handleToggleIntegration = (integration: Integration) => {
     const isConnected = integrations[integration];
 
@@ -141,27 +142,15 @@ export default function AdminIntegrationsPage() {
         }
         return;
     }
-    
-    if (integration === 'twitter') {
-        if (isConnected) {
-            updateIntegrationStatus('twitter', false);
-        } else {
-            handleTwitterLogin();
-        }
-        return;
-    }
 
-
-    // Placeholder logic for other integrations
+    // For other integrations, we still show a placeholder toast.
     if (isConnected) {
         updateIntegrationStatus(integration, false);
     } else {
-        toast({
+       toast({
             title: 'Funcionalidade em Desenvolvimento',
             description: `A lógica de conexão real para ${integration} ainda não foi implementada.`,
         });
-        // Apenas para visualização, simulamos a conexão
-        // updateIntegrationStatus(integration, true);
     }
   };
 
@@ -177,28 +166,73 @@ export default function AdminIntegrationsPage() {
     color: string;
     description: string;
     isConnected: boolean;
-  }) => (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Icon className={`h-8 w-8 ${color}`} />
-          <div>
-            <h3 className="font-semibold capitalize">{platform}</h3>
-            <p className="text-sm text-muted-foreground">{description}</p>
+  }) => {
+    
+    // Twitter has a special case with an AlertDialog for a simulated connection.
+    if (platform === 'twitter') {
+        return (
+            <Card className="p-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Icon className={`h-8 w-8 ${color}`} />
+                        <div>
+                            <h3 className="font-semibold capitalize">{platform}</h3>
+                            <p className="text-sm text-muted-foreground">{description}</p>
+                        </div>
+                    </div>
+                    {isClient && (
+                        isConnected ? (
+                            <Button variant="destructive" onClick={() => updateIntegrationStatus('twitter', false)}>
+                                <LogOut className="mr-2 h-4 w-4" /> Desconectar
+                            </Button>
+                        ) : (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="default"><LogIn className="mr-2 h-4 w-4" /> Conectar</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Conectar ao Twitter</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Isto irá simular uma conexão com o Twitter usando as credenciais do seu ambiente. A integração completa com OAuth 2.0 requer configuração de backend.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => updateIntegrationStatus('twitter', true)}>Continuar</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )
+                    )}
+                </div>
+            </Card>
+        )
+    }
+
+    return (
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Icon className={`h-8 w-8 ${color}`} />
+              <div>
+                <h3 className="font-semibold capitalize">{platform}</h3>
+                <p className="text-sm text-muted-foreground">{description}</p>
+              </div>
+            </div>
+            {isClient && (
+               <Button
+                  variant={isConnected ? "destructive" : "default"}
+                  onClick={() => handleToggleIntegration(platform)}
+                >
+                  {isConnected ? <LogOut className="mr-2 h-4 w-4" /> : <LogIn className="mr-2 h-4 w-4" />}
+                  {isConnected ? "Desconectar" : "Conectar"}
+                </Button>
+            )}
           </div>
-        </div>
-        {isClient && (
-           <Button
-              variant={isConnected ? "destructive" : "default"}
-              onClick={() => handleToggleIntegration(platform)}
-            >
-              {isConnected ? <LogOut className="mr-2 h-4 w-4" /> : <LogIn className="mr-2 h-4 w-4" />}
-              {isConnected ? "Desconectar" : "Conectar"}
-            </Button>
-        )}
-      </div>
-    </Card>
-  );
+        </Card>
+      );
+  }
 
   return (
     <>
