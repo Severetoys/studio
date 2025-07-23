@@ -6,7 +6,6 @@
  */
 
 import { ImageAnnotatorClient } from '@google-cloud/vision';
-import { adminApp } from '@/lib/firebase-admin'; // Apenas para garantir a inicialização do admin, as credenciais vêm do serviceAccount
 import serviceAccount from '../../serviceAccountKey.json';
 
 // Valida se as credenciais da conta de serviço estão presentes.
@@ -55,11 +54,12 @@ export async function detectSingleFace(imageBase64: string): Promise<{
     const face = faces[0];
     const confidence = face.detectionConfidence || 0;
 
-    if (confidence < 0.85) {
-        return { faceFound: false, error: `Baixa confiança na detecção de rosto: ${confidence.toFixed(2)}` };
+    // Reduz o limite de confiança para ser um pouco mais permissivo
+    if (confidence < 0.75) { 
+        return { faceFound: false, error: `Baixa confiança na detecção de rosto: ${confidence.toFixed(2)}. Tente uma iluminação melhor.` };
     }
     if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
-        return { faceFound: false, error: 'A qualidade da imagem é muito baixa (borrada ou subexposta)..'};
+        return { faceFound: false, error: 'A qualidade da imagem é muito baixa (borrada ou subexposta). Tente uma imagem mais nítida e bem iluminada.'};
     }
 
     return { faceFound: true };
