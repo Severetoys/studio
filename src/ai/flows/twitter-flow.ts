@@ -1,14 +1,13 @@
 
 'use server';
 /**
- * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a API v2.
+ * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a API v2 diretamente.
  * Este fluxo se autentica usando um Bearer Token para buscar os tweets de um usuário
  * e extrair as URLs das mídias anexadas.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -34,8 +33,9 @@ const TwitterMediaOutputSchema = z.object({
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
 
+
 /**
- * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter.
+ * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter fazendo chamadas diretas à API.
  */
 const fetchTwitterMediaFlow = ai.defineFlow(
   {
@@ -44,37 +44,54 @@ const fetchTwitterMediaFlow = ai.defineFlow(
     outputSchema: TwitterMediaOutputSchema,
   },
   async ({ username, maxResults }) => {
-    try {
-      if (!process.env.TWITTER_BEARER_TOKEN) {
-        throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
-      }
+    
+    const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+    if (!bearerToken) {
+      throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
+    }
 
-      // Inicializa o cliente com o Bearer Token (App-only authentication)
-      const client = new TwitterApi(process.env.TWITTER_BEARER_TOKEN);
-      const readOnlyClient = client.readOnly;
-      
-      const user = await readOnlyClient.v2.userByUsername(username);
-      if (!user.data) {
+    const headers = {
+      'Authorization': `Bearer ${bearerToken}`,
+    };
+
+    try {
+      // 1. Obter o ID do usuário a partir do nome de usuário
+      const userResponse = await fetch(`https://api.twitter.com/2/users/by/username/${username}`, { headers });
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json();
+        throw new Error(`Erro ao buscar usuário do Twitter: ${errorData.title} - ${errorData.detail}`);
+      }
+      const userData = await userResponse.json();
+      const userId = userData.data?.id;
+
+      if (!userId) {
         throw new Error(`Usuário do Twitter "${username}" não encontrado.`);
       }
-      const userId = user.data.id;
 
-      const timeline = await readOnlyClient.v2.userTimeline(userId, {
-          'tweet.fields': ['attachments', 'created_at', 'text'],
-          'expansions': ['attachments.media_keys'],
-          'media.fields': ['url', 'preview_image_url', 'type', 'variants'],
-          'exclude': ['retweets', 'replies'],
-          'max_results': maxResults,
+      // 2. Buscar a timeline do usuário
+      const params = new URLSearchParams({
+          'tweet.fields': 'attachments,created_at,text',
+          'expansions': 'attachments.media_keys',
+          'media.fields': 'url,preview_image_url,type,variants,media_key',
+          'exclude': 'retweets,replies',
+          'max_results': maxResults.toString(),
       });
       
+      const timelineResponse = await fetch(`https://api.twitter.com/2/users/${userId}/tweets?${params.toString()}`, { headers });
+      if (!timelineResponse.ok) {
+          const errorData = await timelineResponse.json();
+          throw new Error(`Erro ao buscar timeline: ${errorData.title} - ${errorData.detail}`);
+      }
+      const timelineData = await timelineResponse.json();
+      
       const mediaMap = new Map<string, any>();
-      if (timeline.includes?.media) {
-          for (const media of timeline.includes.media) {
+      if (timelineData.includes?.media) {
+          for (const media of timelineData.includes.media) {
               mediaMap.set(media.media_key, media);
           }
       }
       
-      const tweetsWithMedia = (timeline.data.data || [])
+      const tweetsWithMedia = (timelineData.data || [])
           .map((tweet: any) => {
                if (!tweet.attachments || !tweet.attachments.media_keys) {
                   return null;
@@ -105,6 +122,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
     }
   }
 );
+
 
 /**
  * Função exportada para ser chamada do lado do cliente.
