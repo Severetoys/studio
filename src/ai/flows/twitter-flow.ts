@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { TwitterApi, type TwitterApiReadWrite } from 'twitter-api-v2';
+import { TwitterApi } from 'twitter-api-v2';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -54,7 +54,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         throw new Error("As credenciais da API do Twitter (OAuth 1.0a) não estão configuradas no ambiente do servidor.");
       }
 
-      const client: TwitterApiReadWrite = new TwitterApi({
+      const client = new TwitterApi({
         appKey: process.env.TWITTER_API_KEY,
         appSecret: process.env.TWITTER_API_SECRET,
         accessToken: process.env.TWITTER_ACCESS_TOKEN,
