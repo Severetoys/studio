@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a API v2.
- * Este fluxo se autentica usando OAuth 1.0a para buscar os tweets do próprio usuário
+ * Este fluxo se autentica usando um Bearer Token para buscar os tweets de um usuário
  * e extrair as URLs das mídias anexadas.
  */
 
@@ -45,22 +45,12 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username, maxResults }) => {
     try {
-      if (
-        !process.env.TWITTER_API_KEY ||
-        !process.env.TWITTER_API_SECRET ||
-        !process.env.TWITTER_ACCESS_TOKEN ||
-        !process.env.TWITTER_ACCESS_TOKEN_SECRET
-      ) {
-        throw new Error("As credenciais da API do Twitter (OAuth 1.0a) não estão configuradas no ambiente do servidor.");
+      if (!process.env.TWITTER_BEARER_TOKEN) {
+        throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
       }
 
-      const client = new TwitterApi({
-        appKey: process.env.TWITTER_API_KEY,
-        appSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-      });
-
+      // Inicializa o cliente com o Bearer Token (App-only authentication)
+      const client = new TwitterApi(process.env.TWITTER_BEARER_TOKEN);
       const readOnlyClient = client.readOnly;
       
       const user = await readOnlyClient.v2.userByUsername(username);
