@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter usando a API v2 diretamente.
+ * @fileOverview Fluxo para buscar mídias (fotos e vídeos) de um perfil do Twitter, com cache para evitar limites de taxa.
  * Este fluxo se autentica usando um Bearer Token para buscar os tweets de um usuário
  * e extrair as URLs das mídias anexadas.
  */
@@ -33,6 +33,12 @@ const TwitterMediaOutputSchema = z.object({
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
 
+// Cache em memória simples para armazenar os resultados
+let cache = {
+    data: null as TwitterMediaOutput | null,
+    timestamp: 0,
+};
+const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutos
 
 /**
  * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter fazendo chamadas diretas à API.
@@ -45,6 +51,14 @@ const fetchTwitterMediaFlow = ai.defineFlow(
   },
   async ({ username, maxResults }) => {
     
+    // Verifica se o cache é recente e retorna os dados cacheados se for o caso
+    const now = Date.now();
+    if (cache.data && (now - cache.timestamp < CACHE_DURATION_MS)) {
+        console.log("Retornando dados do cache do Twitter.");
+        return cache.data;
+    }
+    console.log("Cache do Twitter expirado ou vazio. Buscando novos dados.");
+
     const bearerToken = process.env.TWITTER_BEARER_TOKEN;
     if (!bearerToken) {
       throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
@@ -113,10 +127,23 @@ const fetchTwitterMediaFlow = ai.defineFlow(
           })
           .filter(Boolean);
 
-      return { tweets: tweetsWithMedia as any };
+      const result = { tweets: tweetsWithMedia as any };
+      
+      // Atualiza o cache
+      cache = {
+          data: result,
+          timestamp: now,
+      };
+
+      return result;
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar feed do Twitter:', error);
+        // Se houver um erro, retorna o cache antigo, se existir, para evitar que o site quebre.
+        if (cache.data) {
+            console.warn("Falha ao buscar novos dados do Twitter, retornando cache antigo.");
+            return cache.data;
+        }
         const errorMessage = error.message || "Erro desconhecido ao acessar a API do Twitter.";
         throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
     }
