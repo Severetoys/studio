@@ -76,7 +76,7 @@ export default function HomePage() {
   }
 
   const quickPayButtons = [
-    { label: 'Google'},
+    { label: 'PayPal'},
     { label: 'Pix' },
     { label: 'Apple' },
   ].filter(btn => isBrazil || btn.label !== 'Pix');
