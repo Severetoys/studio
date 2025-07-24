@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -81,7 +80,7 @@ export default function HomePage() {
                 <Fingerprint className="h-12 w-12 mr-4" />
                 Face ID
             </Button>
-          
+            
             <div className="flex w-full gap-4">
                 <Button 
                     onClick={handlePaymentClick}
@@ -106,11 +105,11 @@ export default function HomePage() {
             ) : (
                 priceInfo && (
                     <div className="text-center py-4">
-                      <p className="text-muted-foreground">Assinatura Mensal</p>
-                      <h3 className="font-bold text-6xl text-primary text-shadow-neon-red animate-pulse-glow">
-                        {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
-                        <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
-                      </h3>
+                        <p className="text-muted-foreground">Assinatura Mensal</p>
+                        <h3 className="font-bold text-8xl text-primary text-shadow-neon-red animate-pulse-glow">
+                            {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
+                            <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
+                        </h3>
                     </div>
                 )
             )}
