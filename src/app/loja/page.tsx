@@ -12,11 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import MercadoPagoButton from '@/components/mercadopago-button';
-import PaypalButton from '@/components/paypal-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 
 interface Video {
   id: string;
@@ -197,28 +194,13 @@ export default function LojaPage() {
                             <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} disabled={cart.length === 0}/>
                         </div>
                         <div className="pt-4">
-                           <Tabs defaultValue="mercadopago" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="mercadopago">Mercado Pago</TabsTrigger>
-                                    <TabsTrigger value="paypal">PayPal</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="mercadopago">
-                                    <MercadoPagoButton
-                                      amount={totalPrice}
-                                      onSuccess={handlePaymentSuccess}
-                                      disabled={cart.length === 0 || !customerEmail || !customerName}
-                                      customerInfo={{name: customerName, email: customerEmail}}
-                                      isBrazil={isBrazil}
-                                    />
-                                </TabsContent>
-                                <TabsContent value="paypal">
-                                     <PaypalButton
-                                        amount={totalPrice}
-                                        onSuccess={handlePaymentSuccess}
-                                        disabled={cart.length === 0 || !customerEmail || !customerName}
-                                     />
-                                </TabsContent>
-                            </Tabs>
+                            <MercadoPagoButton
+                                amount={totalPrice}
+                                onSuccess={handlePaymentSuccess}
+                                disabled={cart.length === 0 || !customerEmail || !customerName}
+                                customerInfo={{name: customerName, email: customerEmail}}
+                                isBrazil={isBrazil}
+                            />
                         </div>
                     </div>
                 </SheetFooter>

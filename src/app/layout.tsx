@@ -52,10 +52,7 @@ export default function RootLayout({
              }(document, 'script', 'facebook-jssdk'));
           `}
         </Script>
-        <Script 
-          src="https://www.paypal.com/sdk/js?client-id=AXykIWKfbbsR_Qe4eLrDgxudUWcoFn-cihQdgWJTqEOVQiP5fxXln-C5fr1QABQ4jowP7Oz2nkNtPFie&currency=BRL"
-          strategy="lazyOnload"
-        />
+        
         <Layout>
           {children}
         </Layout>
