@@ -1,0 +1,70 @@
+
+"""
+Defines the schema for facial recognition user data.
+"""
+
+"""
+Represents a user in the system, with facial recognition data.
+"""
+type User @table(name: "users") {
+  """
+  The unique identifier for the user, generated automatically.
+  """
+  id: String! @column(name: "id", primaryKey: true, default: "gen_random_uuid()")
+
+  """
+  The user's full name.
+  """
+  name: String @column(name: "name")
+
+  """
+  The user's email address. Must be unique.
+  """
+  email: String! @column(name: "email", unique: true)
+
+  """
+  The facial embedding vector, represented as an array of floating-point numbers.
+  This field is nullable to allow user creation before face registration.
+  """
+  faceEmbedding: [Float] @column(name: "face_embedding")
+
+  """
+  The timestamp when the user was created.
+  """
+  createdAt: Timestamp! @column(name: "created_at", default: "now()")
+
+  """
+  The timestamp when the user was last updated.
+  """
+  updatedAt: Timestamp! @column(name: "updated_at", default: "now()", onUpdate: "now()")
+}
+
+type Query {
+  """
+  Retrieves a single user by their unique ID.
+  """
+  user(id: String!): User @permission(expression: "true")
+
+  """
+  Retrieves a list of all users.
+  """
+  users: [User] @permission(expression: "true")
+}
+
+type Mutation {
+  """
+  Creates a new user.
+  """
+  createUser(
+    name: String
+    email: String!
+  ): User @permission(expression: "true")
+
+  """
+  Updates the facial embedding for an existing user.
+  """
+  updateUserFaceEmbedding(
+    id: String!
+    faceEmbedding: [Float]!
+  ): User @permission(expression: "true")
+}
