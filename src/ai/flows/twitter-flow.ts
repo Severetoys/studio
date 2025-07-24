@@ -8,6 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { unstable_cache as cache } from 'next/cache';
 
 // Define o schema de entrada, que espera o nome de usuário do Twitter.
 const TwitterMediaInputSchema = z.object({
@@ -33,32 +34,12 @@ const TwitterMediaOutputSchema = z.object({
 });
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
 
-// Cache em memória simples para armazenar os resultados
-let cache = {
-    data: null as TwitterMediaOutput | null,
-    timestamp: 0,
-};
-const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutos
-
 /**
- * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter fazendo chamadas diretas à API.
+ * Função interna que busca os dados do Twitter.
+ * Ela é envolvida pelo `cache` para evitar chamadas repetidas à API.
  */
-const fetchTwitterMediaFlow = ai.defineFlow(
-  {
-    name: 'fetchTwitterMediaFlow',
-    inputSchema: TwitterMediaInputSchema,
-    outputSchema: TwitterMediaOutputSchema,
-  },
-  async ({ username, maxResults }) => {
-    
-    // Verifica se o cache é recente e retorna os dados cacheados se for o caso
-    const now = Date.now();
-    if (cache.data && (now - cache.timestamp < CACHE_DURATION_MS)) {
-        console.log("Retornando dados do cache do Twitter.");
-        return cache.data;
-    }
-    console.log("Cache do Twitter expirado ou vazio. Buscando novos dados.");
-
+const getTwitterFeed = async ({ username, maxResults }: TwitterMediaInput): Promise<TwitterMediaOutput> => {
+    console.log(`Buscando novos dados do Twitter para o usuário: ${username}`);
     const bearerToken = process.env.TWITTER_BEARER_TOKEN;
     if (!bearerToken) {
       throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
@@ -73,6 +54,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
       const userResponse = await fetch(`https://api.twitter.com/2/users/by/username/${username}`, { headers });
       if (!userResponse.ok) {
         const errorData = await userResponse.json();
+        console.error("Erro da API do Twitter ao buscar usuário:", errorData);
         throw new Error(`Erro ao buscar usuário do Twitter: ${errorData.title} - ${errorData.detail}`);
       }
       const userData = await userResponse.json();
@@ -94,6 +76,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
       const timelineResponse = await fetch(`https://api.twitter.com/2/users/${userId}/tweets?${params.toString()}`, { headers });
       if (!timelineResponse.ok) {
           const errorData = await timelineResponse.json();
+          console.error("Erro da API do Twitter ao buscar timeline:", errorData);
           throw new Error(`Erro ao buscar timeline: ${errorData.title} - ${errorData.detail}`);
       }
       const timelineData = await timelineResponse.json();
@@ -128,25 +111,38 @@ const fetchTwitterMediaFlow = ai.defineFlow(
           .filter(Boolean);
 
       const result = { tweets: tweetsWithMedia as any };
-      
-      // Atualiza o cache
-      cache = {
-          data: result,
-          timestamp: now,
-      };
-
       return result;
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar feed do Twitter:', error);
-        // Se houver um erro, retorna o cache antigo, se existir, para evitar que o site quebre.
-        if (cache.data) {
-            console.warn("Falha ao buscar novos dados do Twitter, retornando cache antigo.");
-            return cache.data;
-        }
         const errorMessage = error.message || "Erro desconhecido ao acessar a API do Twitter.";
         throw new Error(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
     }
+}
+
+// Caching da função `getTwitterFeed`.
+// A função será executada apenas uma vez dentro do período de revalidação (15 minutos).
+const cachedGetTwitterFeed = cache(
+    async (params: TwitterMediaInput) => getTwitterFeed(params),
+    ['twitter-feed'], // Chave de cache base
+    {
+      revalidate: 900, // 15 minutos em segundos
+      tags: ['twitter'], // Tag para revalidação sob demanda, se necessário
+    }
+);
+
+/**
+ * Fluxo Genkit que busca os tweets com mídia de um usuário do Twitter fazendo chamadas diretas à API.
+ * Agora utiliza um sistema de cache robusto para evitar o excesso de requisições.
+ */
+const fetchTwitterMediaFlow = ai.defineFlow(
+  {
+    name: 'fetchTwitterMediaFlow',
+    inputSchema: TwitterMediaInputSchema,
+    outputSchema: TwitterMediaOutputSchema,
+  },
+  async (input: TwitterMediaInput) => {
+    return cachedGetTwitterFeed(input);
   }
 );
 
