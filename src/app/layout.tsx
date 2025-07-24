@@ -37,8 +37,10 @@ export default function RootLayout({
                 version    : 'v19.0'
               });
               
-              FB.AppEvents.logPageView();   
-                
+              FB.AppEvents.logPageView();
+
+              // Dispara um evento personalizado quando o SDK estiver pronto
+              window.dispatchEvent(new Event('fb-sdk-ready'));
             };
 
             (function(d, s, id){
