@@ -28,9 +28,9 @@ const SPREADSHEET_ID = '1sGkcINE6NtCfHuxybqyHpR03aG1wwatqfwRBhm7A1W4';
 const TAB_NAME = 'cliente';
 
 // Define the expected columns. The order is crucial.
-const COLUMN_ORDER: (keyof SheetRow)[] = ['timestamp', 'name', 'email', 'phone', 'imageId', 'videoBase64', 'paymentId'];
-const IMAGE_ID_COLUMN_INDEX = 4; // Corresponds to "Imagem ID (Base64)"
-const EMAIL_COLUMN_INDEX = 2; 
+const COLUMN_ORDER: (keyof SheetRow)[] = ['timestamp', 'name', 'phone', 'email', 'imageId', 'videoBase64', 'paymentId'];
+const IMAGE_ID_COLUMN_INDEX = 4; // Corresponds to "imagem (base64)"
+const EMAIL_COLUMN_INDEX = 3; // Corresponds to "email"
 const PAYMENT_ID_COLUMN_INDEX = 6;
 
 
