@@ -57,8 +57,8 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         body: JSON.stringify({
           paymentId: details.id,
           payer: {
-            name: isQuickPayFlow ? `${details.payer.first_name} ${details.payer.last_name}`.trim() : customerInfo?.name,
-            email: isQuickPayFlow ? details.payer.email : customerInfo?.email,
+            name: isQuickPayFlow ? `${details.payer?.first_name || ''} ${details.payer?.last_name || ''}`.trim() : customerInfo?.name,
+            email: isQuickPayFlow ? details.payer?.email : customerInfo?.email,
           }
         }),
       });
@@ -69,13 +69,21 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     onSuccess(details);
   };
   
-  const createPaymentBrick = async () => {
+  const createPaymentBrick = async (containerId: string) => {
     // Unmount previous instance if it exists
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    // Clear previous content
+    while(container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
     if (brickInstance.current) {
         brickInstance.current.unmount();
+        brickInstance.current = null;
     }
     
-    if (isSdkReady && paymentBrickContainer.current && publicKey && !disabled && amount > 0) {
+    if (isSdkReady && publicKey && !disabled && amount > 0) {
       const mp = new window.MercadoPago(publicKey, { locale: isBrazil ? 'pt-BR' : 'en-US' });
       
       setIsProcessing(true);
@@ -91,7 +99,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
           paymentMethodsConfig.pix = "all";
         }
         
-        const brick = await bricksBuilder.create("payment", "paymentBrick_container", {
+        const brick = await bricksBuilder.create("payment", containerId, {
           initialization: {
             amount: amount,
             payer: customerInfo ? {
@@ -116,6 +124,8 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
               setIsProcessing(false);
             },
             onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
+               // This is a mock payment for demonstration.
+               // A real implementation would send this data to a backend to create a real payment.
               const paymentData = {
                 id: `mock_${Date.now()}`, 
                 status: 'approved',
@@ -143,32 +153,16 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     }
   };
 
-  const handleQuickPay = () => {
-    if (isSdkReady && publicKey) {
-        setIsProcessing(true);
-        const mp = new window.MercadoPago(publicKey);
-        mp.checkout({
-            preference: {
-                // This is a workaround for headless checkout. A real implementation would create a preference on the backend.
-                items: [{
-                    title: "Assinatura Mensal",
-                    quantity: 1,
-                    unit_price: amount,
-                }],
-            },
-            render: {
-                container: '.checkout-container', // a dummy container
-                label: 'Pagar',
-            },
-             autoOpen: true,
-        }).then((result: any) => {
-             handlePaymentSuccess({ id: 'mock_checkout_id', ...result }, true)
-        }).catch((error: any) => {
-             toast({ variant: 'destructive', title: 'Erro no Checkout', description: error.message });
-        }).finally(() => {
-            setIsProcessing(false);
-        });
-    }
+  const handleQuickPay = async () => {
+    // This now uses the Payment Brick, which is the correct way for SDK v2.
+    // It will be rendered in a modal-like element by the SDK.
+    const containerId = `paymentBrick_container_modal_${Date.now()}`;
+    const dummyContainer = document.createElement('div');
+    dummyContainer.id = containerId;
+    dummyContainer.className = "checkout-container";
+    document.body.appendChild(dummyContainer);
+
+    await createPaymentBrick(containerId);
   };
 
 
@@ -189,15 +183,17 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
       )
   }
 
-  // Effect to handle brick creation/re-creation
+  // Effect to handle brick creation/re-creation for the main checkout
   useEffect(() => {
-    createPaymentBrick();
+    if (!isQuickPay && paymentBrickContainer.current) {
+        createPaymentBrick('paymentBrick_container');
+    }
     return () => {
       if (brickInstance.current) {
         brickInstance.current.unmount();
       }
     };
-  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isBrazil]);
+  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isBrazil, isQuickPay]);
 
   if (!isSdkReady || !publicKey) {
     return (
@@ -219,7 +215,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
               </p>
           </div>
        }
-        {isProcessing && (
+        {isProcessing && !isQuickPay && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 rounded-lg">
                 <div className="flex flex-col items-center gap-2">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
