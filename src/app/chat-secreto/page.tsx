@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, Video, MapPin } from 'lucide-react';
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, setDoc, getDoc } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { translateText } from '@/ai/flows/translation-flow';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -37,6 +38,7 @@ const getOrCreateChatId = (): string => {
 
 export default function ChatSecretoPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -85,39 +87,73 @@ export default function ChatSecretoPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (newMessage.trim() === '' || isSending || !chatId) return;
-
+  const sendMessage = async (text: string, originalText?: string) => {
+    if (text.trim() === '' || isSending || !chatId) return;
     setIsSending(true);
-    
+
     try {
-        const chatDocRef = doc(db, 'chats', chatId);
-        const messagesCollection = collection(chatDocRef, 'messages');
+      const chatDocRef = doc(db, 'chats', chatId);
+      const messagesCollection = collection(chatDocRef, 'messages');
 
-        const chatDoc = await getDoc(chatDocRef);
-        // Se o chat não existir, cria-o com o idioma do usuário.
-        if (!chatDoc.exists()) {
-            await setDoc(chatDocRef, { createdAt: serverTimestamp(), userLanguage: userLanguage });
-        }
+      const chatDoc = await getDoc(chatDocRef);
+      if (!chatDoc.exists()) {
+        await setDoc(chatDocRef, { createdAt: serverTimestamp(), userLanguage: userLanguage });
+      }
 
-        // Traduz a mensagem para o português antes de salvar
-        const translated = await translateText({ text: newMessage.trim(), targetLanguage: 'pt' });
+      const messagePayload: any = {
+        text: text.trim(),
+        senderId: currentUser,
+        timestamp: serverTimestamp(),
+      };
 
-        await addDoc(messagesCollection, {
-            text: translated.translatedText,
-            originalText: newMessage.trim(),
-            senderId: currentUser,
-            timestamp: serverTimestamp(),
-        });
+      if (originalText) {
+          messagePayload.originalText = originalText;
+      }
+      
+      await addDoc(messagesCollection, messagePayload);
 
       setNewMessage('');
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
+      toast({ variant: 'destructive', title: 'Erro ao Enviar', description: 'Não foi possível enviar a mensagem.' });
     } finally {
       setIsSending(false);
     }
+  }
+
+  const handleSendMessage = async () => {
+    if (newMessage.trim() === '' || isSending || !chatId) return;
+    
+    // Traduz a mensagem para o português antes de salvar
+    const translated = await translateText({ text: newMessage.trim(), targetLanguage: 'pt' });
+    sendMessage(translated.translatedText, newMessage.trim());
   };
   
+  const handleSendLocation = () => {
+    if (!navigator.geolocation) {
+        toast({ variant: 'destructive', title: 'Geolocalização não suportada'});
+        return;
+    }
+    toast({ title: 'Obtendo localização...'});
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        const locationMessage = `Minha localização atual: ${locationUrl}`;
+
+        const translated = await translateText({ text: locationMessage, targetLanguage: 'pt' });
+        sendMessage(translated.translatedText, locationMessage);
+    }, (error) => {
+        toast({ variant: 'destructive', title: 'Não foi possível obter a localização', description: error.message });
+    });
+  };
+
+  const handleVideoCall = () => {
+      toast({
+          title: 'Funcionalidade em desenvolvimento',
+          description: 'A chamada de vídeo ainda não está disponível.'
+      });
+  };
+
   return (
     <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-2xl h-[85vh] flex flex-col animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
@@ -142,7 +178,7 @@ export default function ChatSecretoPage() {
                          "max-w-xs md:max-w-md rounded-lg px-4 py-2 text-white",
                          msg.senderId === currentUser ? 'bg-primary' : 'bg-secondary'
                      )}>
-                         <p className="text-sm">{msg.text}</p>
+                         <p className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.text}</p>
                          <p className="text-xs text-right opacity-70 mt-1">
                              {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
                          </p>
@@ -158,6 +194,14 @@ export default function ChatSecretoPage() {
         </CardContent>
         <CardFooter className="border-t border-primary/20 p-4">
             <div className="flex w-full items-center space-x-2">
+                <Button variant="ghost" size="icon" onClick={handleVideoCall} disabled={isSending}>
+                    <Video />
+                    <span className="sr-only">Chamada de Vídeo</span>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleSendLocation} disabled={isSending}>
+                    <MapPin />
+                    <span className="sr-only">Enviar Localização</span>
+                </Button>
                 <Input 
                     type="text" 
                     placeholder="Digite sua mensagem..." 
