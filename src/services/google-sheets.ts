@@ -1,44 +1,45 @@
 
 'use server';
 /**
- * @fileOverview Serviço para interagir com a API do Google Sheets.
- * Este arquivo contém a lógica para autenticar, adicionar e atualizar dados em uma planilha específica.
+ * @fileOverview Service to interact with the Google Sheets API.
+ * This file contains the logic to authenticate, add, and update data in a specific spreadsheet.
  */
 
 import { google } from 'googleapis';
 import serviceAccount from '../../serviceAccountKey.json';
 
-// Interface para definir a estrutura dos dados a serem adicionados na planilha.
-interface SheetRow {
+// Interface to define the structure of the data to be added to the sheet.
+export interface SheetRow {
     timestamp: string;
     name: string;
     email: string;
-    imageId: string; // Para manter compatibilidade, mas pode ser preenchido como 'N/A' no registro via pagamento.
+    phone: string;
+    imageId: string; 
     videoBase64: string;
     paymentId: string;
 }
 
-// O ID da sua Planilha Google.
-const SPREADSHEET_ID = '1XU5m0m2HHK9MFa9WoHdfZ26j1pW2bHfs41-5YjxWGmU';
+// The ID of your Google Sheet.
+const SPREADSHEET_ID = '1sGkcINE6NtCfHuxybqyHpR03aG1wwatqfwRBhm7A1W4';
 
-// O nome da página/aba dentro da sua planilha.
-const SHEET_NAME = 'Sheet1'; // ATENÇÃO: Mude para o nome correto da sua aba se for diferente.
+// The name of the tab within your spreadsheet.
+const TAB_NAME = 'cliente';
 
-// Define as colunas esperadas. A ordem é crucial.
-const COLUMN_ORDER = ['timestamp', 'name', 'email', 'imageId', 'videoBase64', 'paymentId'];
-const EMAIL_COLUMN_INDEX = 2; // Coluna 'C' é o índice 2 (base 0)
-const PAYMENT_ID_COLUMN_LETTER = 'F';
+// Define the expected columns. The order is crucial.
+const COLUMN_ORDER: (keyof SheetRow)[] = ['timestamp', 'name', 'email', 'phone', 'imageId', 'videoBase64', 'paymentId'];
+const IMAGE_ID_COLUMN_INDEX = 4; // Corresponds to "Imagem ID (Base64)"
+const EMAIL_COLUMN_INDEX = 2; 
+const PAYMENT_ID_COLUMN_INDEX = 6;
+
 
 /**
- * Cria uma instância autenticada da API do Google Sheets.
- * @returns A instância da API do Sheets.
+ * Creates an authenticated instance of the Google Sheets API.
+ * @returns The Sheets API instance.
  */
 function getSheetsClient() {
-    // Valida se as credenciais da conta de serviço estão presentes.
     if (!serviceAccount || !serviceAccount.client_email || !serviceAccount.private_key) {
-        throw new Error("As credenciais da conta de serviço (serviceAccountKey.json) estão ausentes ou incompletas.");
+        throw new Error("Service account credentials (serviceAccountKey.json) are missing or incomplete.");
     }
-
     try {
         const auth = new google.auth.GoogleAuth({
             credentials: {
@@ -49,104 +50,130 @@ function getSheetsClient() {
         });
         return google.sheets({ version: 'v4', auth });
     } catch (error: any) {
-        console.error('Erro ao inicializar o cliente do Google Sheets:', error);
-        throw new Error('Falha ao autenticar com a API do Google Sheets.');
+        console.error('Error initializing Google Sheets client:', error);
+        throw new Error('Failed to authenticate with the Google Sheets API.');
     }
 }
 
-
 /**
- * Adiciona uma nova linha a uma Planilha Google.
- * @param rowData Os dados a serem adicionados na linha.
+ * Appends a new row to a Google Sheet.
+ * @param rowData The data to be added to the row.
  */
 export async function appendToSheet(rowData: SheetRow): Promise<void> {
     try {
         const sheets = getSheetsClient();
-        const values = [COLUMN_ORDER.map(key => rowData[key as keyof SheetRow])];
+        // Ensure the data is in the correct column order.
+        const values = [COLUMN_ORDER.map(key => rowData[key])];
 
-        const response = await sheets.spreadsheets.values.append({
+        await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!A:F`,
+            range: `${TAB_NAME}!A:G`,
             valueInputOption: 'USER_ENTERED',
             requestBody: {
-                values: values,
+                values,
             },
         });
-
-        console.log('Dados adicionados à planilha com sucesso:', response.data);
-
+        console.log('Data added to the spreadsheet successfully.');
     } catch (error: any) {
-        console.error('Erro ao adicionar dados na Planilha Google:', error.message);
+        console.error('Error adding data to Google Sheet:', error.message);
         if (error.response?.data?.error) {
-            console.error('Detalhes do erro da API:', error.response.data.error);
+            console.error('API Error Details:', error.response.data.error);
         }
-        throw new Error('Falha ao se comunicar com a API do Google Sheets.');
+        throw new Error('Failed to communicate with the Google Sheets API.');
     }
 }
 
+/**
+ * Finds if any user with a stored image exists.
+ * This is a simplified check based on the user's script logic.
+ * @returns A boolean indicating if a user with an image was found.
+ */
+export async function findUserInSheet(): Promise<boolean> {
+    try {
+        const sheets = getSheetsClient();
+        // Get all data from the sheet
+        const getResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `${TAB_NAME}`,
+        });
+
+        const rows = getResponse.data.values;
+        if (!rows || rows.length < 2) { // < 2 because the first row is headers
+            return false;
+        }
+
+        // Check each row (skipping headers) to see if an imageId is present.
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const imageId = row[IMAGE_ID_COLUMN_INDEX];
+            // If we find any row with a non-empty imageId, return true.
+            if (imageId && imageId.length > 50) { // A base64 string will be long
+                return true;
+            }
+        }
+
+        return false;
+    } catch (error: any) {
+        console.error('Error reading from Google Sheet:', error.message);
+        if (error.response?.data?.error) {
+            console.error('API Error Details:', error.response.data.error);
+        }
+        throw new Error('Failed to communicate with the Google Sheets API during verification.');
+    }
+}
 
 /**
- * Atualiza o ID de pagamento para um usuário. Se o usuário não existir, cria uma nova linha.
- * @param email O email do usuário.
- * @param paymentId O ID de pagamento.
- * @param name O nome do usuário (para o caso de precisar criar uma nova linha).
+ * Finds a user by email and updates their payment ID.
+ * If the user does not exist, a new one is created.
+ * @param email The email of the user to update.
+ * @param paymentId The payment ID to set.
+ * @param name The name of the user (used if creating a new user).
  */
 export async function updatePaymentIdForUser(email: string, paymentId: string, name: string): Promise<void> {
     try {
         const sheets = getSheetsClient();
-
-        // 1. Tentar encontrar a linha do usuário pelo email de forma otimizada.
         const getResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!C:C`, // Busca apenas a coluna de email
+            range: `${TAB_NAME}`,
         });
 
-        const emailColumn = getResponse.data.values;
-        let rowIndex = -1;
-        if (emailColumn) {
-            // Itera sobre a coluna para encontrar o email, tratando linhas vazias
-            for (let i = 0; i < emailColumn.length; i++) {
-                if (emailColumn[i] && emailColumn[i][0] === email) {
-                    rowIndex = i;
-                    break;
-                }
+        const rows = getResponse.data.values;
+        if (!rows || rows.length < 1) {
+            // Sheet is empty, just append.
+            const newUser: SheetRow = { timestamp: new Date().toISOString(), name, email, phone: '', imageId: '', videoBase64: '', paymentId };
+            return await appendToSheet(newUser);
+        }
+        
+        // Find user by email
+        let userRowIndex = -1;
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i][EMAIL_COLUMN_INDEX] === email) {
+                userRowIndex = i;
+                break;
             }
         }
 
-        if (rowIndex !== -1) {
-            // Usuário encontrado, atualiza o ID de pagamento.
-            const sheetRowNumber = rowIndex + 1;
-            const updateRange = `${SHEET_NAME}!${PAYMENT_ID_COLUMN_LETTER}${sheetRowNumber}`;
-            
-            console.log(`Atualizando pagamento para ${email} na linha ${sheetRowNumber}...`);
+        if (userRowIndex !== -1) {
+            // User found, update payment ID
+            const rangeToUpdate = `${TAB_NAME}!G${userRowIndex + 1}`; // G is paymentId column
             await sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: updateRange,
-                valueInputOption: 'RAW',
-                requestBody: {
-                    values: [[paymentId]],
-                },
+                range: rangeToUpdate,
+                valueInputOption: 'USER_ENTERED',
+                requestBody: { values: [[paymentId]] },
             });
-            console.log(`ID de pagamento para ${email} atualizado para ${paymentId}.`);
+            console.log(`Payment ID for ${email} updated successfully.`);
         } else {
-            // Usuário não encontrado, adiciona uma nova linha.
-            console.log(`Email ${email} não encontrado. Criando novo registro de usuário.`);
-            const newRow: SheetRow = {
-                timestamp: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
-                name: name,
-                email: email,
-                imageId: 'N/A (Registro via Pagamento)',
-                videoBase64: '',
-                paymentId: paymentId,
-            };
-            await appendToSheet(newRow);
+            // User not found, create a new one
+             const newUser: SheetRow = { timestamp: new Date().toISOString(), name, email, phone: '', imageId: '', videoBase64: '', paymentId };
+            await appendToSheet(newUser);
+            console.log(`New user created for ${email} with payment ID.`);
         }
-
     } catch (error: any) {
-        console.error('Erro ao atualizar a Planilha Google:', error.message);
+        console.error('Error updating or adding user in Google Sheet:', error.message);
         if (error.response?.data?.error) {
-            console.error('Detalhes do erro da API:', JSON.stringify(error.response.data.error));
+            console.error('API Error Details:', error.response.data.error);
         }
-        throw new Error('Falha ao atualizar a planilha com os dados do pagamento.');
+        throw new Error('Failed to update Google Sheet with payment information.');
     }
 }

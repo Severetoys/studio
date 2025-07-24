@@ -11,8 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-import { registerUserWithFace, authenticateUserFace } from '@/ai/flows/user-auth-flow';
+import { registerUser, verifyUser } from '@/ai/flows/face-auth-flow';
 
 export default function OldAuthPage() {
   const { toast } = useToast();
@@ -136,23 +135,21 @@ export default function OldAuthPage() {
         try {
             let result;
             if (action === 'register') {
-                result = await registerUserWithFace({ liveImage: imageBase64, name, email });
+                result = await registerUser({ name, email, phone, imageBase64 });
                 if (result.success) {
-                    toast({ title: 'Cadastro bem-sucedido!', description: 'Seu rosto foi registrado. Agora você pode fazer login.' });
+                    toast({ title: 'Cadastro bem-sucedido!', description: result.message });
                     router.push('/dashboard'); 
                 } else {
-                     toast({ variant: 'destructive', title: 'Falha no Cadastro', description: result.reason || 'Não foi possível registrar seu rosto.' });
+                     toast({ variant: 'destructive', title: 'Falha no Cadastro', description: result.message || 'Não foi possível registrar seu rosto.' });
                 }
-            } else {
-                result = await authenticateUserFace({ liveImage: imageBase64 });
-                 if (result.authenticated) {
-                    toast({ title: 'Login bem-sucedido!', description: 'Redirecionando para o painel...' });
-                    localStorage.setItem('justLoggedIn', 'true');
-                    const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
-                    localStorage.removeItem('redirectAfterLogin');
-                    router.push(redirectPath);
+            } else { // 'login'
+                result = await verifyUser({ imageBase64 });
+                 if (result.success && result.redirectUrl) {
+                    toast({ title: 'Login bem-sucedido!', description: 'Redirecionando...' });
+                    localStorage.setItem('isAuthenticated', 'true'); 
+                    window.location.href = result.redirectUrl; // Full page redirect
                 } else {
-                    toast({ variant: 'destructive', title: 'Falha na Autenticação', description: result.reason || 'Rosto não reconhecido.' });
+                    toast({ variant: 'destructive', title: 'Falha na Autenticação', description: result.message || 'Rosto não reconhecido.' });
                 }
             }
         } catch (error: any) {
@@ -160,13 +157,18 @@ export default function OldAuthPage() {
             toast({
                 variant: 'destructive',
                 title: 'Ocorreu um Erro',
-                description: error.message || 'Algo deu errado durante a verificação do Face ID.',
+                description: error.message || 'Algo deu errado durante a verificação.',
             });
         } finally {
             setIsVerifying(false);
         }
     } else {
         setIsVerifying(false);
+        toast({
+            variant: 'destructive',
+            title: 'Falha na Captura',
+            description: 'Não foi possível capturar a imagem da câmera.',
+        });
     }
   };
 
@@ -241,7 +243,7 @@ export default function OldAuthPage() {
                     <div className="space-y-4 pt-4">
                         <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
                         <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <InputField id="phone" label="Número de Telefone (Opcional)" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         <VideoPanel />
                         <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !email} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />

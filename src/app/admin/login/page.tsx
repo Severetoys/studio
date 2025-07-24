@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Fingerprint, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { authenticateUserFace } from '@/ai/flows/user-auth-flow';
+import { verifyUser } from '@/ai/flows/face-auth-flow';
 
 const ADMIN_PASSWORD = "Severe123@";
 const ADMIN_EMAIL = "pix@italosantos.com";
@@ -112,18 +112,16 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
     }
     
     try {
-        const result = await authenticateUserFace({ liveImage: imageBase64 });
-        // Assuming the admin user is already registered, we check if authentication is successful.
-        // The `user-auth-flow` compares the live image against all registered users.
-        // For a real-world admin panel, you'd likely want a more specific check,
-        // e.g., checking if the authenticated `userId` from the result corresponds to a known admin ID.
-        // For this case, any successful authentication is considered an admin login.
-        if (result.authenticated) {
+        const result = await verifyUser({ imageBase64 });
+        // NOTE: The verifyUser function now simulates checking the sheet.
+        // For an admin panel, any successful "recognition" is sufficient
+        // as the password and email steps have already gated access.
+        if (result.success) {
             toast({ title: "Login bem-sucedido!", description: "Bem-vindo ao painel." });
             localStorage.setItem("adminAuthenticated", "true");
             onAuthSuccess();
         } else {
-            toast({ variant: "destructive", title: "Falha no Face ID", description: result.reason || 'Rosto não reconhecido ou não cadastrado.' });
+            toast({ variant: "destructive", title: "Falha no Face ID", description: result.message || 'Rosto não reconhecido ou não cadastrado.' });
         }
     } catch (e: any) {
         toast({ variant: "destructive", title: "Erro na Verificação", description: e.message });
@@ -228,7 +226,7 @@ export default function AdminLoginPage({ onAuthSuccess }: AdminLoginPageProps) {
       case 'face': return "Posicione seu rosto na câmera para finalizar.";
       default: return "Acesso Restrito.";
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
