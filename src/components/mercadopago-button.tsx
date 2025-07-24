@@ -45,7 +45,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   }, []);
 
   const handlePaymentSuccess = async (details: any, isQuickPayFlow: boolean) => {
-    setIsModalOpen(false); // Fecha o modal em caso de sucesso
+    setIsModalOpen(false);
     toast({
       title: "Pagamento bem-sucedido!",
       description: `O pagamento ${details.id} foi concluído.`,
@@ -78,7 +78,11 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
       container.removeChild(container.firstChild);
     }
     if (brickInstance.current) {
-        brickInstance.current.unmount();
+        try {
+            await brickInstance.current.unmount();
+        } catch(e) {
+            console.warn("Could not unmount brick", e);
+        }
         brickInstance.current = null;
     }
     
@@ -91,7 +95,6 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         const paymentMethodsConfig: any = {
           creditCard: "all",
           debitCard: "all",
-          wallet: "all"
         };
 
         if (isBrazil) {
@@ -101,7 +104,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         const brick = await bricksBuilder.create("payment", containerId, {
           initialization: {
             amount: amount,
-            payer: customerInfo?.email ? { // Only add payer info if it exists
+            payer: customerInfo?.email ? { 
               firstName: customerInfo.name.split(' ')[0],
               lastName: customerInfo.name.split(' ').slice(1).join(' '),
               email: customerInfo.email,
@@ -149,14 +152,21 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
       }
     }
   };
-
-  const handleQuickPay = async () => {
-    setIsModalOpen(true);
+  
+  const handleOpenModal = () => {
+      setIsModalOpen(true);
   };
   
+  const handleCloseModal = () => {
+      setIsModalOpen(false);
+      if (brickInstance.current) {
+          brickInstance.current.unmount();
+          brickInstance.current = null;
+      }
+  }
+
   useEffect(() => {
     if (isModalOpen && isQuickPay) {
-        // Usa um timeout para garantir que o modal esteja renderizado antes de criar o brick
         setTimeout(() => createPaymentBrick('paymentBrick-modal-container'), 100);
     }
   }, [isModalOpen, isQuickPay]);
@@ -167,7 +177,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         <>
             <Button 
                 className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
-                onClick={handleQuickPay}
+                onClick={handleOpenModal}
                 disabled={disabled || isProcessing}
             >
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
@@ -176,7 +186,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                 </>
                 )}
             </Button>
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
                 <DialogContent className="bg-card border-primary/50 text-card-foreground">
                     <DialogHeader>
                         <DialogTitle className="text-xl text-primary text-shadow-neon-red-light">Finalizar Pagamento</DialogTitle>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PlusCircle, Trash2, UploadCloud, ClipboardCopy, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,7 @@ interface UploadedFile {
 export default function AdminUploadsPage() {
     const { toast } = useToast();
     const storage = getStorage(firebaseApp);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [file, setFile] = useState<File | null>(null);
     const [linkUrl, setLinkUrl] = useState('');
@@ -108,13 +109,14 @@ export default function AdminUploadsPage() {
                         title: "Upload Concluído!",
                         description: "Seu arquivo foi enviado com sucesso.",
                     });
-
-                    await fetchUploadedFiles(); // Refresh the file list
+                    
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                    }
                     setFile(null); 
-                    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-                    if (fileInput) fileInput.value = '';
                     setIsUploading(false);
                     setUploadProgress(0);
+                    await fetchUploadedFiles(); // Refresh the file list
                 });
             }
         );
@@ -172,7 +174,7 @@ export default function AdminUploadsPage() {
                             <div className="space-y-4 pt-4">
                                 <div>
                                     <Label htmlFor="file-upload">Selecione um arquivo</Label>
-                                    <Input id="file-upload" type="file" onChange={handleFileChange} className="mt-1" disabled={isUploading}/>
+                                    <Input ref={fileInputRef} id="file-upload" type="file" onChange={handleFileChange} className="mt-1" disabled={isUploading}/>
                                 </div>
                                 {isUploading && <Progress value={uploadProgress} className="w-full" />}
                                 <Button onClick={handleUpload} disabled={!file || isUploading}>

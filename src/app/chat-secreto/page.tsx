@@ -52,7 +52,8 @@ export default function ChatSecretoPage() {
     const id = getOrCreateChatId();
     setChatId(id);
     if (typeof window !== 'undefined') {
-        setUserLanguage(navigator.language.split('-')[0] || 'pt');
+        const lang = navigator.language.split('-')[0] || 'pt';
+        setUserLanguage(lang);
     }
   }, []);
 
@@ -99,7 +100,6 @@ export default function ChatSecretoPage() {
         timestamp: serverTimestamp(),
       };
 
-      // Always save the original text if it exists
       if (originalText) {
           messagePayload.originalText = originalText;
       }
@@ -118,10 +118,17 @@ export default function ChatSecretoPage() {
   const handleSendMessage = async () => {
     if (newMessage.trim() === '' || isSending || !chatId) return;
     
-    // User sends a message. We translate it to portuguese for the admin.
+    setIsSending(true);
     const originalMsg = newMessage.trim();
-    const translated = await translateText({ text: originalMsg, targetLanguage: 'pt' });
-    sendMessage(translated.translatedText, originalMsg);
+    try {
+        const translated = await translateText({ text: originalMsg, targetLanguage: 'pt' });
+        await sendMessage(translated.translatedText, originalMsg);
+    } catch(e) {
+        console.error("Translation failed, sending original.", e);
+        await sendMessage(originalMsg, originalMsg);
+    } finally {
+        setIsSending(false);
+    }
   };
   
   const handleSendLocation = () => {
@@ -136,7 +143,7 @@ export default function ChatSecretoPage() {
         const locationMessage = `Minha localização atual: ${locationUrl}`;
 
         const translated = await translateText({ text: locationMessage, targetLanguage: 'pt' });
-        sendMessage(translated.translatedText, locationMessage);
+        await sendMessage(translated.translatedText, locationMessage);
     }, (error) => {
         toast({ variant: 'destructive', title: 'Não foi possível obter a localização', description: error.message });
     });
