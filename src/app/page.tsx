@@ -41,7 +41,7 @@ const FeatureList = () => (
 export default function HomePage() {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [price, setPrice] = useState<{ amount: number; currencyCode: string; currencySymbol: string } | null>(null);
+  const [price, setPrice] = useState<number | null>(null);
   const [isLoadingPrice, setIsLoadingPrice] = useState(true);
 
   useEffect(() => {
@@ -50,13 +50,14 @@ export default function HomePage() {
         const userLocale = navigator.language || 'pt-BR';
         const response = await convertCurrency({ targetLocale: userLocale });
         if (response) {
-            setPrice(response);
+            // A API do Mercado Pago espera o valor sem casas decimais (centavos)
+            setPrice(response.amount);
         } else {
-            setPrice({ amount: 99.00, currencyCode: 'BRL', currencySymbol: 'R$' });
+            setPrice(99.00);
         }
       } catch (error) {
         console.error("Failed to convert currency, defaulting to BRL.", error);
-        setPrice({ amount: 99.00, currencyCode: 'BRL', currencySymbol: 'R$' });
+        setPrice(99.00);
       } finally {
         setIsLoadingPrice(false);
       }
@@ -67,39 +68,6 @@ export default function HomePage() {
   const handlePaymentSuccess = () => {
     router.push('/auth');
   }
-
-  const PriceDisplay = () => {
-    if (isLoadingPrice) {
-      return (
-        <div className="flex items-center justify-center h-[160px]">
-            <Loader2 className="h-12 w-12 animate-spin text-primary"/>
-        </div>
-      );
-    }
-
-    if (!price) {
-      return null;
-    }
-
-    return (
-        <div className="text-center animate-in fade-in-0 duration-500 space-y-4">
-            <div className="flex justify-center items-baseline gap-2">
-                <span className="text-5xl font-medium text-muted-foreground self-start mt-8">{price.currencySymbol}</span>
-                <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
-                    {price.amount.toFixed(2).replace('.', ',')}
-                </p>
-                <span className="text-lg font-medium text-muted-foreground self-end mb-4">{price.currencyCode}</span>
-            </div>
-            <div className="w-full max-w-sm mx-auto">
-                 <MercadoPagoButton 
-                    amount={price.amount}
-                    onSuccess={handlePaymentSuccess}
-                    isQuickPay={true}
-                 />
-            </div>
-        </div>
-    );
-  };
 
   return (
     <>
@@ -112,15 +80,19 @@ export default function HomePage() {
               Face ID
           </Button>
           
-          <Separator className="w-full bg-border/30" />
-
-          <PriceDisplay />
-          
-          <Button 
-              className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
-              onClick={() => setIsAuthModalOpen(true)}>
-              ENTRAR
-          </Button>
+          <div className="w-full max-w-sm mx-auto">
+            {isLoadingPrice ? (
+                 <div className="flex items-center justify-center h-[72px]">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+                 </div>
+            ) : (
+                <MercadoPagoButton 
+                    amount={price || 99.00}
+                    onSuccess={handlePaymentSuccess}
+                    isQuickPay={true}
+                />
+            )}
+           </div>
         </div>
         <FeatureList />
         <AboutSection />
