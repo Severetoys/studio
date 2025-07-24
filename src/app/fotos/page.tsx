@@ -109,7 +109,7 @@ const InstagramFeed = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchInstagramFeed({ userId: 'me' });
+        const response = await fetchInstagramFeed({ userId: 'me', maxResults: 10 });
         // Filtra apenas por imagens, já que a aba é de fotos.
         const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
         setMedia(photosOnly);

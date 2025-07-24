@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerUser, verifyUser } from '@/ai/flows/face-auth-flow';
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function OldAuthPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -26,6 +28,7 @@ export default function OldAuthPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
     setIsClient(true);
@@ -106,6 +109,16 @@ export default function OldAuthPage() {
     });
     return null;
   };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    if (!emailRegex.test(newEmail)) {
+      setEmailError('Por favor, insira um email válido.');
+    } else {
+      setEmailError('');
+    }
+  };
   
   const handleAuthAction = async (action: 'login' | 'register') => {
     if (!hasCameraPermission) {
@@ -117,11 +130,11 @@ export default function OldAuthPage() {
         return;
     }
     
-    if (action === 'register' && (!name || !email)) {
+    if (action === 'register' && (!name || !email || emailError)) {
       toast({
         variant: 'destructive',
         title: 'Formulário Incompleto',
-        description: 'Por favor, preencha nome e email para se cadastrar.',
+        description: 'Por favor, preencha nome e um email válido para se cadastrar.',
       });
       return;
     }
@@ -197,12 +210,13 @@ export default function OldAuthPage() {
     </div>
   );
 
-  const InputField = ({ id, label, icon, type, value, onChange }: { id: string, label: string, icon: React.ReactNode, type: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+  const InputField = ({ id, label, icon, type, value, onChange, error }: { id: string, label: string, icon: React.ReactNode, type: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, error?: string }) => (
     <div className="space-y-2">
       <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
         {icon} {label}
       </Label>
       <Input id={id} type={type} value={value} onChange={onChange} required className="h-11 bg-background/50 border-primary/30 focus:shadow-neon-red-light" />
+      {error && <p className="text-sm text-destructive mt-1">{error}</p>}
     </div>
   );
 
@@ -242,10 +256,10 @@ export default function OldAuthPage() {
                 <TabsContent value="signup">
                     <div className="space-y-4 pt-4">
                         <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                        <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={handleEmailChange} error={emailError} />
                         <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         <VideoPanel />
-                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !email} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
+                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !email || !!emailError} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
                         </Button>
