@@ -8,6 +8,7 @@
 
 import { google } from 'googleapis';
 import { adminApp } from '@/lib/firebase-admin'; // Use a single, initialized admin app instance.
+import serviceAccount from '../../serviceAccountKey.json';
 
 // Interface to define the structure of the data to be added to the sheet.
 export interface SheetRow {
@@ -40,8 +41,11 @@ const PAYMENT_ID_COLUMN_INDEX = 6;
 function getSheetsClient() {
     try {
         const auth = new google.auth.GoogleAuth({
+            credentials: {
+                client_email: serviceAccount.client_email,
+                private_key: serviceAccount.private_key,
+            },
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-            credential: adminApp.options.credential,
         });
         return google.sheets({ version: 'v4', auth });
     } catch (error: any) {
