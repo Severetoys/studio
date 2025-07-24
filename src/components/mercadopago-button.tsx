@@ -157,7 +157,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     }
     return () => {
       if (brickInstance.current) {
-        brickInstance.current.unmount().catch((e:any) => console.log("error unmounting", e));
+        brickInstance.current.unmount();
         brickInstance.current = null;
       }
     };
@@ -253,5 +253,3 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     </div>
   );
 }
-
-    
