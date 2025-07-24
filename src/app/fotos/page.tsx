@@ -4,13 +4,15 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload, PlayCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload, PlayCircle, LogIn } from 'lucide-react';
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
 import { fetchInstagramFeed } from '@/ai/flows/instagram-flow';
 import { collection, getDocs, Timestamp, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 // Interfaces para os tipos de mídia
 interface TwitterMedia {
@@ -100,26 +102,36 @@ const TwitterFeed = () => {
 // Componente para a aba do Instagram
 const InstagramFeed = () => {
   const { toast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [media, setMedia] = useState<InstagramMedia[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    const accessToken = localStorage.getItem('fb_access_token');
+    setIsConnected(!!accessToken);
+    
+    if (!accessToken) {
+        setError("Para ver o feed, conecte sua conta do Instagram no painel de administração.");
+        setIsLoading(false);
+        return;
+    }
+
     const getFeed = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchInstagramFeed({ userId: 'me', maxResults: 10 });
-        // Filtra apenas por imagens, já que a aba é de fotos.
+        const response = await fetchInstagramFeed({
+          userId: 'me',
+          accessToken: accessToken,
+          maxResults: 50,
+        });
         const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
         setMedia(photosOnly);
       } catch (e: any) {
         const errorMessage = e.message || "Ocorreu um erro desconhecido.";
-         if (errorMessage.includes("INSTAGRAM_ACCESS_TOKEN")) {
-           setError("A integração com o Instagram não foi configurada. Por favor, adicione o token de acesso no painel de administração ou no arquivo .env.");
-         } else {
-           setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
-         }
+        setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
         toast({
           variant: 'destructive',
           title: 'Erro ao Carregar o Feed do Instagram',
@@ -129,11 +141,17 @@ const InstagramFeed = () => {
         setIsLoading(false);
       }
     };
+    
     getFeed();
   }, [toast]);
 
   if (isLoading) return <FeedLoading message="Carregando feed do Instagram..." />;
-  if (error) return <FeedError message={error} />;
+  if (error) {
+      if (!isConnected) {
+          return <FeedNotConnected message={error} />;
+      }
+      return <FeedError message={error} />;
+  }
   if (media.length === 0) return <FeedEmpty message="Nenhuma foto encontrada no feed do Instagram." />;
 
   return (
@@ -183,7 +201,7 @@ const UploadsFeed = () => {
             }
         };
         fetchPhotos();
-    }, [db, toast]);
+    }, [toast]);
 
     if (isLoading) return <FeedLoading message="Carregando fotos enviadas..." />;
     if (error) return <FeedError message={error} />;
@@ -218,6 +236,20 @@ const FeedError = ({ message }: { message: string }) => (
     <p className="text-sm text-center">{message}</p>
   </div>
 );
+
+const FeedNotConnected = ({ message }: { message: string }) => {
+    const router = useRouter();
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground bg-muted/20 rounded-lg p-4">
+            <LogIn className="h-12 w-12" />
+            <p className="mt-4 font-semibold text-lg">Conexão Necessária</p>
+            <p className="text-sm text-center max-w-md">{message}</p>
+            <Button className="mt-4" onClick={() => router.push('/admin/integrations')}>
+                Conectar Agora
+            </Button>
+        </div>
+    );
+};
 
 const FeedEmpty = ({ message }: { message: string }) => (
   <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">

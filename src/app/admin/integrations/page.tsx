@@ -59,6 +59,7 @@ export default function AdminIntegrationsPage() {
 
   useEffect(() => {
     setIsClient(true);
+    // Load persisted state
     try {
       const savedState = {
         twitter: localStorage.getItem("integration_twitter") === "true",
@@ -68,26 +69,43 @@ export default function AdminIntegrationsPage() {
         mercadopago: localStorage.getItem("integration_mercadopago") === "true",
       };
       setIntegrations(savedState);
-
-      if (window.FB) {
-        window.FB.getLoginStatus((response: any) => {
-          if (response.status === 'connected') {
-            if (localStorage.getItem("integration_facebook") !== "true") {
-              updateIntegrationStatus('facebook', true, false);
-            }
-             if (localStorage.getItem("integration_instagram") !== "true") {
-              updateIntegrationStatus('instagram', true, false);
-            }
-          } else {
-            updateIntegrationStatus('facebook', false, false);
-            updateIntegrationStatus('instagram', false, false);
-          }
-        });
-      }
     } catch (error) {
-      console.error("Failed to access localStorage or FB SDK", error);
+      console.error("Failed to access localStorage", error);
     }
   }, []);
+
+  // Effect to check FB login status on load
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const checkFbStatus = () => {
+        if (window.FB) {
+            window.FB.getLoginStatus((response: any) => {
+              if (response.status === 'connected') {
+                updateIntegrationStatus('facebook', true, false);
+                updateIntegrationStatus('instagram', true, false);
+                localStorage.setItem('fb_access_token', response.authResponse.accessToken);
+              } else {
+                updateIntegrationStatus('facebook', false, false);
+                updateIntegrationStatus('instagram', false, false);
+                localStorage.removeItem('fb_access_token');
+              }
+            });
+        }
+    };
+    
+    // The SDK might not be loaded immediately.
+    if (window.FB) {
+      checkFbStatus();
+    } else {
+      window.addEventListener('fb-sdk-ready', checkFbStatus);
+    }
+
+    return () => {
+       window.removeEventListener('fb-sdk-ready', checkFbStatus);
+    }
+
+  }, [isClient]);
 
   const updateIntegrationStatus = (integration: Integration, isConnected: boolean, showToast: boolean = true) => {
     setIntegrations(prevState => ({ ...prevState, [integration]: isConnected }));
@@ -112,11 +130,12 @@ export default function AdminIntegrationsPage() {
     window.FB.login((response: any) => {
         if (response.status === 'connected') {
             updateIntegrationStatus('facebook', true);
-            updateIntegrationStatus('instagram', true); // Assume Instagram connects with Facebook
+            updateIntegrationStatus('instagram', true);
+            localStorage.setItem('fb_access_token', response.authResponse.accessToken);
         } else {
             toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
         }
-    }, { scope: 'public_profile,email,instagram_basic,pages_show_list', auth_type: 'rerequest' });
+    }, { scope: 'public_profile,email,instagram_basic,pages_show_list,instagram_content_publish', auth_type: 'rerequest' });
   };
 
   const handleFacebookLogout = () => {
@@ -129,10 +148,13 @@ export default function AdminIntegrationsPage() {
             window.FB.logout(() => {
                 updateIntegrationStatus('facebook', false);
                 updateIntegrationStatus('instagram', false);
+                localStorage.removeItem('fb_access_token');
             });
         } else {
+            // Already logged out
             updateIntegrationStatus('facebook', false);
             updateIntegrationStatus('instagram', false);
+            localStorage.removeItem('fb_access_token');
         }
     });
   };
