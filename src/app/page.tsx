@@ -82,43 +82,43 @@ export default function HomePage() {
                 Face ID
             </Button>
           
-            <div className="w-full max-w-sm mx-auto space-y-4">
+            <div className="flex w-full gap-4">
                 <Button 
                     onClick={handlePaymentClick}
                     disabled={isLoadingPrice}
-                    className="w-full h-14 bg-black hover:bg-neutral-800 text-white text-xl font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
+                    className="w-1/2 h-14 bg-black hover:bg-neutral-800 text-white text-lg font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-2"
                 >
-                    Pagar com Google Pay
+                    Google Pay
                 </Button>
                 <Button 
                     onClick={handlePaymentClick}
                     disabled={isLoadingPrice}
-                    className="w-full h-14 bg-black hover:bg-neutral-800 text-white text-xl font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
+                    className="w-1/2 h-14 bg-black hover:bg-neutral-800 text-white text-lg font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-2"
                 >
-                    <Apple className="h-7 w-7" /> Pagar com Apple Pay
+                    <Apple className="h-7 w-7" /> Apple Pay
                 </Button>
-
-                {isLoadingPrice ? (
-                    <div className="flex items-center justify-center h-[72px]">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary"/>
-                    </div>
-                ) : (
-                    priceInfo && (
-                        <div className="text-center p-4 bg-muted/30 rounded-lg border border-dashed border-primary/20">
-                          <p className="text-muted-foreground">Assinatura Mensal</p>
-                          <h3 className="font-bold text-4xl text-primary text-shadow-neon-red animate-pulse-glow">
-                            {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
-                            <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
-                          </h3>
-                        </div>
-                    )
-                )}
             </div>
 
+            {isLoadingPrice ? (
+                <div className="flex items-center justify-center h-[72px]">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+                </div>
+            ) : (
+                priceInfo && (
+                    <div className="text-center p-4 bg-muted/30 rounded-lg border border-dashed border-primary/20">
+                      <p className="text-muted-foreground">Assinatura Mensal</p>
+                      <h3 className="font-bold text-4xl text-primary text-shadow-neon-red animate-pulse-glow">
+                        {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
+                        <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
+                      </h3>
+                    </div>
+                )
+            )}
+
             <Button 
-                className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
+                className="w-full h-16 bg-primary/90 hover:bg-primary text-primary-foreground text-2xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
                 onClick={() => setIsAuthModalOpen(true)}>
-                <KeyRound className="h-12 w-12 mr-4" />
+                <KeyRound className="h-10 w-10 mr-4" />
                 ENTRAR
             </Button>
           </div>
