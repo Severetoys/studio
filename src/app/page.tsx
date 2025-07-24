@@ -91,7 +91,13 @@ export default function HomePage() {
      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
       <path d="M5.32,15.11,8.38,12,5.32,8.89h2.5L10.33,12,7.82,15.11Zm8.36,0,3.06-3.11-3.06-3.11h2.5L18.69,12,16.18,15.11ZM12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"/>
     </svg>
-  )
+  );
+
+  const quickPayButtons = [
+    { label: 'Pagar com Google', Icon: GoogleIcon },
+    { label: 'Pagar com Pix', Icon: PixIcon },
+    { label: 'Pagar com Apple', Icon: AppleIcon },
+  ].filter(btn => isBrazil || btn.label !== 'Pagar com Pix');
 
 
   return (
@@ -115,30 +121,19 @@ export default function HomePage() {
                 ) : (
                     priceInfo && (
                         <>
-                          <div className="flex w-full gap-2">
-                             {isBrazil && (
+                          <div className="flex w-full">
+                              {quickPayButtons.map(({ label, Icon }) => (
                                 <MercadoPagoButton
-                                    amount={priceInfo.amount}
-                                    onSuccess={handlePaymentSuccess}
-                                    isQuickPay={true}
-                                    label="Pagar com Pix"
-                                    icon={PixIcon}
+                                  key={label}
+                                  amount={priceInfo.amount}
+                                  onSuccess={handlePaymentSuccess}
+                                  isQuickPay={true}
+                                  label={label}
+                                  icon={Icon}
+                                  customerInfo={{ name: 'Cliente', email: 'cliente@email.com' }}
+                                  isBrazil={isBrazil}
                                 />
-                             )}
-                              <MercadoPagoButton
-                                    amount={priceInfo.amount}
-                                    onSuccess={handlePaymentSuccess}
-                                    isQuickPay={true}
-                                    label="Pagar com Google"
-                                    icon={GoogleIcon}
-                                />
-                             <MercadoPagoButton
-                                    amount={priceInfo.amount}
-                                    onSuccess={handlePaymentSuccess}
-                                    isQuickPay={true}
-                                    label="Pagar com Apple"
-                                    icon={AppleIcon}
-                                />
+                              ))}
                           </div>
 
                            <div className="text-center py-4">
