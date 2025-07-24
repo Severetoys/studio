@@ -159,13 +159,12 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   if (isQuickPay) {
       return (
         <Button 
-            className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-1 flex-1 px-2"
+            className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
             onClick={handleQuickPay}
             disabled={disabled || isProcessing}
         >
             {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
               <>
-                {Icon && <Icon />}
                 <span className="truncate">{label}</span>
               </>
             )}
