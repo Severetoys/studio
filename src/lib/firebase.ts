@@ -11,7 +11,7 @@ const firebaseConfig = {
   authDomain: "authkit-y9vjx.firebaseapp.com",
   databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com",
   projectId: "authkit-y9vjx",
-  storageBucket: "authkit-y9vjx.appspot.com",
+  storageBucket: "authkit-y9vjx.firebasestorage.app",
   messagingSenderId: "308487499277",
   appId: "1:308487499277:web:3fde6468b179432e9f2f44",
   measurementId: "G-XKJWPXDPZS"
@@ -22,3 +22,4 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export { app, firebaseConfig };
+
