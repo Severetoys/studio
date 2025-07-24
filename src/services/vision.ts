@@ -1,29 +1,77 @@
 
 'use server';
 /**
- * @fileOverview Serviço de detecção facial usando a API Google Vision.
- * Este arquivo contém a lógica isolada para a verificação de imagens.
+ * @fileOverview Facial detection and embedding service using Google Vision API.
  */
 
 import { ImageAnnotatorClient } from '@google-cloud/vision';
-import serviceAccount from '../../serviceAccountKey.json';
 
-// Valida se as credenciais da conta de serviço estão presentes.
-if (!serviceAccount || !serviceAccount.client_email || !serviceAccount.private_key) {
-  throw new Error("As credenciais da conta de serviço (serviceAccountKey.json) estão ausentes ou incompletas.");
-}
-
-const visionClient = new ImageAnnotatorClient({
-  credentials: {
-    client_email: serviceAccount.client_email,
-    private_key: serviceAccount.private_key.replace(/\\n/g, '\n'),
-  }
-});
+// Initialize the client once, reusing it for all requests.
+// The credentials are automatically sourced from the environment.
+const visionClient = new ImageAnnotatorClient();
 
 /**
- * Detecta um único rosto em uma imagem codificada em base64.
- * @param imageBase64 A string da imagem codificada em base64.
- * @returns Um objeto indicando se um rosto válido foi detectado.
+ * Detects a single face in a base64 encoded image and returns its embedding vector.
+ * @param imageBase64 The base64 encoded image string.
+ * @returns An object containing the embedding vector or an error message.
+ */
+export async function getFaceEmbedding(imageBase64: string): Promise<{
+  embedding?: number[];
+  error?: string;
+}> {
+  try {
+    if (!imageBase64 || !imageBase64.includes(',')) {
+      return { error: 'Invalid or empty image data received.' };
+    }
+
+    const request = {
+      image: {
+        content: imageBase64.split(',')[1],
+      },
+      features: [{ type: 'FACE_DETECTION', maxResults: 1 }],
+    };
+    
+    console.log("Sending request to Vision API...");
+    const [result] = await visionClient.faceDetection(request);
+    const faces = result.faceAnnotations;
+
+    if (!faces || faces.length === 0) {
+      return { error: 'No face detected in the image.' };
+    }
+    if (faces.length > 1) {
+      return { error: 'Multiple faces detected. Please ensure only one person is in the frame.' };
+    }
+    
+    const face = faces[0];
+    const confidence = face.detectionConfidence || 0;
+
+    if (confidence < 0.80) { 
+        return { error: `Low confidence in face detection: ${confidence.toFixed(2)}. Try better lighting.` };
+    }
+    if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
+        return { error: 'Image quality is too low (blurry or underexposed). Try a clearer, well-lit image.'};
+    }
+
+    // Extract the feature vector (embedding) for the face.
+    const embedding = face.features?.[0]?.featureVector;
+
+    if (!embedding) {
+      return { error: 'Could not extract face features (embedding). Please try again.' };
+    }
+    
+    console.log("Face embedding extracted successfully.");
+    return { embedding };
+
+  } catch (error: any) {
+    console.error('Google Vision API Error:', error);
+    return { error: 'An error occurred during facial analysis.' };
+  }
+}
+
+/**
+ * Detects a single face in a base64 encoded image for basic verification.
+ * @param imageBase64 The string of the base64 encoded image.
+ * @returns An object indicating if a valid face was detected.
  */
 export async function detectSingleFace(imageBase64: string): Promise<{
   faceFound: boolean;
@@ -31,7 +79,7 @@ export async function detectSingleFace(imageBase64: string): Promise<{
 }> {
   try {
     if (!imageBase64 || !imageBase64.includes(',')) {
-        return { faceFound: false, error: 'Dados de imagem inválidos ou vazios recebidos.' };
+        return { faceFound: false, error: 'Invalid or empty image data received.' };
     }
 
     const request = {
@@ -45,27 +93,26 @@ export async function detectSingleFace(imageBase64: string): Promise<{
     const faces = result.faceAnnotations;
 
     if (!faces || faces.length === 0) {
-      return { faceFound: false, error: 'Nenhum rosto detectado na imagem.' };
+      return { faceFound: false, error: 'No face detected in the image.' };
     }
     if (faces.length > 1) {
-      return { faceFound: false, error: 'Múltiplos rostos detectados. Por favor, garanta que apenas uma pessoa esteja no quadro.' };
+      return { faceFound: false, error: 'Multiple faces detected. Please ensure only one person is in the frame.' };
     }
     
     const face = faces[0];
     const confidence = face.detectionConfidence || 0;
 
-    // Reduz o limite de confiança para ser um pouco mais permissivo
     if (confidence < 0.75) { 
-        return { faceFound: false, error: `Baixa confiança na detecção de rosto: ${confidence.toFixed(2)}. Tente uma iluminação melhor.` };
+        return { faceFound: false, error: `Low confidence in face detection: ${confidence.toFixed(2)}. Try better lighting.` };
     }
     if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
-        return { faceFound: false, error: 'A qualidade da imagem é muito baixa (borrada ou subexposta). Tente uma imagem mais nítida e bem iluminada.'};
+        return { faceFound: false, error: 'Image quality is too low (blurry or underexposed). Try a clearer, well-lit image.'};
     }
 
     return { faceFound: true };
 
   } catch (error: any) {
-    console.error('Erro na API Google Vision:', error);
-    return { faceFound: false, error: 'Ocorreu um erro durante a análise facial.' };
+    console.error('Google Vision API Error:', error);
+    return { faceFound: false, error: 'An error occurred during facial analysis.' };
   }
 }

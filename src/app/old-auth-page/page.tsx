@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { verifyFace, type VerifyFaceInput } from '@/ai/flows/face-auth-flow';
+import { registerUserWithFace, authenticateUserFace } from '@/ai/flows/user-auth-flow';
 
 export default function OldAuthPage() {
   const { toast } = useToast();
@@ -118,46 +118,42 @@ export default function OldAuthPage() {
         return;
     }
     
-    if (action === 'register' && (!name || !email || !phone)) {
+    if (action === 'register' && (!name || !email)) {
       toast({
         variant: 'destructive',
         title: 'Formulário Incompleto',
-        description: 'Por favor, preencha todos os campos antes de se cadastrar.',
+        description: 'Por favor, preencha nome e email para se cadastrar.',
       });
       return;
     }
 
     setIsVerifying(true);
-    toast({ title: 'Verificando Face ID...', description: 'Por favor, olhe para a câmera.' });
+    toast({ title: 'Analisando rosto...', description: 'Por favor, olhe para a câmera.' });
 
     const imageBase64 = captureImage();
     
     if (imageBase64) {
         try {
-            const payload: VerifyFaceInput = { liveImage: imageBase64 };
+            let result;
             if (action === 'register') {
-                payload.name = name;
-                payload.email = email;
-                payload.phone = phone;
-            }
-
-            const result = await verifyFace(payload);
-
-            if (result.isMatch) {
-                toast({ title: 'Face ID Verificado!', description: 'Redirecionando...' });
-                
-                // Redireciona para o dashboard após um login/registro bem-sucedido
-                localStorage.setItem('justLoggedIn', 'true');
-                const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
-                localStorage.removeItem('redirectAfterLogin'); // Limpa para não redirecionar sempre
-                router.push(redirectPath); 
-
+                result = await registerUserWithFace({ liveImage: imageBase64, name, email });
+                if (result.success) {
+                    toast({ title: 'Cadastro bem-sucedido!', description: 'Seu rosto foi registrado. Agora você pode fazer login.' });
+                    router.push('/dashboard'); 
+                } else {
+                     toast({ variant: 'destructive', title: 'Falha no Cadastro', description: result.reason || 'Não foi possível registrar seu rosto.' });
+                }
             } else {
-                toast({
-                    variant: 'destructive',
-                    title: 'Falha no Face ID',
-                    description: result.reason || 'Não foi possível verificar sua identidade. Por favor, tente novamente.',
-                });
+                result = await authenticateUserFace({ liveImage: imageBase64 });
+                 if (result.authenticated) {
+                    toast({ title: 'Login bem-sucedido!', description: 'Redirecionando para o painel...' });
+                    localStorage.setItem('justLoggedIn', 'true');
+                    const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
+                    localStorage.removeItem('redirectAfterLogin');
+                    router.push(redirectPath);
+                } else {
+                    toast({ variant: 'destructive', title: 'Falha na Autenticação', description: result.reason || 'Rosto não reconhecido.' });
+                }
             }
         } catch (error: any) {
             console.error(error);
@@ -245,9 +241,9 @@ export default function OldAuthPage() {
                     <div className="space-y-4 pt-4">
                         <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
                         <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        <InputField id="phone" label="Número de Telefone (Opcional)" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         <VideoPanel />
-                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
+                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !email} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
                         </Button>

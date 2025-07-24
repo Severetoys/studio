@@ -1,70 +1,35 @@
 
 """
-Defines the schema for facial recognition user data.
+Defines the schema for storing user information for facial recognition.
 """
-
-"""
-Represents a user in the system, with facial recognition data.
-"""
+graphql
 type User @table(name: "users") {
-  """
-  The unique identifier for the user, generated automatically.
-  """
-  id: String! @column(name: "id", primaryKey: true, default: "gen_random_uuid()")
-
-  """
-  The user's full name.
-  """
-  name: String @column(name: "name")
-
-  """
-  The user's email address. Must be unique.
-  """
+  id: ID! @column(name: "id", primaryKey: true, default: "gen_random_uuid()")
+  name: String! @column(name: "name")
   email: String! @column(name: "email", unique: true)
-
-  """
-  The facial embedding vector, represented as an array of floating-point numbers.
-  This field is nullable to allow user creation before face registration.
-  """
-  faceEmbedding: [Float] @column(name: "face_embedding")
-
-  """
-  The timestamp when the user was created.
-  """
+  faceEmbedding: [Float!] @column(name: "face_embedding")
   createdAt: Timestamp! @column(name: "created_at", default: "now()")
-
-  """
-  The timestamp when the user was last updated.
-  """
   updatedAt: Timestamp! @column(name: "updated_at", default: "now()", onUpdate: "now()")
 }
 
-type Query {
-  """
-  Retrieves a single user by their unique ID.
-  """
-  user(id: String!): User @permission(expression: "true")
-
-  """
-  Retrieves a list of all users.
-  """
-  users: [User] @permission(expression: "true")
+extend type Query {
+  "Retrieves a single user by their ID."
+  user(id: ID!): User @permission(level: "public")
+  "Retrieves a list of all users."
+  users: [User!] @permission(level: "public")
 }
 
-type Mutation {
-  """
-  Creates a new user.
-  """
+extend type Mutation {
+  "Creates a new user."
   createUser(
-    name: String
-    email: String!
-  ): User @permission(expression: "true")
+    name: String!,
+    email: String!,
+    faceEmbedding: [Float!]
+  ): User @permission(level: "public")
 
-  """
-  Updates the facial embedding for an existing user.
-  """
+  "Updates the face embedding for an existing user."
   updateUserFaceEmbedding(
-    id: String!
-    faceEmbedding: [Float]!
-  ): User @permission(expression: "true")
+    id: ID!,
+    faceEmbedding: [Float!]!
+  ): User @permission(level: "public")
 }
