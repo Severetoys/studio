@@ -16,6 +16,7 @@ interface MercadoPagoButtonProps {
   isQuickPay?: boolean;
   label?: string;
   icon?: React.ElementType;
+  isBrazil?: boolean;
 }
 
 declare global {
@@ -24,21 +25,16 @@ declare global {
     }
 }
 
-export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false, label, icon: Icon }: MercadoPagoButtonProps) {
+export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false, label, icon: Icon, isBrazil }: MercadoPagoButtonProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isBrazil, setIsBrazil] = useState(true);
   const paymentBrickContainer = useRef<HTMLDivElement>(null);
-  const brickInstance = useRef<any>(null); // Ref to store the brick instance
+  const brickInstance = useRef<any>(null);
   const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
 
   useEffect(() => {
-    // Detect locale once
-    const userLocale = navigator.language || 'pt-BR';
-    setIsBrazil(userLocale.toLowerCase().includes('pt'));
-    
     if (window.MercadoPago) {
       setIsSdkReady(true);
     }
@@ -70,11 +66,9 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   };
   
   const createPaymentBrick = async (containerId: string) => {
-    // Unmount previous instance if it exists
     const container = document.getElementById(containerId);
     if (!container) return;
     
-    // Clear previous content
     while(container.firstChild) {
       container.removeChild(container.firstChild);
     }
@@ -92,7 +86,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         const paymentMethodsConfig: any = {
           creditCard: "all",
           debitCard: "all",
-          wallet: "all" // Includes Google Pay & Apple Pay if available
+          wallet: "all"
         };
 
         if (isBrazil) {
@@ -124,8 +118,6 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
               setIsProcessing(false);
             },
             onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
-               // This is a mock payment for demonstration.
-               // A real implementation would send this data to a backend to create a real payment.
               const paymentData = {
                 id: `mock_${Date.now()}`, 
                 status: 'approved',
@@ -135,7 +127,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                     email: customerInfo?.email || formData.payer?.email || 'email@exemplo.com'
                 }
               };
-              return handlePaymentSuccess(paymentData, isQuickPay);
+              return handlePaymentSuccess(paymentData, isQuickPay || false);
             },
             onError: (error: any) => {
               setIsProcessing(false);
@@ -144,7 +136,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
             },
           },
         });
-        brickInstance.current = brick; // Store the instance
+        brickInstance.current = brick;
       } catch (e) {
         console.error("Erro ao renderizar o Payment Brick: ", e);
         toast({ variant: 'destructive', title: 'Erro ao iniciar pagamento', description: 'Tente recarregar a página.'})
@@ -154,8 +146,6 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   };
 
   const handleQuickPay = async () => {
-    // This now uses the Payment Brick, which is the correct way for SDK v2.
-    // It will be rendered in a modal-like element by the SDK.
     const containerId = `paymentBrick_container_modal_${Date.now()}`;
     const dummyContainer = document.createElement('div');
     dummyContainer.id = containerId;
@@ -169,21 +159,20 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   if (isQuickPay) {
       return (
         <Button 
-            className="w-full h-[72px] bg-neutral-900 hover:bg-neutral-800 text-white text-xl font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-2 flex-1"
+            className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-1 flex-1 px-2"
             onClick={handleQuickPay}
             disabled={disabled || isProcessing}
         >
-            {isProcessing ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
               <>
                 {Icon && <Icon />}
-                {label}
+                <span className="truncate">{label}</span>
               </>
             )}
         </Button>
       )
   }
 
-  // Effect to handle brick creation/re-creation for the main checkout
   useEffect(() => {
     if (!isQuickPay && paymentBrickContainer.current) {
         createPaymentBrick('paymentBrick_container');
