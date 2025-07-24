@@ -135,7 +135,7 @@ export default function AdminIntegrationsPage() {
         } else {
             toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
         }
-    }, { scope: 'public_profile,email,instagram_basic,pages_show_list,instagram_content_publish', auth_type: 'rerequest' });
+    }, { scope: 'instagram_basic,pages_show_list,instagram_content_publish', auth_type: 'rerequest' });
   };
 
   const handleFacebookLogout = () => {
