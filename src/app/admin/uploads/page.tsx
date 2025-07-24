@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { PlusCircle, Trash2, UploadCloud, ClipboardCopy, Link as LinkIcon } from "lucide-react";
+import { UploadCloud, ClipboardCopy, Link as LinkIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,17 +9,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject, getMetadata } from "firebase/storage";
+import { getStorage, ref, listAll, deleteObject, getMetadata, getDownloadURL } from "firebase/storage";
 import { app as firebaseApp } from '@/lib/firebase';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from 'date-fns';
+import axios from 'axios';
 
 interface UploadedFile {
     name: string;
@@ -60,7 +59,6 @@ export default function AdminUploadsPage() {
                     };
                 })
             );
-            // Sort files by creation date, newest first
             filesData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setUploadedFiles(filesData);
         } catch (error) {
@@ -81,7 +79,7 @@ export default function AdminUploadsPage() {
         }
     };
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
         if (!file) {
             toast({ variant: "destructive", title: "Nenhum arquivo selecionado" });
             return;
@@ -89,37 +87,39 @@ export default function AdminUploadsPage() {
 
         setIsUploading(true);
         setUploadProgress(0);
-        const storageRef = ref(storage, `general-uploads/${Date.now()}_${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-        
-        uploadTask.on('state_changed', 
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setUploadProgress(progress);
-            },
-            (error) => {
-                console.error("Erro no upload: ", error);
-                toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar o arquivo."});
-                setIsUploading(false);
-                setUploadProgress(0);
-            },
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                    toast({
-                        title: "Upload Concluído!",
-                        description: "Seu arquivo foi enviado com sucesso.",
-                    });
-                    
-                    if (fileInputRef.current) {
-                        fileInputRef.current.value = "";
-                    }
-                    setFile(null); 
-                    setIsUploading(false);
-                    setUploadProgress(0);
-                    await fetchUploadedFiles(); // Refresh the file list
-                });
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await axios.post('/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total ?? 1));
+                    setUploadProgress(percentCompleted);
+                },
+            });
+
+            toast({
+                title: "Upload Concluído!",
+                description: "Seu arquivo foi enviado com sucesso.",
+            });
+            await fetchUploadedFiles();
+
+        } catch (error: any) {
+            console.error("Erro no upload: ", error);
+            const errorMessage = error.response?.data?.error || "Não foi possível enviar o arquivo.";
+            toast({ variant: "destructive", title: "Erro no Upload", description: errorMessage });
+        } finally {
+             if (fileInputRef.current) {
+                fileInputRef.current.value = "";
             }
-        );
+            setFile(null);
+            setIsUploading(false);
+            setUploadProgress(0);
+        }
     };
     
     const handleImportFromLink = () => {
