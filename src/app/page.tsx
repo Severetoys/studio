@@ -1,13 +1,15 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Fingerprint, CheckCircle } from 'lucide-react';
+import { Fingerprint, CheckCircle, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
 import PaymentButtons from '@/components/payment-buttons';
 import AuthModal from '@/components/auth-modal';
+import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -39,6 +41,54 @@ const FeatureList = () => (
 export default function HomePage() {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [price, setPrice] = useState<{ amount: number; currencyCode: string; currencySymbol: string } | null>(null);
+  const [isLoadingPrice, setIsLoadingPrice] = useState(true);
+
+  useEffect(() => {
+    const getLocalCurrency = async () => {
+      try {
+        const userLocale = navigator.language || 'pt-BR';
+        const response = await convertCurrency({ targetLocale: userLocale });
+        if (response) {
+            setPrice(response);
+        } else {
+            setPrice({ amount: 99.00, currencyCode: 'BRL', currencySymbol: 'R$' });
+        }
+      } catch (error) {
+        console.error("Failed to convert currency, defaulting to BRL.", error);
+        setPrice({ amount: 99.00, currencyCode: 'BRL', currencySymbol: 'R$' });
+      } finally {
+        setIsLoadingPrice(false);
+      }
+    };
+    getLocalCurrency();
+  }, []);
+
+  const PriceDisplay = () => {
+    if (isLoadingPrice) {
+      return (
+        <div className="flex items-center justify-center h-[160px]">
+            <Loader2 className="h-12 w-12 animate-spin text-primary"/>
+        </div>
+      );
+    }
+
+    if (!price) {
+      return null;
+    }
+
+    return (
+        <div className="text-center animate-in fade-in-0 duration-500">
+            <div className="flex justify-center items-baseline gap-2">
+                <span className="text-5xl font-medium text-muted-foreground self-start mt-8">{price.currencySymbol}</span>
+                <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
+                    {price.amount.toFixed(2).replace('.', ',')}
+                </p>
+                <span className="text-lg font-medium text-muted-foreground self-end mb-4">{price.currencyCode}</span>
+            </div>
+        </div>
+    );
+  };
 
   return (
     <>
@@ -51,18 +101,11 @@ export default function HomePage() {
               Face ID
           </Button>
           
-          <PaymentButtons amount="99.00" />
+          <PaymentButtons amount={price ? price.amount.toString() : "99.00"} />
           
           <Separator className="w-full bg-border/30" />
 
-          <div className="text-center">
-              <div className="flex justify-center items-baseline gap-2">
-                  <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
-                      99,00
-                  </p>
-                  <span className="text-lg font-medium text-muted-foreground self-end mb-4">BRL</span>
-              </div>
-          </div>
+          <PriceDisplay />
           
           <Button 
               className="w-full h-14 bg-primary/90 hover:bg-primary text-primary-foreground text-xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
@@ -78,21 +121,3 @@ export default function HomePage() {
   );
 }
     
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
