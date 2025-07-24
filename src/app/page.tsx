@@ -89,7 +89,7 @@ export default function HomePage() {
                 priceInfo && (
                     <div className="text-center p-4 bg-muted/30 rounded-lg border border-dashed border-primary/20">
                       <p className="text-muted-foreground">Assinatura Mensal</p>
-                      <h3 className="font-bold text-4xl text-primary text-shadow-neon-red-light">
+                      <h3 className="font-bold text-4xl text-primary text-shadow-neon-red animate-pulse-glow">
                         {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
                         <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
                       </h3>
@@ -99,9 +99,16 @@ export default function HomePage() {
             <Button 
                 onClick={handlePaymentClick}
                 disabled={isLoadingPrice}
-                className="w-full h-14 bg-neutral-900 hover:bg-neutral-800 text-white text-xl font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
+                className="w-full h-14 bg-black hover:bg-neutral-800 text-white text-xl font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
             >
-                <Apple className="h-7 w-7" /> Pagar com Google / Apple
+                Pagar com Google Pay
+            </Button>
+             <Button 
+                onClick={handlePaymentClick}
+                disabled={isLoadingPrice}
+                className="w-full h-14 bg-black hover:bg-neutral-800 text-white text-xl font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
+            >
+                <Apple className="h-7 w-7" /> Pagar com Apple Pay
             </Button>
             <Separator />
              <Button 
