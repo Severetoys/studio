@@ -3,10 +3,11 @@
 /**
  * @fileOverview Service to interact with the Google Sheets API.
  * This file contains the logic to authenticate, add, and update data in a specific spreadsheet.
+ * It uses the application's default credentials via the Firebase Admin SDK for authentication.
  */
 
 import { google } from 'googleapis';
-import serviceAccount from '../../serviceAccountKey.json';
+import { adminApp } from '@/lib/firebase-admin'; // Use a single, initialized admin app instance.
 
 // Interface to define the structure of the data to be added to the sheet.
 export interface SheetRow {
@@ -33,25 +34,23 @@ const PAYMENT_ID_COLUMN_INDEX = 6;
 
 
 /**
- * Creates an authenticated instance of the Google Sheets API.
+ * Creates an authenticated instance of the Google Sheets API using the app's default credentials.
  * @returns The Sheets API instance.
  */
 function getSheetsClient() {
-    if (!serviceAccount || !serviceAccount.client_email || !serviceAccount.private_key) {
-        throw new Error("Service account credentials (serviceAccountKey.json) are missing or incomplete.");
-    }
     try {
         const auth = new google.auth.GoogleAuth({
-            credentials: {
-                client_email: serviceAccount.client_email,
-                private_key: serviceAccount.private_key,
-            },
+            // Scopes can be specified either here or in the initialization of the admin app.
+            // Using the credential from the initialized admin app is the most robust method.
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+            credential: adminApp.options.credential,
         });
+
+        // Create the sheets client
         return google.sheets({ version: 'v4', auth });
     } catch (error: any) {
         console.error('Error initializing Google Sheets client:', error);
-        throw new Error('Failed to authenticate with the Google Sheets API.');
+        throw new Error('Failed to authenticate with the Google Sheets API using application default credentials.');
     }
 }
 
@@ -79,7 +78,7 @@ export async function appendToSheet(rowData: SheetRow): Promise<void> {
         if (error.response?.data?.error) {
             console.error('API Error Details:', error.response.data.error);
         }
-        throw new Error('Failed to communicate with the Google Sheets API.');
+        throw new Error('Failed to communicate with the Google Sheets API. Ensure the service account has Editor permissions on the sheet.');
     }
 }
 
