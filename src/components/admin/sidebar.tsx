@@ -31,13 +31,13 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
 
     const navLinks = [
         { href: "/admin", label: "Dashboard", icon: Home },
+        { href: "/admin/conversations", label: "Conversas", icon: MessageSquare },
         { href: "/admin/subscribers", label: "Assinantes", icon: Users },
         { href: "/admin/products", label: "Produtos", icon: Package },
         { href: "/admin/photos", label: "Fotos", icon: ImageIcon },
         { href: "/admin/videos", label: "Vídeos", icon: Video },
         { href: "/admin/uploads", label: "Uploads", icon: UploadCloud },
         { href: "/admin/integrations", label: "Integrações", icon: Link2 },
-        { href: "/admin/conversations", label: "Conversas", icon: MessageSquare },
     ];
 
     return (

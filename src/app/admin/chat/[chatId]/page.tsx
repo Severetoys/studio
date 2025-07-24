@@ -80,31 +80,51 @@ export default function AdminChatPage() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === '' || isSending || !chatId) return;
-
+    if (newMessage.trim() === '' || isSending || !chatId || !chatData?.userLanguage) return;
+  
     setIsSending(true);
     
     try {
-      const chatDocRef = doc(db, 'chats', chatId);
-      const messagesCollection = collection(chatDocRef, 'messages');
+        const chatDocRef = doc(db, 'chats', chatId);
+        const messagesCollection = collection(chatDocRef, 'messages');
 
-      // Garantia de que o chat exista (caso o admin inicie)
-      if (!chatData) {
-        await setDoc(chatDocRef, { createdAt: serverTimestamp() });
-      }
+        // Admin sends in PT, we translate to user's language
+        const translated = await translateText({ text: newMessage.trim(), targetLanguage: chatData.userLanguage });
 
-      // Admin always sends in Portuguese.
-      await addDoc(messagesCollection, {
-        text: newMessage.trim(),
-        senderId: currentUser,
-        timestamp: serverTimestamp(),
-      });
-      setNewMessage('');
+        await addDoc(messagesCollection, {
+            text: translated.translatedText,
+            originalText: newMessage.trim(), // Keep original PT for admin's view
+            senderId: currentUser,
+            timestamp: serverTimestamp(),
+        });
+
+        setNewMessage('');
     } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+        console.error("Erro ao enviar mensagem:", error);
     } finally {
-      setIsSending(false);
+        setIsSending(false);
     }
+  };
+
+  const getMessageToDisplay = (msg: Message) => {
+      // Admin always sees the original PT text if available
+      if (msg.senderId === 'admin' && msg.originalText) {
+          return msg.originalText;
+      }
+      // For user messages, admin sees the PT-translated text
+      return msg.text;
+  };
+
+  const getTooltipContent = (msg: Message) => {
+      // If admin sent it, tooltip shows the translated version
+      if (msg.senderId === 'admin' && msg.originalText) {
+          return `Traduzido: "${msg.text}"`;
+      }
+      // If user sent it and there's an original text, show it
+      if (msg.senderId === 'user' && msg.originalText) {
+          return `Original: "${msg.originalText}"`;
+      }
+      return null;
   };
 
   if (!chatId) {
@@ -157,15 +177,15 @@ export default function AdminChatPage() {
                                             "max-w-xs md:max-w-md rounded-lg px-4 py-2",
                                             msg.senderId === currentUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                                         )}>
-                                            <p className="text-sm">{msg.text}</p>
+                                            <p className="text-sm">{getMessageToDisplay(msg)}</p>
                                             <p className="text-xs text-right opacity-70 mt-1">
                                                 {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
                                             </p>
                                         </div>
                                     </TooltipTrigger>
-                                    {msg.originalText && (
+                                    {getTooltipContent(msg) && (
                                         <TooltipContent>
-                                            <p>Original: "{msg.originalText}"</p>
+                                            <p>{getTooltipContent(msg)}</p>
                                         </TooltipContent>
                                     )}
                                 </Tooltip>

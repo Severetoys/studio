@@ -11,7 +11,7 @@ import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTim
 import { app as firebaseApp } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { translateText } from '@/ai/flows/translation-flow';
+import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
 import { useToast } from '@/hooks/use-toast';
 
 interface Message {
@@ -46,14 +46,14 @@ export default function ChatSecretoPage() {
   const currentUser = 'user';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const db = getFirestore(firebaseApp);
-  const [userLanguage, setUserLanguage] = useState('en'); // Default language
+  const [userLanguage, setUserLanguage] = useState('pt'); // Default to PT
 
   useEffect(() => {
     const id = getOrCreateChatId();
     setChatId(id);
     // Detect user's browser language
     if (typeof window !== 'undefined') {
-        setUserLanguage(navigator.language.split('-')[0]);
+        setUserLanguage(navigator.language.split('-')[0] || 'pt');
     }
   }, []);
 
@@ -63,16 +63,10 @@ export default function ChatSecretoPage() {
     const messagesCollection = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesCollection, orderBy('timestamp', 'asc'));
 
-    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const msgs: Message[] = [];
        for (const doc of querySnapshot.docs) {
-          let msgData = { id: doc.id, ...doc.data() } as Message;
-
-          // Se a mensagem for do admin, e eu (usuário) não falo português
-          if (msgData.senderId === 'admin' && userLanguage !== 'pt') {
-              const translated = await translateText({ text: msgData.text, targetLanguage: userLanguage });
-              msgData.text = translated.translatedText;
-          }
+          const msgData = { id: doc.id, ...doc.data() } as Message;
           msgs.push(msgData);
       }
       setMessages(msgs);
@@ -81,7 +75,7 @@ export default function ChatSecretoPage() {
     });
 
     return () => unsubscribe();
-  }, [db, chatId, userLanguage]);
+  }, [db, chatId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -124,7 +118,8 @@ export default function ChatSecretoPage() {
   const handleSendMessage = async () => {
     if (newMessage.trim() === '' || isSending || !chatId) return;
     
-    // Traduz a mensagem para o português antes de salvar
+    // User sends a message. We translate it to portuguese for the admin.
+    // The original message is kept for context.
     const translated = await translateText({ text: newMessage.trim(), targetLanguage: 'pt' });
     sendMessage(translated.translatedText, newMessage.trim());
   };
@@ -175,10 +170,13 @@ export default function ChatSecretoPage() {
                         </Avatar>
                      )}
                      <div className={cn(
-                         "max-w-xs md:max-w-md rounded-lg px-4 py-2 text-white",
-                         msg.senderId === currentUser ? 'bg-primary' : 'bg-secondary'
+                         "max-w-xs md:max-w-md rounded-lg px-4 py-2",
+                         msg.senderId === currentUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                      )}>
-                         <p className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.text}</p>
+                         {/* User sees their own original text or the admin's translated text */}
+                         <p className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                           {msg.senderId === 'user' && msg.originalText ? msg.originalText : msg.text}
+                         </p>
                          <p className="text-xs text-right opacity-70 mt-1">
                              {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
                          </p>
