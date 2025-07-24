@@ -14,6 +14,8 @@ interface MercadoPagoButtonProps {
   disabled?: boolean;
   customerInfo?: { name: string, email: string };
   isQuickPay?: boolean;
+  label?: string;
+  icon?: React.ElementType;
 }
 
 declare global {
@@ -22,7 +24,7 @@ declare global {
     }
 }
 
-export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false }: MercadoPagoButtonProps) {
+export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false, label, icon: Icon }: MercadoPagoButtonProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
@@ -141,62 +143,48 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     }
   };
 
+  const handleQuickPay = () => {
+    if (isSdkReady && publicKey) {
+        setIsProcessing(true);
+        const mp = new window.MercadoPago(publicKey);
+        mp.checkout({
+            preference: {
+                // This is a workaround for headless checkout. A real implementation would create a preference on the backend.
+                items: [{
+                    title: "Assinatura Mensal",
+                    quantity: 1,
+                    unit_price: amount,
+                }],
+            },
+            render: {
+                container: '.checkout-container', // a dummy container
+                label: 'Pagar',
+            },
+             autoOpen: true,
+        }).then((result: any) => {
+             handlePaymentSuccess({ id: 'mock_checkout_id', ...result }, true)
+        }).catch((error: any) => {
+             toast({ variant: 'destructive', title: 'Erro no Checkout', description: error.message });
+        }).finally(() => {
+            setIsProcessing(false);
+        });
+    }
+  };
+
+
   if (isQuickPay) {
       return (
         <Button 
-            className="w-full h-[72px] bg-neutral-900 hover:bg-neutral-800 text-white text-xl font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-2"
-            onClick={() => {
-                if (paymentBrickContainer.current) {
-                    // Temporarily create and destroy container to launch modal
-                    const tempContainerId = `temp-brick-container-${Date.now()}`;
-                    const tempContainer = document.createElement('div');
-                    tempContainer.id = tempContainerId;
-                    tempContainer.style.display = 'none';
-                    document.body.appendChild(tempContainer);
-
-                    const mp = new window.MercadoPago(publicKey, { locale: isBrazil ? 'pt-BR' : 'en-US' });
-                     const bricksBuilder = mp.bricks();
-                     bricksBuilder.create("payment", tempContainerId, {
-                          initialization: {
-                            amount: amount,
-                          },
-                          customization: {
-                            paymentMethods: {
-                              creditCard: "all",
-                              debitCard: "all",
-                              wallet: "all",
-                              ...(isBrazil && {pix: "all"}),
-                            },
-                          },
-                          callbacks: {
-                            onReady: () => {},
-                            onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
-                                const paymentData = { id: `mock_${Date.now()}`, status: 'approved', payer: { first_name: 'Quick', last_name: 'Pay', email: 'quick@pay.com' }};
-                                return handlePaymentSuccess(paymentData, true);
-                            },
-                             onError: (error: any) => {
-                                 toast({ variant: 'destructive', title: 'Erro no pagamento', description: error.message || "Por favor, tente novamente." });
-                                 console.error(error);
-                            },
-                          },
-                     }).then((brick) => {
-                        // This is a workaround: The `submit` method on the brick instance is not publicly documented to open the modal,
-                        // but it's a common pattern in headless integrations. We trigger a hidden submission.
-                        const form = tempContainer.querySelector('form');
-                        form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                     
-                        // Clean up the temporary container after a delay
-                        setTimeout(() => {
-                           brick.unmount();
-                           document.body.removeChild(tempContainer);
-                        }, 5000);
-                     });
-                }
-            }}
-            disabled={disabled}
+            className="w-full h-[72px] bg-neutral-900 hover:bg-neutral-800 text-white text-xl font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-2 flex-1"
+            onClick={handleQuickPay}
+            disabled={disabled || isProcessing}
         >
-            <ShieldCheck className="h-8 w-8 text-green-400" />
-            Pague com Pix, Google e Apple Pay
+            {isProcessing ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+              <>
+                {Icon && <Icon />}
+                {label}
+              </>
+            )}
         </Button>
       )
   }
@@ -223,6 +211,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   return (
     <div className={cn("relative w-full min-h-[400px]")}>
       <div id="paymentBrick_container" ref={paymentBrickContainer}></div>
+      <div className="checkout-container"></div>
        { (disabled || amount <= 0) &&
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 rounded-lg">
               <p className="text-muted-foreground text-sm font-semibold text-center p-4">
