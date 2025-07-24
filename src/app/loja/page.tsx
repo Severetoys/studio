@@ -5,16 +5,17 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram, Loader2, Mail } from 'lucide-react';
+import { ShoppingCart, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import MercadoPagoButton from '@/components/mercadopago-button';
+import PaypalButton from '@/components/paypal-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 interface Video {
@@ -102,7 +103,7 @@ export default function LojaPage() {
   const handlePaymentSuccess = async (details: any) => {
     toast({
       title: "Pagamento bem-sucedido!",
-      description: `O pagamento ${details.id} foi concluído.`,
+      description: `O pagamento ${details.id || 'mock_id'} foi concluído.`,
     });
     
     try {
@@ -110,7 +111,7 @@ export default function LojaPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                paymentId: details.id,
+                paymentId: details.id || `mock_${Date.now()}`,
                 payer: {
                   name: customerName,
                   email: customerEmail,
@@ -188,21 +189,36 @@ export default function LojaPage() {
                             <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="name">Nome</Label>
-                            <Input id="name" placeholder="Seu nome completo" value={customerName} onChange={(e) => setCustomerName(e.target.value)} disabled={cart.length === 0}/>
+                            <Label htmlFor="name">Nome Completo</Label>
+                            <Input id="name" placeholder="Seu nome" value={customerName} onChange={(e) => setCustomerName(e.target.value)} disabled={cart.length === 0}/>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} disabled={cart.length === 0}/>
                         </div>
                         <div className="pt-4">
-                            <MercadoPagoButton
-                              amount={totalPrice}
-                              onSuccess={handlePaymentSuccess}
-                              disabled={cart.length === 0 || !customerEmail || !customerName}
-                              customerInfo={{name: customerName, email: customerEmail}}
-                              isBrazil={isBrazil}
-                            />
+                           <Tabs defaultValue="mercadopago" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="mercadopago">Mercado Pago</TabsTrigger>
+                                    <TabsTrigger value="paypal">PayPal</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="mercadopago">
+                                    <MercadoPagoButton
+                                      amount={totalPrice}
+                                      onSuccess={handlePaymentSuccess}
+                                      disabled={cart.length === 0 || !customerEmail || !customerName}
+                                      customerInfo={{name: customerName, email: customerEmail}}
+                                      isBrazil={isBrazil}
+                                    />
+                                </TabsContent>
+                                <TabsContent value="paypal">
+                                     <PaypalButton
+                                        amount={totalPrice}
+                                        onSuccess={handlePaymentSuccess}
+                                        disabled={cart.length === 0 || !customerEmail || !customerName}
+                                     />
+                                </TabsContent>
+                            </Tabs>
                         </div>
                     </div>
                 </SheetFooter>
