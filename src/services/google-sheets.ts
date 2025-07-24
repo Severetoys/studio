@@ -40,13 +40,9 @@ const PAYMENT_ID_COLUMN_INDEX = 6;
 function getSheetsClient() {
     try {
         const auth = new google.auth.GoogleAuth({
-            // Scopes can be specified either here or in the initialization of the admin app.
-            // Using the credential from the initialized admin app is the most robust method.
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
             credential: adminApp.options.credential,
         });
-
-        // Create the sheets client
         return google.sheets({ version: 'v4', auth });
     } catch (error: any) {
         console.error('Error initializing Google Sheets client:', error);
@@ -61,7 +57,6 @@ function getSheetsClient() {
 export async function appendToSheet(rowData: SheetRow): Promise<void> {
     try {
         const sheets = getSheetsClient();
-        // Ensure the data is in the correct column order.
         const values = [COLUMN_ORDER.map(key => rowData[key])];
 
         await sheets.spreadsheets.values.append({
@@ -83,41 +78,34 @@ export async function appendToSheet(rowData: SheetRow): Promise<void> {
 }
 
 /**
- * Finds if any user with a stored image exists.
- * This is a simplified check based on the user's script logic.
- * @returns A boolean indicating if a user with an image was found.
+ * Retrieves all stored user images (as base64 strings) from the sheet.
+ * @returns An array of base64 encoded image strings.
  */
-export async function findUserInSheet(): Promise<boolean> {
+export async function getAllUserImages(): Promise<string[]> {
     try {
         const sheets = getSheetsClient();
-        // Get all data from the sheet
+        const range = `${TAB_NAME}!E2:E`; // Column E is 'imageId'
+
         const getResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${TAB_NAME}`,
+            range: range,
         });
 
         const rows = getResponse.data.values;
-        if (!rows || rows.length < 2) { // < 2 because the first row is headers
-            return false;
+        if (!rows || rows.length === 0) {
+            return [];
         }
 
-        // Check each row (skipping headers) to see if an imageId is present.
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const imageId = row[IMAGE_ID_COLUMN_INDEX];
-            // If we find any row with a non-empty imageId, return true.
-            if (imageId && imageId.length > 50) { // A base64 string will be long
-                return true;
-            }
-        }
+        // Flatten the array and filter out any empty or invalid entries.
+        const images = rows.flat().filter(img => typeof img === 'string' && img.startsWith('data:image'));
+        return images;
 
-        return false;
     } catch (error: any) {
-        console.error('Error reading from Google Sheet:', error.message);
+        console.error('Error reading images from Google Sheet:', error.message);
         if (error.response?.data?.error) {
             console.error('API Error Details:', error.response.data.error);
         }
-        throw new Error('Failed to communicate with the Google Sheets API during verification.');
+        throw new Error('Failed to communicate with the Google Sheets API during image retrieval.');
     }
 }
 
@@ -138,12 +126,10 @@ export async function updatePaymentIdForUser(email: string, paymentId: string, n
 
         const rows = getResponse.data.values;
         if (!rows || rows.length < 1) {
-            // Sheet is empty, just append.
             const newUser: SheetRow = { timestamp: new Date().toISOString(), name, email, phone: '', imageId: '', videoBase64: '', paymentId };
             return await appendToSheet(newUser);
         }
         
-        // Find user by email
         let userRowIndex = -1;
         for (let i = 1; i < rows.length; i++) {
             if (rows[i][EMAIL_COLUMN_INDEX] === email) {
@@ -153,7 +139,6 @@ export async function updatePaymentIdForUser(email: string, paymentId: string, n
         }
 
         if (userRowIndex !== -1) {
-            // User found, update payment ID
             const rangeToUpdate = `${TAB_NAME}!G${userRowIndex + 1}`; // G is paymentId column
             await sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
@@ -163,7 +148,6 @@ export async function updatePaymentIdForUser(email: string, paymentId: string, n
             });
             console.log(`Payment ID for ${email} updated successfully.`);
         } else {
-            // User not found, create a new one
              const newUser: SheetRow = { timestamp: new Date().toISOString(), name, email, phone: '', imageId: '', videoBase64: '', paymentId };
             await appendToSheet(newUser);
             console.log(`New user created for ${email} with payment ID.`);

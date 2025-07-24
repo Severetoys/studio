@@ -1,14 +1,14 @@
 
 'use server';
 /**
- * @fileOverview User authentication flow using Google Sheets.
+ * @fileOverview User authentication flow using Google Sheets and AI face comparison.
  * - registerUser: Registers a new user by storing their data in a Google Sheet.
- * - verifyUser: Authenticates a user by checking their face image against stored data.
+ * - verifyUser: Authenticates a user by comparing their face image against all stored images.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { appendToSheet, findUserInSheet } from '@/services/google-sheets';
+import { appendToSheet, getAllUserImages } from '@/services/google-sheets';
 
 // Input schema for user registration
 const RegisterUserInputSchema = z.object({
@@ -40,7 +40,6 @@ const VerifyUserOutputSchema = z.object({
 });
 export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 
-
 const VIP_URL = "https://www.italosantos.com";
 
 /**
@@ -59,8 +58,8 @@ const registerUserFlow = ai.defineFlow(
         name,
         email,
         phone,
-        imageId: imageBase64, // Storing full base64 for simplicity as in the script
-        videoBase64: '', // Video not captured in this version
+        imageId: imageBase64,
+        videoBase64: '', 
         paymentId: '',
       };
       
@@ -76,8 +75,8 @@ const registerUserFlow = ai.defineFlow(
 );
 
 /**
- * Genkit flow to authenticate a user by checking their face against Google Sheets data.
- * This is a simplified verification as per the user's script logic.
+ * Genkit flow to authenticate a user by comparing their face against all stored images
+ * in Google Sheets using an AI model.
  */
 const verifyUserFlow = ai.defineFlow(
   {
@@ -87,21 +86,57 @@ const verifyUserFlow = ai.defineFlow(
   },
   async ({ imageBase64 }) => {
     try {
-      // The provided script logic for verification is a simulation.
-      // It checks if ANY user with a stored image exists.
-      // We will replicate that simplified logic here.
-      const userFound = await findUserInSheet(); // This will just check if any user exists with an image.
+      console.log('Starting user verification flow...');
+      const storedImages = await getAllUserImages();
 
-      if (userFound) {
-        console.log('User verification successful (simulation).');
+      if (storedImages.length === 0) {
+        console.log('No registered users found in the sheet.');
+        return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.' };
+      }
+
+      console.log(`Found ${storedImages.length} stored images. Comparing against the provided image.`);
+      
+      const { output } = await ai.generate({
+        model: 'googleai/gemini-2.0-flash',
+        prompt: `
+          Você é um especialista em verificação facial. Compare a "Nova Imagem" com cada imagem na "Lista de Imagens Armazenadas".
+          Determine se a pessoa na "Nova Imagem" é a mesma pessoa em QUALQUER uma das imagens da lista.
+          Responda apenas com "SIM" se encontrar uma correspondência, ou "NÃO" se não encontrar nenhuma correspondência.
+
+          Nova Imagem:
+          {{media url=newUserImage}}
+
+          Lista de Imagens Armazenadas:
+          {{#each storedImages}}
+            - {{media url=this}}
+          {{/each}}
+        `,
+        context: {
+          newUserImage: imageBase64,
+          storedImages: storedImages,
+        },
+        output: {
+          format: 'text'
+        },
+        config: {
+          temperature: 0, // Be deterministic
+        }
+      });
+      
+      const resultText = (output as string).trim().toUpperCase();
+      console.log(`AI verification result: "${resultText}"`);
+
+      if (resultText.includes('SIM')) {
+        console.log('User verification successful.');
         return { success: true, message: 'Autenticado! Redirecionando...', redirectUrl: VIP_URL };
       } else {
         console.log('User verification failed: No matching user found.');
-        return { success: false, message: 'Rosto não reconhecido.' };
+        return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.' };
       }
+
     } catch (e: any) {
       console.error('Error during user verification flow:', e);
-      return { success: false, message: e.message || 'An unexpected error occurred during verification.' };
+      return { success: false, message: e.message || 'Ocorreu um erro inesperado durante a verificação.' };
     }
   }
 );
