@@ -31,12 +31,6 @@ interface CartItem extends Video {
   quantity: number;
 }
 
-declare global {
-  interface Window {
-    FB: any;
-  }
-}
-
 export default function LojaPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,43 +74,6 @@ export default function LojaPage() {
 
     fetchVideosAndLocale();
   }, [db, toast]);
-
-  const statusChangeCallback = (response: any) => {
-    if (response.status === 'connected') {
-      toast({
-        title: "Login com Facebook bem-sucedido!",
-        description: "Você foi autenticado com sucesso.",
-      });
-      // FB.api('/me', function(response) { ... });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Login com Facebook falhou.",
-        description: "Não foi possível autenticar com o Facebook.",
-      });
-    }
-  };
-
-  const handleFacebookLogin = () => {
-     if (window.FB) {
-        window.FB.login(function(response: any){
-            statusChangeCallback(response);
-        }, {scope: 'public_profile,email'});
-    } else {
-        toast({ variant: "destructive", title: "SDK do Facebook não carregado."})
-    }
-  };
-
-  const handleConnectSocial = (platform: string) => {
-    if (platform === 'Facebook') {
-      handleFacebookLogin();
-    } else {
-      toast({
-        title: `Integração com ${platform}`,
-        description: `A funcionalidade para conectar com ${platform} está em desenvolvimento.`,
-      });
-    }
-  };
 
   const addToCart = (video: Video) => {
     setCart(prevCart => {
@@ -175,14 +132,6 @@ export default function LojaPage() {
     <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader className="flex-row items-center justify-between border-b border-primary/20 pb-4">
-          <div className="flex gap-2">
-              <Button variant="outline" onClick={() => handleConnectSocial('Facebook')}>
-                  <Facebook className="mr-2 h-4 w-4" /> Conectar com Facebook
-              </Button>
-              <Button variant="outline" onClick={() => handleConnectSocial('Instagram')}>
-                  <Instagram className="mr-2 h-4 w-4" /> Conectar com Instagram
-              </Button>
-          </div>
           <CardTitle className="text-3xl text-primary text-shadow-neon-red-light text-center flex-1">
             Marketplace de Vídeos
           </CardTitle>

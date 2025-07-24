@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Send, Video, MapPin } from 'lucide-react';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, setDoc } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
+import { translateText } from '@/ai/flows/translation-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -89,10 +89,13 @@ export default function ChatSecretoPage() {
       const chatDocRef = doc(db, 'chats', chatId);
       const messagesCollection = collection(chatDocRef, 'messages');
 
-      const chatDoc = await getDoc(chatDocRef);
-      if (!chatDoc.exists()) {
-        await setDoc(chatDocRef, { createdAt: serverTimestamp(), userLanguage: userLanguage });
-      }
+      // Use setDoc com merge:true para criar ou atualizar o documento do chat.
+      // Isso evita a necessidade de ler o documento primeiro (getDoc), que causava o erro de permissão.
+      await setDoc(chatDocRef, { 
+          createdAt: serverTimestamp(), 
+          userLanguage: userLanguage,
+          lastSeen: serverTimestamp(),
+      }, { merge: true });
 
       const messagePayload: any = {
         text: text.trim(),
