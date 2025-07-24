@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Fingerprint, CheckCircle, Loader2, Apple, Wallet } from 'lucide-react';
+import { Fingerprint, CheckCircle, Loader2, Apple, Wallet, KeyRound } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
 import AuthModal from '@/components/auth-modal';
@@ -73,12 +73,20 @@ export default function HomePage() {
     <>
       <div className="flex flex-col items-center">
         <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-md text-center">
-          <Button 
-              className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
-              onClick={() => setIsAuthModalOpen(true)}>
-              <Fingerprint className="h-12 w-12 mr-4" />
-              Face ID
-          </Button>
+          <div className="w-full space-y-4">
+            <Button 
+                className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
+                onClick={() => setIsAuthModalOpen(true)}>
+                <Fingerprint className="h-12 w-12 mr-4" />
+                Face ID
+            </Button>
+            <Button 
+                className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
+                onClick={() => setIsAuthModalOpen(true)}>
+                <KeyRound className="h-12 w-12 mr-4" />
+                ENTRAR
+            </Button>
+          </div>
           
           <div className="w-full max-w-sm mx-auto space-y-4">
              {isLoadingPrice ? (
@@ -109,14 +117,6 @@ export default function HomePage() {
                 className="w-full h-14 bg-black hover:bg-neutral-800 text-white text-xl font-semibold border border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
             >
                 <Apple className="h-7 w-7" /> Pagar com Apple Pay
-            </Button>
-            <Separator />
-             <Button 
-                variant="link"
-                className="text-lg text-muted-foreground hover:text-primary"
-                onClick={() => setIsAuthModalOpen(true)}
-            >
-                ENTRAR
             </Button>
            </div>
         </div>
