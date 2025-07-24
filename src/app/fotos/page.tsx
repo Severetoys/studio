@@ -4,10 +4,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload } from 'lucide-react';
+import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload, PlayCircle } from 'lucide-react';
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
+import { fetchInstagramFeed } from '@/ai/flows/instagram-flow';
 import { getFirestore, collection, getDocs, Timestamp, orderBy, query } from 'firebase/firestore';
 import { app as firebaseApp } from '@/lib/firebase';
 
@@ -24,6 +25,15 @@ interface TweetWithMedia {
   text: string;
   created_at?: string;
   media: TwitterMedia[];
+}
+
+interface InstagramMedia {
+  id: string;
+  caption?: string;
+  media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
+  media_url?: string;
+  thumbnail_url?: string;
+  permalink: string;
 }
 
 interface UploadedPhoto {
@@ -87,6 +97,60 @@ const TwitterFeed = () => {
   );
 };
 
+// Componente para a aba do Instagram
+const InstagramFeed = () => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [media, setMedia] = useState<InstagramMedia[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getFeed = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetchInstagramFeed({ userId: 'me' });
+        // Filtra apenas por imagens, já que a aba é de fotos.
+        const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
+        setMedia(photosOnly);
+      } catch (e: any) {
+        const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+         if (errorMessage.includes("INSTAGRAM_ACCESS_TOKEN")) {
+           setError("A integração com o Instagram não foi configurada. Por favor, adicione o token de acesso no painel de administração ou no arquivo .env.");
+         } else {
+           setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
+         }
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao Carregar o Feed do Instagram',
+          description: errorMessage,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getFeed();
+  }, [toast]);
+
+  if (isLoading) return <FeedLoading message="Carregando feed do Instagram..." />;
+  if (error) return <FeedError message={error} />;
+  if (media.length === 0) return <FeedEmpty message="Nenhuma foto encontrada no feed do Instagram." />;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {media.map((item) => (
+        <a key={item.id} href={item.permalink} target="_blank" rel="noopener noreferrer" className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
+          <Image src={item.media_url!} alt={item.caption || 'Instagram Post'} width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="instagram feed image"/>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {item.caption && <p className="text-white text-sm font-bold line-clamp-2">{item.caption}</p>}
+          </div>
+          {item.media_type === 'VIDEO' && <PlayCircle className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 text-white/80" />}
+        </a>
+      ))}
+    </div>
+  );
+};
+
 // Componente para a aba de Uploads
 const UploadsFeed = () => {
     const { toast } = useToast();
@@ -138,11 +202,6 @@ const UploadsFeed = () => {
             ))}
         </div>
     );
-}
-
-// Componente para a aba do Instagram (Placeholder)
-const InstagramFeed = () => {
-  return <FeedEmpty message="A integração com o Instagram está em desenvolvimento. Volte em breve!" />;
 }
 
 // Componentes de estado reutilizáveis
@@ -200,4 +259,3 @@ export default function FotosPage() {
     </main>
   );
 }
-
