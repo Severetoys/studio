@@ -4,12 +4,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Fingerprint, CheckCircle, Loader2 } from 'lucide-react';
+import { Fingerprint, CheckCircle, Loader2, Apple, Wallet } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
 import AuthModal from '@/components/auth-modal';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
-import MercadoPagoButton from '@/components/mercadopago-button';
+import { useToast } from '@/hooks/use-toast';
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -41,32 +41,32 @@ const FeatureList = () => (
 export default function HomePage() {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [price, setPrice] = useState<number | null>(null);
+  const [priceInfo, setPriceInfo] = useState<{amount: number, currencyCode: string, currencySymbol: string} | null>(null);
   const [isLoadingPrice, setIsLoadingPrice] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const getLocalCurrency = async () => {
       try {
         const userLocale = navigator.language || 'pt-BR';
         const response = await convertCurrency({ targetLocale: userLocale });
-        if (response) {
-            // A API do Mercado Pago espera o valor sem casas decimais (centavos)
-            setPrice(response.amount);
-        } else {
-            setPrice(99.00);
-        }
+        setPriceInfo(response);
       } catch (error) {
         console.error("Failed to convert currency, defaulting to BRL.", error);
-        setPrice(99.00);
+        setPriceInfo({ amount: 99.00, currencyCode: 'BRL', currencySymbol: 'R$' });
       } finally {
         setIsLoadingPrice(false);
       }
     };
     getLocalCurrency();
   }, []);
-
-  const handlePaymentSuccess = () => {
-    router.push('/auth');
+  
+  const handlePaymentClick = () => {
+    toast({
+        title: "Funcionalidade em desenvolvimento",
+        description: "A integração com Google/Apple Pay será implementada em breve."
+    });
+    // Futuramente, aqui iria a lógica para iniciar o pagamento via Google/Apple Pay
   }
 
   return (
@@ -80,18 +80,37 @@ export default function HomePage() {
               Face ID
           </Button>
           
-          <div className="w-full max-w-sm mx-auto">
-            {isLoadingPrice ? (
+          <div className="w-full max-w-sm mx-auto space-y-4">
+             {isLoadingPrice ? (
                  <div className="flex items-center justify-center h-[72px]">
                     <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                  </div>
-            ) : (
-                <MercadoPagoButton 
-                    amount={price || 99.00}
-                    onSuccess={handlePaymentSuccess}
-                    isQuickPay={true}
-                />
-            )}
+             ) : (
+                priceInfo && (
+                    <div className="text-center p-4 bg-muted/30 rounded-lg border border-dashed border-primary/20">
+                      <p className="text-muted-foreground">Assinatura Mensal</p>
+                      <h3 className="font-bold text-4xl text-primary text-shadow-neon-red-light">
+                        {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
+                        <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
+                      </h3>
+                    </div>
+                )
+             )}
+            <Button 
+                onClick={handlePaymentClick}
+                disabled={isLoadingPrice}
+                className="w-full h-14 bg-neutral-900 hover:bg-neutral-800 text-white text-xl font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center gap-3"
+            >
+                <Apple className="h-7 w-7" /> Pagar com Google / Apple
+            </Button>
+            <Separator />
+             <Button 
+                variant="link"
+                className="text-lg text-muted-foreground hover:text-primary"
+                onClick={() => setIsAuthModalOpen(true)}
+            >
+                ENTRAR
+            </Button>
            </div>
         </div>
         <FeatureList />
