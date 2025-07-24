@@ -7,6 +7,9 @@ import { Loader2, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { X } from 'lucide-react';
+
 
 interface MercadoPagoButtonProps {
   amount: number;
@@ -30,6 +33,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const paymentBrickContainer = useRef<HTMLDivElement>(null);
   const brickInstance = useRef<any>(null);
   const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
@@ -41,6 +45,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   }, []);
 
   const handlePaymentSuccess = async (details: any, isQuickPayFlow: boolean) => {
+    setIsModalOpen(false); // Fecha o modal em caso de sucesso
     toast({
       title: "Pagamento bem-sucedido!",
       description: `O pagamento ${details.id} foi concluído.`,
@@ -96,7 +101,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         const brick = await bricksBuilder.create("payment", containerId, {
           initialization: {
             amount: amount,
-            payer: customerInfo ? {
+            payer: customerInfo?.email ? { // Only add payer info if it exists
               firstName: customerInfo.name.split(' ')[0],
               lastName: customerInfo.name.split(' ').slice(1).join(' '),
               email: customerInfo.email,
@@ -122,8 +127,8 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                 id: `mock_${Date.now()}`, 
                 status: 'approved',
                 payer: {
-                    first_name: customerInfo?.name.split(' ')[0] || formData.payer?.firstName || 'Cliente',
-                    last_name: customerInfo?.name.split(' ').slice(1).join(' ') || formData.payer?.lastName || '',
+                    first_name: customerInfo?.name?.split(' ')[0] || formData.payer?.firstName || 'Cliente',
+                    last_name: customerInfo?.name?.split(' ').slice(1).join(' ') || formData.payer?.lastName || '',
                     email: customerInfo?.email || formData.payer?.email || 'email@exemplo.com'
                 }
               };
@@ -146,29 +151,53 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   };
 
   const handleQuickPay = async () => {
-    const containerId = `paymentBrick_container_modal_${Date.now()}`;
-    const dummyContainer = document.createElement('div');
-    dummyContainer.id = containerId;
-    dummyContainer.className = "checkout-container";
-    document.body.appendChild(dummyContainer);
-
-    await createPaymentBrick(containerId);
+    setIsModalOpen(true);
   };
+  
+  useEffect(() => {
+    if (isModalOpen && isQuickPay) {
+        // Usa um timeout para garantir que o modal esteja renderizado antes de criar o brick
+        setTimeout(() => createPaymentBrick('paymentBrick-modal-container'), 100);
+    }
+  }, [isModalOpen, isQuickPay]);
 
 
   if (isQuickPay) {
       return (
-        <Button 
-            className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
-            onClick={handleQuickPay}
-            disabled={disabled || isProcessing}
-        >
-            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
-              <>
-                <span className="truncate">{label}</span>
-              </>
-            )}
-        </Button>
+        <>
+            <Button 
+                className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
+                onClick={handleQuickPay}
+                disabled={disabled || isProcessing}
+            >
+                {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                <>
+                    <span className="truncate">{label}</span>
+                </>
+                )}
+            </Button>
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="bg-card border-primary/50 text-card-foreground">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl text-primary text-shadow-neon-red-light">Finalizar Pagamento</DialogTitle>
+                         <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                            <X className="h-4 w-4" />
+                            <span className="sr-only">Fechar</span>
+                        </DialogClose>
+                    </DialogHeader>
+                    <div id="paymentBrick-modal-container" className="min-h-[400px]">
+                        {isProcessing && (
+                             <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 rounded-lg">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                    <span className="text-sm text-muted-foreground">Carregando...</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
       )
   }
 
@@ -179,6 +208,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     return () => {
       if (brickInstance.current) {
         brickInstance.current.unmount();
+        brickInstance.current = null;
       }
     };
   }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isBrazil, isQuickPay]);
@@ -195,7 +225,6 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   return (
     <div className={cn("relative w-full min-h-[400px]")}>
       <div id="paymentBrick_container" ref={paymentBrickContainer}></div>
-      <div className="checkout-container"></div>
        { (disabled || amount <= 0) &&
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 rounded-lg">
               <p className="text-muted-foreground text-sm font-semibold text-center p-4">
