@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 import Layout from '@/components/layout/layout';
 import WhatsAppButton from '@/components/whatsapp-button';
 import Script from 'next/script';
+import ScreenProtector from '@/components/screen-protector';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -58,9 +59,8 @@ export default function RootLayout({
         </Layout>
         <Toaster />
         <WhatsAppButton />
+        <ScreenProtector />
       </body>
     </html>
   );
 }
-
-
