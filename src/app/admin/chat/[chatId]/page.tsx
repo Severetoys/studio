@@ -3,8 +3,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,6 @@ export default function AdminChatPage() {
   const router = useRouter();
   const chatId = params.chatId as string;
 
-  const db = getFirestore(firebaseApp);
   const currentUser = 'admin';
 
   useEffect(() => {

@@ -9,8 +9,8 @@ import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
 import { fetchInstagramFeed } from '@/ai/flows/instagram-flow';
-import { getFirestore, collection, getDocs, Timestamp, orderBy, query } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, getDocs, Timestamp, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 // Interfaces para os tipos de mídia
 interface TwitterMedia {
@@ -157,7 +157,6 @@ const UploadsFeed = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const db = getFirestore(firebaseApp);
 
     useEffect(() => {
         const fetchPhotos = async () => {

@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Send, Video, MapPin } from 'lucide-react';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, setDoc } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { translateText } from '@/ai/flows/translation-flow';
@@ -45,7 +45,6 @@ export default function ChatSecretoPage() {
   const [chatId, setChatId] = useState('');
   const currentUser = 'user';
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const db = getFirestore(firebaseApp);
   const [userLanguage, setUserLanguage] = useState('pt'); // Default to PT
 
   useEffect(() => {

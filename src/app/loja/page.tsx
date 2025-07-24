@@ -9,8 +9,8 @@ import { ShoppingCart, Plus, Minus, Trash2, Facebook, Instagram, Loader2, Mail }
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { getFirestore, collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import MercadoPagoButton from '@/components/mercadopago-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,7 +40,6 @@ export default function LojaPage() {
   const [isBrazil, setIsBrazil] = useState(true); // Assume Brasil como padrão
   const router = useRouter();
   const { toast } = useToast();
-  const db = getFirestore(firebaseApp);
 
   useEffect(() => {
     const fetchVideosAndLocale = async () => {

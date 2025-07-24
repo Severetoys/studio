@@ -1,8 +1,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore, enablePersistence } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -20,7 +19,25 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
 
-export { app, firebaseConfig };
+// Enable Firestore offline persistence
+try {
+    enablePersistence(db);
+    console.log("Persistência offline do Firestore habilitada com sucesso!");
+} catch (err: any) {
+    if (err.code == 'failed-precondition') {
+      // This happens when there are multiple tabs open in the browser
+      // and persistence can only be enabled in one tab at a time.
+      console.warn("Persistência offline não pôde ser habilitada. Múltiplas abas abertas?", err);
+    } else if (err.code == 'unimplemented') {
+      // The current browser does not support all the features required
+      // to enable persistence (rare nowadays).
+      console.error("Persistência offline não suportada por este navegador.", err);
+    } else {
+      console.error("Erro ao habilitar persistência offline do Firestore:", err);
+    }
+}
 
 
+export { app, firebaseConfig, db };

@@ -42,8 +42,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { getFirestore, collection, addDoc, getDocs, Timestamp, doc, deleteDoc } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface Product {
   id: string;
@@ -58,7 +58,6 @@ interface Product {
 
 export default function AdminProductsPage() {
   const { toast } = useToast();
-  const db = getFirestore(firebaseApp);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);

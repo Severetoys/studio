@@ -2,8 +2,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { getFirestore, collection, getDocs, query, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, getDocs, query, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -29,7 +29,6 @@ export default function AdminConversationsPage() {
     const [chats, setChats] = useState<Chat[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const db = getFirestore(firebaseApp);
 
     useEffect(() => {
         setIsLoading(true);

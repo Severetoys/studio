@@ -26,9 +26,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
-import { getFirestore, collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
+import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { app as firebaseApp } from '@/lib/firebase';
+import { app as firebaseApp, db } from '@/lib/firebase';
 
 interface Video {
   id: string;
@@ -44,7 +44,6 @@ interface Video {
 
 export default function AdminVideosPage() {
   const { toast } = useToast();
-  const db = getFirestore(firebaseApp);
   const storage = getStorage(firebaseApp);
 
   const [videos, setVideos] = useState<Video[]>([]);

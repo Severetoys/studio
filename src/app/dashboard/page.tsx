@@ -5,12 +5,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, ArrowRight, Video, Star } from 'lucide-react';
+import { LogOut, User as UserIcon, CheckCircle, BellRing, CreditCard, Lock, ArrowRight, Video, Star, PlayCircle, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
-import { getFirestore, collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
 interface Video {
@@ -26,7 +26,6 @@ export default function DashboardPage() {
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const db = getFirestore(firebaseApp);
   
   useEffect(() => {
     setIsClient(true);

@@ -11,8 +11,8 @@ import MainHeader from './main-header';
 import MainFooter from './main-footer';
 import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { app as firebaseApp } from '@/lib/firebase';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const getOrCreateChatId = (): string => {
     if (typeof window === 'undefined') {
@@ -33,7 +33,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isWarningOpen, setIsWarningOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
-  const db = getFirestore(firebaseApp);
 
   useEffect(() => {
     setIsClient(true);
