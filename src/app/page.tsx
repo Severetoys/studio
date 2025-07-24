@@ -94,10 +94,10 @@ export default function HomePage() {
   );
 
   const quickPayButtons = [
-    { label: 'Pagar com Google', Icon: GoogleIcon },
-    { label: 'Pagar com Pix', Icon: PixIcon },
-    { label: 'Pagar com Apple', Icon: AppleIcon },
-  ].filter(btn => isBrazil || btn.label !== 'Pagar com Pix');
+    { label: 'Google', Icon: GoogleIcon },
+    { label: 'Pix', Icon: PixIcon },
+    { label: 'Apple', Icon: AppleIcon },
+  ].filter(btn => isBrazil || btn.label !== 'Pix');
 
 
   return (
@@ -106,12 +106,12 @@ export default function HomePage() {
         <div className="p-4 md:p-8 bg-background flex flex-col items-center gap-6 w-full max-w-md text-center">
           
           <div className="w-full space-y-4">
-            <Button 
-                className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
-                onClick={() => setIsAuthModalOpen(true)}>
-                <Fingerprint className="h-12 w-12 mr-4" />
-                Face ID
-            </Button>
+              <Button 
+                  className="w-full h-20 bg-primary/90 hover:bg-primary text-primary-foreground text-3xl font-semibold shadow-neon-red-light hover:shadow-neon-red-strong transition-all duration-300"
+                  onClick={() => setIsAuthModalOpen(true)}>
+                  <Fingerprint className="h-12 w-12 mr-4" />
+                  Face ID
+              </Button>
             
              <div className="text-center py-4">
                 {isLoadingPrice ? (
@@ -163,4 +163,6 @@ export default function HomePage() {
     </>
   );
 }
+    
+
     
