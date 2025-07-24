@@ -11,12 +11,14 @@ import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTim
 import { app as firebaseApp } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { translateText } from '@/ai/flows/translation-flow';
 
 interface Message {
   id: string;
   text: string;
   senderId: 'user' | 'admin';
   timestamp: Timestamp | null;
+  originalText?: string;
 }
 
 const getOrCreateChatId = (): string => {
@@ -42,10 +44,15 @@ export default function ChatSecretoPage() {
   const currentUser = 'user';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const db = getFirestore(firebaseApp);
+  const [userLanguage, setUserLanguage] = useState('en'); // Default language
 
   useEffect(() => {
     const id = getOrCreateChatId();
     setChatId(id);
+    // Detect user's browser language
+    if (typeof window !== 'undefined') {
+        setUserLanguage(navigator.language.split('-')[0]);
+    }
   }, []);
 
   useEffect(() => {
@@ -54,18 +61,25 @@ export default function ChatSecretoPage() {
     const messagesCollection = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesCollection, orderBy('timestamp', 'asc'));
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       const msgs: Message[] = [];
-      querySnapshot.forEach((doc) => {
-        msgs.push({ id: doc.id, ...doc.data() } as Message);
-      });
+       for (const doc of querySnapshot.docs) {
+          let msgData = { id: doc.id, ...doc.data() } as Message;
+
+          // Se a mensagem for do admin, e eu (usuário) não falo português
+          if (msgData.senderId === 'admin' && userLanguage !== 'pt') {
+              const translated = await translateText({ text: msgData.text, targetLanguage: userLanguage });
+              msgData.text = translated.translatedText;
+          }
+          msgs.push(msgData);
+      }
       setMessages(msgs);
     }, (error) => {
       console.error("Erro ao carregar mensagens:", error);
     });
 
     return () => unsubscribe();
-  }, [db, chatId]);
+  }, [db, chatId, userLanguage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -80,14 +94,18 @@ export default function ChatSecretoPage() {
         const chatDocRef = doc(db, 'chats', chatId);
         const messagesCollection = collection(chatDocRef, 'messages');
 
-        // Garante que o documento do chat exista antes de adicionar a mensagem.
         const chatDoc = await getDoc(chatDocRef);
+        // Se o chat não existir, cria-o com o idioma do usuário.
         if (!chatDoc.exists()) {
-            await setDoc(chatDocRef, { createdAt: serverTimestamp() });
+            await setDoc(chatDocRef, { createdAt: serverTimestamp(), userLanguage: userLanguage });
         }
 
+        // Traduz a mensagem para o português antes de salvar
+        const translated = await translateText({ text: newMessage.trim(), targetLanguage: 'pt' });
+
         await addDoc(messagesCollection, {
-            text: newMessage.trim(),
+            text: translated.translatedText,
+            originalText: newMessage.trim(),
             senderId: currentUser,
             timestamp: serverTimestamp(),
         });
