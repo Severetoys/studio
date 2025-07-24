@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -37,7 +36,7 @@ const FeatureList = () => (
 );
 
 
-export default function HomePageContent() {
+export default function HomePage() {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -81,6 +80,7 @@ export default function HomePageContent() {
     
 
     
+
 
 
 
