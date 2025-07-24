@@ -87,14 +87,14 @@ const verifyUserFlow = ai.defineFlow(
   async ({ imageBase64 }) => {
     try {
       console.log('Starting user verification flow...');
-      const storedImages = await getAllUserImages();
+      const storedImagesData = await getAllUserImages();
 
-      if (storedImages.length === 0) {
+      if (storedImagesData.length === 0) {
         console.log('No registered users found in the sheet.');
         return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.' };
       }
 
-      console.log(`Found ${storedImages.length} stored images. Comparing against the provided image.`);
+      console.log(`Found ${storedImagesData.length} stored images. Comparing against the provided image.`);
       
       const { output } = await ai.generate({
         model: 'googleai/gemini-2.0-flash',
@@ -113,7 +113,7 @@ const verifyUserFlow = ai.defineFlow(
         `,
         context: {
           newUserImage: imageBase64,
-          storedImages: storedImages,
+          storedImages: storedImagesData,
         },
         output: {
           format: 'text'
