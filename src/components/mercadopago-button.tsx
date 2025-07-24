@@ -144,7 +144,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         // Limpa o brick se as condições não forem atendidas (ex: carrinho vazio)
         paymentBrickContainer.current.innerHTML = '';
     }
-  }, [isSdkReady, amount, disabled, customerInfo]);
+  }, [isSdkReady, amount, disabled, customerInfo, publicKey]);
 
   if (!isSdkReady || !publicKey) {
     return (
