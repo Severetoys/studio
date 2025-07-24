@@ -35,38 +35,46 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     }
   }, []);
 
-  const handleQuickPaySuccess = async (details: any) => {
+  const handlePaymentSuccess = async (details: any, isQuickPayFlow: boolean) => {
     toast({
       title: "Pagamento bem-sucedido!",
       description: `O pagamento ${details.id} foi concluído.`,
     });
     
     try {
-        await fetch('/api/payment-webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                paymentId: details.id,
-                payer: {
-                  name: details.payer.first_name + ' ' + details.payer.last_name,
-                  email: details.payer.email,
-                }
-            }),
-        });
+      await fetch('/api/payment-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentId: details.id,
+          payer: {
+            name: isQuickPayFlow ? `${details.payer.first_name} ${details.payer.last_name}`.trim() : customerInfo?.name,
+            email: isQuickPayFlow ? details.payer.email : customerInfo?.email,
+          }
+        }),
+      });
     } catch (e) {
-        console.error("Falha ao chamar o webhook interno", e);
+      console.error("Falha ao chamar o webhook interno", e);
     }
-    router.push('/auth');
+
+    if(isQuickPayFlow) {
+        onSuccess(details); // For quick pay, let the parent handle redirect
+    } else {
+        onSuccess(details);
+    }
   };
 
   useEffect(() => {
-    if (isSdkReady && paymentBrickContainer.current && publicKey && !disabled && amount > 0) {
-      // Limpa o container antes de renderizar um novo brick para evitar duplicatas
+    // Destrói a instância anterior do brick se ela existir
+    if (paymentBrickContainer.current?.innerHTML) {
       paymentBrickContainer.current.innerHTML = '';
-      
+    }
+
+    if (isSdkReady && paymentBrickContainer.current && publicKey && !disabled && amount > 0) {
       const mp = new window.MercadoPago(publicKey);
       
       const renderPaymentBrick = async () => {
+        setIsProcessing(true);
         try {
             const bricksBuilder = mp.bricks();
             await bricksBuilder.create("payment", "paymentBrick_container", {
@@ -90,6 +98,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                 paymentMethods: {
                   creditCard: "all",
                   debitCard: "all",
+                  pix: "all",
                   ticket: "all",
                   bankTransfer: "all",
                   mercadoPago: "all",
@@ -101,28 +110,18 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                   setIsProcessing(false);
                 },
                 onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
-                  setIsProcessing(true);
-                  try {
-                     const paymentData = {
-                        id: `mock_${Date.now()}`, 
-                        status: 'approved',
-                        payer: {
-                            first_name: customerInfo?.name.split(' ')[0] || 'Cliente',
-                            last_name: customerInfo?.name.split(' ').slice(1).join(' ') || '',
-                            email: customerInfo?.email || 'email@exemplo.com'
-                        }
-                    };
-                    if (isQuickPay) {
-                        await handleQuickPaySuccess(paymentData);
-                    } else {
-                        onSuccess(paymentData);
+                  // Simula a resposta do pagamento para um ambiente de desenvolvimento/teste
+                  // Em produção, aqui seria feita uma chamada para um backend que processaria o pagamento.
+                  const paymentData = {
+                    id: `mock_${Date.now()}`, 
+                    status: 'approved',
+                    payer: {
+                        first_name: customerInfo?.name.split(' ')[0] || formData.payer.firstName || 'Cliente',
+                        last_name: customerInfo?.name.split(' ').slice(1).join(' ') || formData.payer.lastName || '',
+                        email: customerInfo?.email || formData.payer.email || 'email@exemplo.com'
                     }
-                  } catch(error) {
-                      toast({ variant: 'destructive', title: 'Erro ao processar pagamento.'});
-                      console.error(error);
-                  } finally {
-                    setIsProcessing(false);
-                  }
+                  };
+                  return handlePaymentSuccess(paymentData, isQuickPay);
                 },
                 onError: (error: any) => {
                   setIsProcessing(false);
@@ -133,18 +132,15 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
             });
         } catch (e) {
             console.error("Erro ao renderizar o Payment Brick: ", e);
+            toast({ variant: 'destructive', title: 'Erro ao iniciar pagamento', description: 'Tente recarregar a página.'})
             setIsProcessing(false);
         }
       };
       
-      setIsProcessing(true);
       renderPaymentBrick();
-
-    } else if (paymentBrickContainer.current) {
-        // Limpa o brick se as condições não forem atendidas (ex: carrinho vazio)
-        paymentBrickContainer.current.innerHTML = '';
     }
-  }, [isSdkReady, amount, disabled, customerInfo, publicKey]);
+  // Adicionamos 'customerInfo.email' e 'customerInfo.name' como dependências para recriar o brick quando o usuário alterar os dados
+  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isQuickPay]);
 
   if (!isSdkReady || !publicKey) {
     return (
@@ -156,18 +152,21 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
   }
 
   return (
-    <div className={cn("relative min-h-[100px]", disabled && "opacity-50 cursor-not-allowed")}>
+    <div className={cn("relative w-full", isQuickPay ? 'min-h-[50px]' : 'min-h-[400px]')}>
       <div id="paymentBrick_container" ref={paymentBrickContainer}></div>
        { (disabled || amount <= 0) &&
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 rounded-lg">
-              <p className="text-muted-foreground text-sm font-semibold">
-                  {amount <= 0 ? "Adicione itens para pagar" : "Preencha seus dados"}
+              <p className="text-muted-foreground text-sm font-semibold text-center p-4">
+                  {amount <= 0 ? "Adicione itens ao carrinho para pagar" : "Preencha seu nome e email para continuar"}
               </p>
           </div>
        }
         {isProcessing && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 rounded-lg">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Processando...</span>
+                </div>
             </div>
         )}
     </div>

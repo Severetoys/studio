@@ -221,8 +221,7 @@ export default function LojaPage() {
             </SheetTrigger>
             <SheetContent className="bg-card border-primary/50 text-card-foreground">
               <SheetHeader>
-                <SheetTitle className="text-2xl text-primary text-shadow-neon-red-light">Seu Carrinho</SheetTitle>
-                <SheetDescription>Confira seus itens e dados antes de finalizar a compra.</SheetDescription>
+                <SheetTitle className="text-2xl text-primary text-shadow-neon-red-light">Checkout</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col h-full">
                 {cart.length === 0 ? (
@@ -231,7 +230,8 @@ export default function LojaPage() {
                   </div>
                 ) : (
                   <div className="flex-1 overflow-y-auto pr-4 -mr-4 mt-4">
-                    <div className="space-y-4">
+                    <SheetDescription>Confira seus itens e dados antes de finalizar a compra.</SheetDescription>
+                    <div className="space-y-4 mt-4">
                       {cart.map(item => (
                         <div key={item.id} className="flex items-start gap-4">
                            <div className="w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
@@ -260,6 +260,10 @@ export default function LojaPage() {
                 )}
                 <SheetFooter className="mt-auto pt-6 border-t border-primary/20">
                     <div className="w-full space-y-4">
+                        <div className="flex justify-between font-bold text-lg mb-4">
+                            <span>Total:</span>
+                            <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                        </div>
                         <div className="space-y-2">
                             <Label htmlFor="name">Nome</Label>
                             <Input id="name" placeholder="Seu nome completo" value={customerName} onChange={(e) => setCustomerName(e.target.value)} disabled={cart.length === 0}/>
@@ -268,16 +272,14 @@ export default function LojaPage() {
                             <Label htmlFor="email">Email</Label>
                             <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} disabled={cart.length === 0}/>
                         </div>
-                        <div className="flex justify-between font-bold text-lg">
-                            <span>Total:</span>
-                            <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                        <div className="pt-4">
+                            <MercadoPagoButton
+                              amount={totalPrice}
+                              onSuccess={handlePaymentSuccess}
+                              disabled={cart.length === 0 || !customerEmail || !customerName}
+                              customerInfo={{name: customerName, email: customerEmail}}
+                            />
                         </div>
-                        <MercadoPagoButton
-                          amount={totalPrice}
-                          onSuccess={handlePaymentSuccess}
-                          disabled={cart.length === 0 || !customerEmail || !customerName}
-                          customerInfo={{name: customerName, email: customerEmail}}
-                        />
                     </div>
                 </SheetFooter>
               </div>
@@ -327,5 +329,3 @@ export default function LojaPage() {
     </main>
   );
 }
-
-    

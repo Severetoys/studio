@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import { Fingerprint, CheckCircle, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
-import PaymentButtons from '@/components/payment-buttons';
 import AuthModal from '@/components/auth-modal';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
+import MercadoPagoButton from '@/components/mercadopago-button';
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -64,6 +64,10 @@ export default function HomePage() {
     getLocalCurrency();
   }, []);
 
+  const handlePaymentSuccess = () => {
+    router.push('/auth');
+  }
+
   const PriceDisplay = () => {
     if (isLoadingPrice) {
       return (
@@ -78,13 +82,20 @@ export default function HomePage() {
     }
 
     return (
-        <div className="text-center animate-in fade-in-0 duration-500">
+        <div className="text-center animate-in fade-in-0 duration-500 space-y-4">
             <div className="flex justify-center items-baseline gap-2">
                 <span className="text-5xl font-medium text-muted-foreground self-start mt-8">{price.currencySymbol}</span>
                 <p className="text-9xl font-bold text-primary tracking-tight animate-pulse-glow">
                     {price.amount.toFixed(2).replace('.', ',')}
                 </p>
                 <span className="text-lg font-medium text-muted-foreground self-end mb-4">{price.currencyCode}</span>
+            </div>
+            <div className="w-full max-w-sm mx-auto">
+                 <MercadoPagoButton 
+                    amount={price.amount}
+                    onSuccess={handlePaymentSuccess}
+                    isQuickPay={true}
+                 />
             </div>
         </div>
     );
@@ -100,8 +111,6 @@ export default function HomePage() {
               <Fingerprint className="h-12 w-12 mr-4" />
               Face ID
           </Button>
-          
-          <PaymentButtons amount={price ? price.amount.toString() : "99.00"} />
           
           <Separator className="w-full bg-border/30" />
 
