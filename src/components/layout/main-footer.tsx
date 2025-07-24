@@ -224,6 +224,18 @@ const MainFooter = () => {
             
             <footer className="w-full p-4 text-center text-sm text-muted-foreground">
               <Separator className="mb-4 bg-primary/50" />
+               <div className="my-4 flex justify-center">
+                <div
+                    className="fb-like"
+                    data-href="https://developers.facebook.com/docs/plugins/"
+                    data-width="450"
+                    data-layout="standard"
+                    data-action="like"
+                    data-size="large"
+                    data-share="true"
+                    data-show-faces="true">
+                </div>
+              </div>
               <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>
                <div className="flex justify-center gap-4 my-4">
                   <a href="#" aria-label="Twitter">
