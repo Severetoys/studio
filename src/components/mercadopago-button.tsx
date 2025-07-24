@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import { Separator } from '@/components/ui/separator';
 
 interface MercadoPagoButtonProps {
   amount: number;
@@ -252,3 +253,5 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
     </div>
   );
 }
+
+    
