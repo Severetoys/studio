@@ -23,13 +23,6 @@ declare global {
     }
 }
 
-const PayPalIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-        <path d="M7.74 2.42.36 17.58a.5.5 0 0 0 .6.56l5.77-1.46a.5.5 0 0 1 .58.58l-1.46 5.77a.5.5 0 0 0 .56.6l15.16-7.38a.5.5 0 0 0 .19-1.04l-5.77-1.46a.5.5 0 0 1-.58-.58l1.46-5.77a.5.5 0 0 0-.56-.6L8.78 2.23a.5.5 0 0 0-1.04.19z"></path>
-    </svg>
-);
-
-
 export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false, label, isBrazil }: MercadoPagoButtonProps) {
   const { toast } = useToast();
   const [isSdkReady, setIsSdkReady] = useState(false);
@@ -180,7 +173,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
             onClick={handleQuickPayClick}
             disabled={disabled || isProcessing}
         >
-            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (label === 'PayPal' ? <PayPalIcon /> : <span className="truncate">{label}</span>)}
+            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="truncate">{label}</span>}
         </Button>
       )
   }
