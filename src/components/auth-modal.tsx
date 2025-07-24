@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, ArrowLeft, X } from 'lucide-react';
+import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,53 @@ interface AuthModalProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
 }
+
+// Componente para o painel de vídeo, movido para fora para estabilidade.
+const VideoPanel = ({ videoCallbackRef, isVerifying, hasCameraPermission }: { 
+    videoCallbackRef: (node: HTMLVideoElement | null) => void, 
+    isVerifying: boolean, 
+    hasCameraPermission: boolean 
+}) => (
+    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border border-primary/50 shadow-neon-red-light">
+        <video ref={videoCallbackRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+        {isVerifying && <div className="absolute inset-0 border-4 border-primary animate-pulse"></div>}
+        {!hasCameraPermission && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
+                <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
+                    <AlertTitle>Acesso à Câmera Necessário</AlertTitle>
+                    <AlertDescription>
+                        Por favor, permita o acesso à câmera para usar esta funcionalidade.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        )}
+    </div>
+);
+
+// Componente para campos de entrada, movido para fora para estabilidade.
+const InputField = ({ id, label, icon, type, value, onChange }: { 
+    id: string, 
+    label: string, 
+    icon: React.ReactNode, 
+    type: string, 
+    value: string, 
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void 
+}) => (
+    <div className="space-y-2">
+        <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
+            {icon} {label}
+        </Label>
+        <Input 
+            id={id} 
+            type={type} 
+            value={value} 
+            onChange={onChange} 
+            required 
+            className="h-11 bg-background/50 border-primary/30 focus:shadow-neon-red-light" 
+        />
+    </div>
+);
+
 
 export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   const { toast } = useToast();
@@ -184,34 +231,6 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     }
   };
 
-  const VideoPanel = () => (
-    <div className="relative mx-auto w-full max-w-sm h-64 bg-muted rounded-lg overflow-hidden border border-primary/50 shadow-neon-red-light">
-        <>
-          <video ref={videoCallbackRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-          {isVerifying && <div className="absolute inset-0 border-4 border-primary animate-pulse"></div>}
-          {!hasCameraPermission && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
-              <Alert variant="destructive" className="bg-destructive/80 text-destructive-foreground border-destructive-foreground/50">
-                <AlertTitle>Acesso à Câmera Necessário</AlertTitle>
-                <AlertDescription>
-                  Por favor, permita o acesso à câmera para usar esta funcionalidade.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-        </>
-    </div>
-  );
-
-  const InputField = ({ id, label, icon, type, value, onChange }: { id: string, label: string, icon: React.ReactNode, type: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
-    <div className="space-y-2">
-      <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
-        {icon} {label}
-      </Label>
-      <Input id={id} type={type} value={value} onChange={onChange} required className="h-11 bg-background/50 border-primary/30 focus:shadow-neon-red-light" />
-    </div>
-  );
-
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="w-full max-w-md shadow-neon-red-strong border-primary/50 bg-card/80 backdrop-blur-xl p-0">
@@ -238,7 +257,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
                 </TabsList>
                 <TabsContent value="signin">
                     <div className="space-y-4 pt-4">
-                        <VideoPanel />
+                        <VideoPanel videoCallbackRef={videoCallbackRef} isVerifying={isVerifying} hasCameraPermission={hasCameraPermission} />
                         <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
@@ -250,7 +269,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
                         <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
                         <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                        <VideoPanel />
+                        <VideoPanel videoCallbackRef={videoCallbackRef} isVerifying={isVerifying} hasCameraPermission={hasCameraPermission} />
                         <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !email} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
