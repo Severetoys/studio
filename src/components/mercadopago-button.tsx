@@ -13,6 +13,7 @@ interface MercadoPagoButtonProps {
   disabled?: boolean;
   customerInfo?: { name: string, email: string };
   isQuickPay?: boolean;
+  isBrazil?: boolean;
 }
 
 declare global {
@@ -21,7 +22,7 @@ declare global {
     }
 }
 
-export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false }: MercadoPagoButtonProps) {
+export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false, isBrazil = true }: MercadoPagoButtonProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isSdkReady, setIsSdkReady] = useState(false);
@@ -66,17 +67,29 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
 
   useEffect(() => {
     // Destrói a instância anterior do brick se ela existir
-    if (paymentBrickContainer.current?.innerHTML) {
-      paymentBrickContainer.current.innerHTML = '';
+    const container = paymentBrickContainer.current;
+    if (container?.innerHTML) {
+      container.innerHTML = '';
     }
 
-    if (isSdkReady && paymentBrickContainer.current && publicKey && !disabled && amount > 0) {
+    if (isSdkReady && container && publicKey && !disabled && amount > 0) {
       const mp = new window.MercadoPago(publicKey);
       
       const renderPaymentBrick = async () => {
         setIsProcessing(true);
         try {
             const bricksBuilder = mp.bricks();
+            const paymentMethodsConfig: any = {
+                creditCard: "all",
+                debitCard: "all",
+                mercadoPago: "all",
+            };
+
+            if (isBrazil) {
+                paymentMethodsConfig.pix = "all";
+                paymentMethodsConfig.ticket = "all"; // Boleto
+            }
+            
             await bricksBuilder.create("payment", "paymentBrick_container", {
               initialization: {
                 amount: amount,
@@ -95,15 +108,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                         }
                     }
                 },
-                paymentMethods: {
-                  creditCard: "all",
-                  debitCard: "all",
-                  pix: "all",
-                  ticket: "all",
-                  bankTransfer: "all",
-                  mercadoPago: "all",
-                  atm: "all",
-                },
+                paymentMethods: paymentMethodsConfig,
               },
               callbacks: {
                 onReady: () => {
@@ -111,14 +116,13 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
                 },
                 onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
                   // Simula a resposta do pagamento para um ambiente de desenvolvimento/teste
-                  // Em produção, aqui seria feita uma chamada para um backend que processaria o pagamento.
                   const paymentData = {
                     id: `mock_${Date.now()}`, 
                     status: 'approved',
                     payer: {
-                        first_name: customerInfo?.name.split(' ')[0] || formData.payer.firstName || 'Cliente',
-                        last_name: customerInfo?.name.split(' ').slice(1).join(' ') || formData.payer.lastName || '',
-                        email: customerInfo?.email || formData.payer.email || 'email@exemplo.com'
+                        first_name: customerInfo?.name.split(' ')[0] || formData.payer?.firstName || 'Cliente',
+                        last_name: customerInfo?.name.split(' ').slice(1).join(' ') || formData.payer?.lastName || '',
+                        email: customerInfo?.email || formData.payer?.email || 'email@exemplo.com'
                     }
                   };
                   return handlePaymentSuccess(paymentData, isQuickPay);
@@ -139,8 +143,8 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
       
       renderPaymentBrick();
     }
-  // Adicionamos 'customerInfo.email' e 'customerInfo.name' como dependências para recriar o brick quando o usuário alterar os dados
-  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isQuickPay]);
+    // Adicionamos 'isBrazil' como dependência para recriar o brick quando a localidade mudar
+  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isQuickPay, isBrazil]);
 
   if (!isSdkReady || !publicKey) {
     return (

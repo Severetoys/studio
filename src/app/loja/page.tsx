@@ -14,6 +14,8 @@ import { app as firebaseApp } from '@/lib/firebase';
 import MercadoPagoButton from '@/components/mercadopago-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
+
 
 interface Video {
   id: string;
@@ -41,14 +43,16 @@ export default function LojaPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerName, setCustomerName] = useState('');
+  const [isBrazil, setIsBrazil] = useState(true); // Assume Brasil como padrão
   const router = useRouter();
   const { toast } = useToast();
   const db = getFirestore(firebaseApp);
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchVideosAndLocale = async () => {
       setIsLoading(true);
       try {
+        // Busca os vídeos
         const videosCollection = collection(db, "videos");
         const q = query(videosCollection, orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
@@ -57,6 +61,11 @@ export default function LojaPage() {
           ...doc.data()
         } as Video));
         setVideos(videosList);
+        
+        // Verifica a localidade do usuário
+        const userLocale = navigator.language || 'pt-BR';
+        setIsBrazil(userLocale.toLowerCase().includes('pt'));
+
       } catch (error) {
         console.error("Error fetching videos: ", error);
         toast({
@@ -69,7 +78,7 @@ export default function LojaPage() {
       }
     };
 
-    fetchVideos();
+    fetchVideosAndLocale();
   }, [db, toast]);
 
   const statusChangeCallback = (response: any) => {
@@ -78,7 +87,6 @@ export default function LojaPage() {
         title: "Login com Facebook bem-sucedido!",
         description: "Você foi autenticado com sucesso.",
       });
-      // Aqui você pode buscar os dados do usuário, se necessário
       // FB.api('/me', function(response) { ... });
     } else {
       toast({
@@ -86,16 +94,6 @@ export default function LojaPage() {
         title: "Login com Facebook falhou.",
         description: "Não foi possível autenticar com o Facebook.",
       });
-    }
-  };
-
-  const checkLoginState = () => {
-    if (window.FB) {
-        window.FB.getLoginStatus(function(response: any) {
-            statusChangeCallback(response);
-        });
-    } else {
-        toast({ variant: "destructive", title: "SDK do Facebook não carregado."})
     }
   };
 
@@ -124,9 +122,11 @@ export default function LojaPage() {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === video.id);
       if (existingItem) {
-        return prevCart.map(item =>
-          item.id === video.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
+        toast({
+            title: "Item já está no carrinho",
+            description: "A compra de vídeos é limitada a uma unidade por item.",
+        });
+        return prevCart;
       }
       return [...prevCart, { ...video, quantity: 1 }];
     });
@@ -136,23 +136,12 @@ export default function LojaPage() {
     });
   };
 
-  const updateQuantity = (videoId: string, newQuantity: number) => {
-    setCart(prevCart => {
-      if (newQuantity <= 0) {
-        return prevCart.filter(item => item.id !== videoId);
-      }
-      return prevCart.map(item =>
-        item.id === videoId ? { ...item, quantity: newQuantity } : item
-      );
-    });
-  };
-
   const removeFromCart = (videoId: string) => {
     setCart(prevCart => prevCart.filter(item => item.id !== videoId));
   };
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalItems = cart.length;
+  const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
 
   const handlePaymentSuccess = async (details: any) => {
     toast({
@@ -160,7 +149,6 @@ export default function LojaPage() {
       description: `O pagamento ${details.id} foi concluído.`,
     });
     
-    // Chama o webhook interno para registrar o pagamento na planilha
     try {
         await fetch('/api/payment-webhook', {
             method: 'POST',
@@ -175,15 +163,11 @@ export default function LojaPage() {
         });
     } catch (e) {
         console.error("Falha ao chamar o webhook interno", e);
-        // A falha aqui não precisa ser mostrada ao usuário, pois o pagamento já foi feito.
-        // Apenas logamos o erro.
     }
 
-    setCart([]); // Limpa o carrinho
-    setCustomerEmail(''); // Limpa o email
-    setCustomerName(''); // Limpa o nome
-
-    // Redireciona para a autenticação para liberar o conteúdo.
+    setCart([]);
+    setCustomerEmail('');
+    setCustomerName('');
     router.push('/auth');
   };
 
@@ -240,15 +224,6 @@ export default function LojaPage() {
                           <div className="flex-1">
                             <h4 className="font-semibold">{item.title}</h4>
                             <p className="text-sm text-primary">{item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span>{item.quantity}</span>
-                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
                           </div>
                           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}>
                             <Trash2 className="h-4 w-4" />
@@ -278,6 +253,7 @@ export default function LojaPage() {
                               onSuccess={handlePaymentSuccess}
                               disabled={cart.length === 0 || !customerEmail || !customerName}
                               customerInfo={{name: customerName, email: customerEmail}}
+                              isBrazil={isBrazil}
                             />
                         </div>
                     </div>
