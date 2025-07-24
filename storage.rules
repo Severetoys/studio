@@ -1,11 +1,25 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow read and write access to everyone
+    // Permite que qualquer pessoa leia e escreva na pasta 'general-uploads'
+    match /general-uploads/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    // Permite que qualquer pessoa leia e escreva na pasta 'photos'
+    match /photos/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    // Permite que qualquer pessoa leia e escreva na pasta 'videos'
+    match /videos/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    // Nega a leitura e escrita em todas as outras pastas por padrão
     match /{allPaths=**} {
-      allow read, write;
+      allow read, write: if false;
     }
   }
 }
