@@ -9,10 +9,11 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, ArrowLeft, Loader2 } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, Languages } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Message {
   id: string;
@@ -87,12 +88,12 @@ export default function AdminChatPage() {
     try {
         const chatDocRef = doc(db, 'chats', chatId);
         const messagesCollection = collection(chatDocRef, 'messages');
-
+        
         // Admin sends in PT, we translate to user's language
         const translated = await translateText({ text: newMessage.trim(), targetLanguage: chatData.userLanguage });
 
         await addDoc(messagesCollection, {
-            text: translated.translatedText,
+            text: translated.translatedText, // Translated to user language
             originalText: newMessage.trim(), // Keep original PT for admin's view
             senderId: currentUser,
             timestamp: serverTimestamp(),
@@ -112,17 +113,22 @@ export default function AdminChatPage() {
           return msg.originalText;
       }
       // For user messages, admin sees the PT-translated text
+      // if originalText exists, it means it's a user message.
+      if (msg.senderId === 'user' && msg.originalText) {
+          return msg.text;
+      }
+      // Fallback for older messages or system messages
       return msg.text;
   };
 
   const getTooltipContent = (msg: Message) => {
       // If admin sent it, tooltip shows the translated version
-      if (msg.senderId === 'admin' && msg.originalText) {
-          return `Traduzido: "${msg.text}"`;
+      if (msg.senderId === 'admin' && msg.originalText && msg.text !== msg.originalText) {
+          return `Traduzido para o cliente: "${msg.text}"`;
       }
       // If user sent it and there's an original text, show it
-      if (msg.senderId === 'user' && msg.originalText) {
-          return `Original: "${msg.originalText}"`;
+      if (msg.senderId === 'user' && msg.originalText && msg.text !== msg.originalText) {
+          return `Original do cliente: "${msg.originalText}"`;
       }
       return null;
   };
@@ -174,13 +180,14 @@ export default function AdminChatPage() {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <div className={cn(
-                                            "max-w-xs md:max-w-md rounded-lg px-4 py-2",
+                                            "max-w-xs md:max-w-md rounded-lg px-4 py-2 relative",
                                             msg.senderId === currentUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                                         )}>
-                                            <p className="text-sm">{getMessageToDisplay(msg)}</p>
+                                            <p className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{getMessageToDisplay(msg)}</p>
                                             <p className="text-xs text-right opacity-70 mt-1">
                                                 {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
                                             </p>
+                                            {getTooltipContent(msg) && <Languages className="absolute -top-2 -right-2 h-4 w-4 p-0.5 bg-background text-primary rounded-full" />}
                                         </div>
                                     </TooltipTrigger>
                                     {getTooltipContent(msg) && (
@@ -204,20 +211,26 @@ export default function AdminChatPage() {
         </CardContent>
         <CardFooter className="border-t p-4">
             <div className="flex w-full items-center space-x-2">
-                <Input 
-                    type="text" 
+                <Textarea 
                     placeholder="Digite sua mensagem (será traduzida para o cliente)..." 
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1"
+                     onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                        }
+                    }}
+                    className="flex-1 bg-input min-h-[40px] h-10 max-h-24 resize-none"
                     disabled={isSending || isLoading}
+                    rows={1}
                 />
                 <Button 
                     type="submit" 
                     size="icon" 
                     onClick={handleSendMessage} 
                     disabled={isSending || isLoading || newMessage.trim() === ''}
+                    className="self-end"
                 >
                     <Send className="h-5 w-5" />
                     <span className="sr-only">Enviar</span>

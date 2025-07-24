@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Message {
   id: string;
@@ -28,7 +29,6 @@ const getOrCreateChatId = (): string => {
     }
     let chatId = localStorage.getItem('secretChatId');
     if (!chatId) {
-        // Gera um ID aleatório mais descritivo
         const randomId = Math.random().toString(36).substring(2, 8);
         chatId = `secret-chat-${randomId}`;
         localStorage.setItem('secretChatId', chatId);
@@ -51,7 +51,6 @@ export default function ChatSecretoPage() {
   useEffect(() => {
     const id = getOrCreateChatId();
     setChatId(id);
-    // Detect user's browser language
     if (typeof window !== 'undefined') {
         setUserLanguage(navigator.language.split('-')[0] || 'pt');
     }
@@ -100,6 +99,7 @@ export default function ChatSecretoPage() {
         timestamp: serverTimestamp(),
       };
 
+      // Always save the original text if it exists
       if (originalText) {
           messagePayload.originalText = originalText;
       }
@@ -119,9 +119,9 @@ export default function ChatSecretoPage() {
     if (newMessage.trim() === '' || isSending || !chatId) return;
     
     // User sends a message. We translate it to portuguese for the admin.
-    // The original message is kept for context.
-    const translated = await translateText({ text: newMessage.trim(), targetLanguage: 'pt' });
-    sendMessage(translated.translatedText, newMessage.trim());
+    const originalMsg = newMessage.trim();
+    const translated = await translateText({ text: originalMsg, targetLanguage: 'pt' });
+    sendMessage(translated.translatedText, originalMsg);
   };
   
   const handleSendLocation = () => {
@@ -173,7 +173,6 @@ export default function ChatSecretoPage() {
                          "max-w-xs md:max-w-md rounded-lg px-4 py-2",
                          msg.senderId === currentUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                      )}>
-                         {/* User sees their own original text or the admin's translated text */}
                          <p className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                            {msg.senderId === 'user' && msg.originalText ? msg.originalText : msg.text}
                          </p>
@@ -200,21 +199,26 @@ export default function ChatSecretoPage() {
                     <MapPin />
                     <span className="sr-only">Enviar Localização</span>
                 </Button>
-                <Input 
-                    type="text" 
+                <Textarea
                     placeholder="Digite sua mensagem..." 
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1 bg-background/50 border-primary/30 focus:shadow-neon-red-light"
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                        }
+                    }}
+                    className="flex-1 bg-background/50 border-primary/30 focus:shadow-neon-red-light min-h-[40px] h-10 max-h-24 resize-none"
                     disabled={isSending}
+                    rows={1}
                 />
                 <Button 
                     type="submit" 
                     size="icon" 
                     onClick={handleSendMessage} 
                     disabled={isSending || newMessage.trim() === ''}
-                    className="bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong"
+                    className="bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong self-end"
                 >
                     <Send className="h-5 w-5" />
                     <span className="sr-only">Enviar</span>

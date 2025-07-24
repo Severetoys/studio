@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject, getMetadata } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject, getMetadata } from "firebase/storage";
 import { app as firebaseApp } from '@/lib/firebase';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -80,7 +80,7 @@ export default function AdminUploadsPage() {
         }
     };
 
-    const handleUpload = async () => {
+    const handleUpload = () => {
         if (!file) {
             toast({ variant: "destructive", title: "Nenhum arquivo selecionado" });
             return;
@@ -89,28 +89,35 @@ export default function AdminUploadsPage() {
         setIsUploading(true);
         setUploadProgress(0);
         const storageRef = ref(storage, `general-uploads/${Date.now()}_${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadProgress(progress);
+            },
+            (error) => {
+                console.error("Erro no upload: ", error);
+                toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar o arquivo."});
+                setIsUploading(false);
+                setUploadProgress(0);
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+                    toast({
+                        title: "Upload Concluído!",
+                        description: "Seu arquivo foi enviado com sucesso.",
+                    });
 
-        try {
-            setUploadProgress(50);
-            await uploadBytes(storageRef, file);
-            setUploadProgress(100);
-
-            toast({
-                title: "Upload Concluído!",
-                description: "Seu arquivo foi enviado com sucesso.",
-            });
-
-            await fetchUploadedFiles(); // Refresh the file list
-            setFile(null); 
-            const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
-        } catch (error) {
-            console.error("Erro no upload: ", error);
-            toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar o arquivo."});
-        } finally {
-            setIsUploading(false);
-            setUploadProgress(0);
-        }
+                    await fetchUploadedFiles(); // Refresh the file list
+                    setFile(null); 
+                    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+                    if (fileInput) fileInput.value = '';
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                });
+            }
+        );
     };
     
     const handleImportFromLink = () => {
@@ -119,12 +126,10 @@ export default function AdminUploadsPage() {
             return;
         }
         toast({
-            title: "Importação iniciada",
-            description: "A importação do link está sendo processada em segundo plano. (Funcionalidade em desenvolvimento)",
+            title: "Funcionalidade em desenvolvimento",
+            description: "A importação de mídias por link ainda não foi implementada.",
         });
-        // Here you would typically trigger a backend function to download the file from the URL and upload it to storage.
-        console.log("Importing from URL:", linkUrl);
-        setLinkUrl('');
+        console.log("Tentativa de importação da URL:", linkUrl);
     }
 
     const handleDelete = async (filePath: string) => {
@@ -167,11 +172,11 @@ export default function AdminUploadsPage() {
                             <div className="space-y-4 pt-4">
                                 <div>
                                     <Label htmlFor="file-upload">Selecione um arquivo</Label>
-                                    <Input id="file-upload" type="file" onChange={handleFileChange} className="mt-1" />
+                                    <Input id="file-upload" type="file" onChange={handleFileChange} className="mt-1" disabled={isUploading}/>
                                 </div>
                                 {isUploading && <Progress value={uploadProgress} className="w-full" />}
                                 <Button onClick={handleUpload} disabled={!file || isUploading}>
-                                    {isUploading ? "Enviando..." : "Enviar Arquivo"}
+                                    {isUploading ? `Enviando... ${Math.round(uploadProgress)}%` : "Enviar Arquivo"}
                                 </Button>
                             </div>
                         </TabsContent>
