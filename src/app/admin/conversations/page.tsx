@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Loader2, MessageSquare } from 'lucide-react';
+import { ArrowRight, Loader2, MessageSquare, UserCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -21,6 +21,7 @@ interface LastMessage {
 
 interface Chat {
     id: string;
+    createdAt: Timestamp;
     lastMessage: LastMessage | null;
 }
 
@@ -33,9 +34,9 @@ export default function AdminConversationsPage() {
     useEffect(() => {
         setIsLoading(true);
         const chatsCollectionRef = collection(db, 'chats');
+        const q = query(chatsCollectionRef, orderBy('createdAt', 'desc'));
 
-        // Escuta por mudanças na coleção de chats.
-        const unsubscribe = onSnapshot(chatsCollectionRef, (chatsSnapshot) => {
+        const unsubscribe = onSnapshot(q, async (chatsSnapshot) => {
             const promises = chatsSnapshot.docs.map(async (chatDoc) => {
                 const messagesCollectionRef = collection(chatDoc.ref, 'messages');
                 const lastMessageQuery = query(messagesCollectionRef, orderBy('timestamp', 'desc'), limit(1));
@@ -49,24 +50,21 @@ export default function AdminConversationsPage() {
 
                 return {
                     id: chatDoc.id,
+                    createdAt: chatDoc.data().createdAt,
                     lastMessage,
                 };
             });
             
-            Promise.all(promises).then(chatsData => {
-                 // Filtra chats sem mensagens, pois não são úteis no painel
-                const activeChats = chatsData.filter(chat => chat.lastMessage !== null);
-                
-                // Ordena os chats pela data da última mensagem
-                activeChats.sort((a, b) => {
-                    if (!a.lastMessage) return 1;
-                    if (!b.lastMessage) return -1;
-                    return b.lastMessage.timestamp.toMillis() - a.lastMessage.timestamp.toMillis();
-                });
-
-                setChats(activeChats);
-                setIsLoading(false);
+            const chatsData = await Promise.all(promises);
+            
+            chatsData.sort((a, b) => {
+                const timeA = a.lastMessage?.timestamp?.toMillis() || a.createdAt?.toMillis() || 0;
+                const timeB = b.lastMessage?.timestamp?.toMillis() || b.createdAt?.toMillis() || 0;
+                return timeB - timeA;
             });
+
+            setChats(chatsData);
+            setIsLoading(false);
 
         }, (error) => {
             console.error("Erro ao buscar conversas: ", error);
@@ -89,7 +87,7 @@ export default function AdminConversationsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Caixa de Entrada</CardTitle>
-                    <CardDescription>Visualize e responda as mensagens dos seus clientes.</CardDescription>
+                    <CardDescription>Visualize e responda as mensagens dos seus clientes. Novos visitantes aparecerão aqui.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -100,7 +98,7 @@ export default function AdminConversationsPage() {
                         <div className="text-center py-10">
                             <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
                             <h3 className="mt-4 text-lg font-semibold">Nenhuma conversa encontrada</h3>
-                            <p className="mt-1 text-sm text-muted-foreground">Quando um cliente iniciar um chat, ele aparecerá aqui.</p>
+                            <p className="mt-1 text-sm text-muted-foreground">Quando um visitante ou cliente iniciar um chat, ele aparecerá aqui.</p>
                         </div>
                     ) : (
                         <Table>
@@ -108,7 +106,7 @@ export default function AdminConversationsPage() {
                                 <TableRow>
                                     <TableHead className="w-[80px]">Avatar</TableHead>
                                     <TableHead>Cliente</TableHead>
-                                    <TableHead>Última Mensagem</TableHead>
+                                    <TableHead>Última Atividade</TableHead>
                                     <TableHead className="text-right">Horário</TableHead>
                                     <TableHead className="w-[100px]"></TableHead>
                                 </TableRow>
@@ -128,11 +126,17 @@ export default function AdminConversationsPage() {
                                             <div className="text-sm text-muted-foreground">ID: {chat.id}</div>
                                         </TableCell>
                                         <TableCell className="max-w-sm truncate">
-                                            <span className="font-semibold">{chat.lastMessage?.senderId === 'admin' ? 'Você: ' : ''}</span>
-                                            {chat.lastMessage?.text || 'Nenhuma mensagem ainda'}
+                                            {chat.lastMessage ? (
+                                                <>
+                                                    <span className="font-semibold">{chat.lastMessage.senderId === 'admin' ? 'Você: ' : ''}</span>
+                                                    {chat.lastMessage.text}
+                                                </>
+                                            ) : (
+                                                <span className="text-muted-foreground italic flex items-center gap-2"><UserCheck className="h-4 w-4 text-green-500" /> Novo visitante online</span>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-right text-muted-foreground text-xs">
-                                            {chat.lastMessage ? formatDistanceToNow(chat.lastMessage.timestamp.toDate(), { addSuffix: true, locale: ptBR }) : '-'}
+                                            {chat.lastMessage ? formatDistanceToNow(chat.lastMessage.timestamp.toDate(), { addSuffix: true, locale: ptBR }) : (chat.createdAt ? formatDistanceToNow(chat.createdAt.toDate(), { addSuffix: true, locale: ptBR }) : '-')}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button variant="outline" size="sm">

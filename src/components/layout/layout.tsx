@@ -11,6 +11,21 @@ import MainHeader from './main-header';
 import MainFooter from './main-footer';
 import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { app as firebaseApp } from '@/lib/firebase';
+
+const getOrCreateChatId = (): string => {
+    if (typeof window === 'undefined') {
+        return '';
+    }
+    let chatId = localStorage.getItem('secretChatId');
+    if (!chatId) {
+        const randomId = Math.random().toString(36).substring(2, 8);
+        chatId = `secret-chat-${randomId}`;
+        localStorage.setItem('secretChatId', chatId);
+    }
+    return chatId;
+};
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -18,6 +33,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isWarningOpen, setIsWarningOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
+  const db = getFirestore(firebaseApp);
 
   useEffect(() => {
     setIsClient(true);
@@ -25,7 +41,32 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     if (!hasConfirmedAge) {
       setIsWarningOpen(true);
     }
-  }, []);
+
+    const trackVisitor = async () => {
+        if (pathname.startsWith('/admin')) return;
+
+        const chatId = getOrCreateChatId();
+        if (chatId) {
+            const chatDocRef = doc(db, 'chats', chatId);
+            const chatDoc = await getDoc(chatDocRef);
+            if (!chatDoc.exists()) {
+                const userLanguage = navigator.language.split('-')[0] || 'pt';
+                try {
+                    await setDoc(chatDocRef, {
+                        createdAt: serverTimestamp(),
+                        userLanguage: userLanguage,
+                        lastSeen: serverTimestamp(),
+                    });
+                } catch (error) {
+                    console.error("Error creating visitor tracking document:", error);
+                }
+            }
+        }
+    };
+
+    trackVisitor();
+
+  }, [pathname, db]);
 
   const handleConfirmAge = () => {
     localStorage.setItem('ageConfirmed', 'true');
