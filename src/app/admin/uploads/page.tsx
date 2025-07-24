@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, UploadCloud, ClipboardCopy } from "lucide-react";
+import { PlusCircle, Trash2, UploadCloud, ClipboardCopy, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,6 +19,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject, ge
 import { app as firebaseApp } from '@/lib/firebase';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from 'date-fns';
 
 interface UploadedFile {
@@ -34,6 +35,7 @@ export default function AdminUploadsPage() {
     const storage = getStorage(firebaseApp);
 
     const [file, setFile] = useState<File | null>(null);
+    const [linkUrl, setLinkUrl] = useState('');
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -89,22 +91,19 @@ export default function AdminUploadsPage() {
         const storageRef = ref(storage, `general-uploads/${Date.now()}_${file.name}`);
 
         try {
-            // Firebase SDK for web v9+ doesn't have a built-in progress tracker for uploadBytes.
-            // For a simple progress bar, we'll simulate it. For real progress, we'd need uploadBytesResumable.
-            // Let's keep it simple as a visual indicator.
             setUploadProgress(50);
             await uploadBytes(storageRef, file);
             setUploadProgress(100);
 
-            const downloadURL = await getDownloadURL(storageRef);
-            
             toast({
                 title: "Upload Concluído!",
                 description: "Seu arquivo foi enviado com sucesso.",
             });
 
             await fetchUploadedFiles(); // Refresh the file list
-            setFile(null); // Reset file input
+            setFile(null); 
+            const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
         } catch (error) {
             console.error("Erro no upload: ", error);
             toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar o arquivo."});
@@ -113,6 +112,20 @@ export default function AdminUploadsPage() {
             setUploadProgress(0);
         }
     };
+    
+    const handleImportFromLink = () => {
+        if(!linkUrl) {
+            toast({ variant: "destructive", title: "URL Inválida", description: "Por favor, insira um link válido." });
+            return;
+        }
+        toast({
+            title: "Importação iniciada",
+            description: "A importação do link está sendo processada em segundo plano. (Funcionalidade em desenvolvimento)",
+        });
+        // Here you would typically trigger a backend function to download the file from the URL and upload it to storage.
+        console.log("Importing from URL:", linkUrl);
+        setLinkUrl('');
+    }
 
     const handleDelete = async (filePath: string) => {
         if (!confirm("Tem certeza que deseja excluir este arquivo? A ação é irreversível.")) return;
@@ -138,24 +151,44 @@ export default function AdminUploadsPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <UploadCloud className="h-6 w-6" />
-                        Upload de Arquivos
+                        Gerenciador de Mídias
                     </CardTitle>
                     <CardDescription>
-                        Envie arquivos diretamente para o seu Firebase Storage. Eles ficarão disponíveis na pasta 'general-uploads'.
+                       Envie arquivos do seu computador ou importe através de um link externo.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div>
-                        <Label htmlFor="file-upload">Selecione um arquivo</Label>
-                        <Input id="file-upload" type="file" onChange={handleFileChange} className="mt-1" />
-                    </div>
-                    {isUploading && <Progress value={uploadProgress} className="w-full" />}
+                <CardContent>
+                    <Tabs defaultValue="upload" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="upload">Upload de Arquivo</TabsTrigger>
+                            <TabsTrigger value="link">Importar via Link</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="upload">
+                            <div className="space-y-4 pt-4">
+                                <div>
+                                    <Label htmlFor="file-upload">Selecione um arquivo</Label>
+                                    <Input id="file-upload" type="file" onChange={handleFileChange} className="mt-1" />
+                                </div>
+                                {isUploading && <Progress value={uploadProgress} className="w-full" />}
+                                <Button onClick={handleUpload} disabled={!file || isUploading}>
+                                    {isUploading ? "Enviando..." : "Enviar Arquivo"}
+                                </Button>
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="link">
+                            <div className="space-y-4 pt-4">
+                                <div>
+                                    <Label htmlFor="link-url">URL da Mídia</Label>
+                                    <Input id="link-url" type="url" placeholder="https://exemplo.com/imagem.jpg" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className="mt-1" />
+                                </div>
+                                <Button onClick={handleImportFromLink} disabled={!linkUrl}>
+                                    <LinkIcon className="mr-2 h-4 w-4"/>
+                                    Importar via Link
+                                </Button>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
                 </CardContent>
-                <CardFooter>
-                    <Button onClick={handleUpload} disabled={!file || isUploading}>
-                        {isUploading ? "Enviando..." : "Enviar Arquivo"}
-                    </Button>
-                </CardFooter>
             </Card>
 
             <Card>
