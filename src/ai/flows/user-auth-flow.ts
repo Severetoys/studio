@@ -9,8 +9,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { getFaceEmbedding } from '@/services/vision';
-import { dc } from '../../../dataconnect/connector/auth';
-import { User, Users, CreateUser, UpdateUserFaceEmbedding } from '../../../dataconnect/types';
+import { dc, User, Users, CreateUser, UpdateUserFaceEmbedding } from '../../../dataconnect/connector/auth';
 
 // Cosine similarity threshold for face matching.
 const SIMILARITY_THRESHOLD = 0.85; 
