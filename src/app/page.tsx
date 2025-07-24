@@ -105,7 +105,7 @@ export default function HomePage() {
                 </div>
             ) : (
                 priceInfo && (
-                    <div className="text-center p-4 bg-muted/30 rounded-lg border border-dashed border-primary/20">
+                    <div className="text-center py-4">
                       <p className="text-muted-foreground">Assinatura Mensal</p>
                       <h3 className="font-bold text-4xl text-primary text-shadow-neon-red animate-pulse-glow">
                         {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
