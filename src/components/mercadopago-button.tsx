@@ -21,6 +21,10 @@ declare global {
     }
 }
 
+// THIS COMPONENT IS NO LONGER IN USE FOR THE MAIN FLOW,
+// BUT IS KEPT FOR POTENTIAL FUTURE USE WITH OTHER PAYMENT METHODS.
+// THE PIX FLOW IS NOW HANDLED BY A DEDICATED MODAL ON THE HOMEPAGE.
+
 export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isBrazil }: MercadoPagoButtonProps) {
   const { toast } = useToast();
   const [isSdkReady, setIsSdkReady] = useState(false);
@@ -85,7 +89,7 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         const paymentMethodsConfig: any = {
           creditCard: "all",
           debitCard: "all",
-          pix: "all"
+          // Pix is handled by a separate flow now
         };
         
         const settings = {
