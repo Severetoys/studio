@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send, Video, MapPin, User, Loader2, Mic, MicOff, VideoOff, PhoneOff } from 'lucide-react';
+import { ArrowLeft, Send, Video, User, Loader2 } from 'lucide-react';
 import { auth, database } from '@/lib/firebase';
 import { ref, set, onValue, push, onDisconnect, serverTimestamp, DataSnapshot } from "firebase/database";
 import { signInAnonymously, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
@@ -35,62 +35,71 @@ export default function ChatSecretoPage() {
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // --- 1. Autenticação Anônima e Gerenciamento de Presença ---
+  // --- 1. Autenticação Anônima ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Usuário está autenticado
         setCurrentUser(user);
-        
-        // --- Gerenciamento de Presença ---
-        const userStatusDatabaseRef = ref(database, '/users/' + user.uid);
-        const presenceRef = ref(database, '.info/connected');
-
-        onValue(presenceRef, (snap: DataSnapshot) => {
-            if (snap.val() === false) return;
-
-            onDisconnect(userStatusDatabaseRef).set({
-                isOnline: false,
-                lastOnline: serverTimestamp(),
-                displayName: `Anônimo-${user.uid.substring(0, 4)}`,
-            }).catch((err) => console.error("Could not establish onDisconnect event", err));
-
-            set(userStatusDatabaseRef, {
-                isOnline: true,
-                lastOnline: serverTimestamp(),
-                displayName: `Anônimo-${user.uid.substring(0, 4)}`,
-            });
-        });
-
+        setIsLoading(false);
       } else {
-        // Usuário deslogado, tente autenticar anonimamente
         signInAnonymously(auth).catch((error) => {
           console.error("Erro no login anônimo:", error);
           toast({ variant: 'destructive', title: 'Falha na Autenticação', description: 'Não foi possível entrar no chat secreto.' });
+          setIsLoading(false);
         });
       }
     });
 
     return () => unsubscribe();
   }, [toast]);
+
+  // --- 2. Gerenciamento de Presença ---
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const userStatusDatabaseRef = ref(database, '/users/' + currentUser.uid);
+    const presenceRef = ref(database, '.info/connected');
+
+    const listener = onValue(presenceRef, (snap: DataSnapshot) => {
+        if (snap.val() === false) return;
+
+        onDisconnect(userStatusDatabaseRef).set({
+            isOnline: false,
+            lastOnline: serverTimestamp(),
+            displayName: `Anônimo-${currentUser.uid.substring(0, 4)}`,
+        }).catch((err) => console.error("Could not establish onDisconnect event", err));
+
+        set(userStatusDatabaseRef, {
+            isOnline: true,
+            lastOnline: serverTimestamp(),
+            displayName: `Anônimo-${currentUser.uid.substring(0, 4)}`,
+        });
+    });
+
+    return () => {
+        // Detach the listener
+        off(presenceRef, 'value', listener);
+    };
+  }, [currentUser]);
   
 
-  // --- 2. Funcionalidade do Chat ---
+  // --- 3. Funcionalidade do Chat ---
   useEffect(() => {
     if (!currentUser) return;
 
     // --- Ouvinte para mensagens do chat ---
     const chatMessagesRef = ref(database, 'secretChat/messages');
-    const messagesUnsubscribe = onValue(chatMessagesRef, (snapshot) => {
+    const messagesQuery = query(chatMessagesRef, orderByChild('timestamp'));
+    const messagesUnsubscribe = onValue(messagesQuery, (snapshot) => {
       const messagesData: Message[] = [];
       snapshot.forEach((childSnapshot) => {
         const msg = childSnapshot.val();
         messagesData.push({ id: childSnapshot.key!, ...msg });
       });
-      messagesData.sort((a, b) => a.timestamp - b.timestamp);
       setMessages(messagesData);
     });
 
@@ -116,9 +125,10 @@ export default function ChatSecretoPage() {
     
     setIsSending(true);
     const chatMessagesRef = ref(database, 'secretChat/messages');
+    const newMsgRef = push(chatMessagesRef);
 
     try {
-      await push(chatMessagesRef, {
+      await set(newMsgRef, {
         text: newMessage.trim(),
         senderId: currentUser.uid,
         timestamp: serverTimestamp(),
@@ -147,7 +157,7 @@ export default function ChatSecretoPage() {
     return senderId.substring(0, 2).toUpperCase();
   }
   
-  if (!currentUser) {
+  if (isLoading) {
     return (
         <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
             <Loader2 className="h-10 w-10 animate-spin text-primary"/>
