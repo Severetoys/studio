@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -17,6 +16,7 @@ import {
   Link2,
   Star,
   UploadCloud,
+  KeyRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
         { href: "/admin/videos", label: "Vídeos", icon: Video },
         { href: "/admin/uploads", label: "Uploads", icon: UploadCloud },
         { href: "/admin/integrations", label: "Integrações", icon: Link2 },
+        { href: "/admin/cloudflare-chat-info", label: "Chat Externo", icon: KeyRound },
     ];
 
     return (
