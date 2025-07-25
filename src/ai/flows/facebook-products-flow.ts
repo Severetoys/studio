@@ -24,6 +24,7 @@ const ProductSchema = z.object({
 
 const FacebookProductsOutputSchema = z.object({
   products: z.array(ProductSchema),
+  error: z.string().optional(),
 });
 export type FacebookProductsOutput = z.infer<typeof FacebookProductsOutputSchema>;
 export type FacebookProduct = z.infer<typeof ProductSchema>;
@@ -42,8 +43,10 @@ const fetchFacebookProductsFlow = ai.defineFlow(
     const catalogId = '772935848203588'; // ID do seu catálogo de produtos
 
     if (!accessToken || accessToken === "YOUR_FACEBOOK_PAGE_ACCESS_TOKEN") {
-      console.error("Token de acesso do Facebook não configurado.");
-      throw new Error("O token de acesso do Facebook (FACEBOOK_PAGE_ACCESS_TOKEN) não está configurado no ambiente do servidor.");
+      const errorMessage = "O token de acesso do Facebook (FACEBOOK_PAGE_ACCESS_TOKEN) não está configurado no ambiente do servidor.";
+      console.warn(errorMessage);
+      // Retorna uma lista vazia com erro em vez de quebrar
+      return { products: [], error: errorMessage };
     }
 
     const fields = 'id,name,description,price,image_url,url';
@@ -53,8 +56,9 @@ const fetchFacebookProductsFlow = ai.defineFlow(
       const response = await fetch(url);
       if (!response.ok) {
         const errorData = await response.json();
+        const errorMessage = `Erro ao buscar produtos do Facebook: ${errorData.error.message}`;
         console.error("Erro da API do Facebook:", errorData.error);
-        throw new Error(`Erro ao buscar produtos do Facebook: ${errorData.error.message}`);
+        return { products: [], error: errorMessage };
       }
       
       const data = await response.json();
@@ -67,7 +71,7 @@ const fetchFacebookProductsFlow = ai.defineFlow(
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar produtos do Facebook:', error);
-        throw new Error(`Não foi possível carregar os produtos do catálogo. Motivo: ${error.message}`);
+        return { products: [], error: `Não foi possível carregar os produtos do catálogo. Motivo: ${error.message}` };
     }
   }
 );

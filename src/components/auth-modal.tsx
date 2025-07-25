@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { registerUserWithGoogleSheet } from '@/ai/flows/google-sheets-auth-flow';
 import { registerUser, verifyUser } from '@/ai/flows/face-auth-flow';
 
 interface AuthModalProps {
@@ -195,12 +196,18 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
         try {
             let result;
             if (action === 'register') {
-                result = await registerUser({ name, email, phone, imageBase64 });
-                if (result.success) {
-                    toast({ title: 'Cadastro bem-sucedido!', description: result.message });
+                // Combina os dois fluxos de registro
+                const [faceResult, sheetResult] = await Promise.all([
+                    registerUser({ name, email, phone, imageBase64 }),
+                    registerUserWithGoogleSheet({ name, email, phone, imageBase64 })
+                ]);
+
+                if (faceResult.success && sheetResult.success) {
+                    toast({ title: 'Cadastro bem-sucedido!', description: 'Seu rosto e dados foram registrados.' });
                     router.push('/dashboard'); 
                 } else {
-                     toast({ variant: 'destructive', title: 'Falha no Cadastro', description: result.message || 'Não foi possível registrar seu rosto.' });
+                     const errorMsg = !faceResult.success ? faceResult.message : sheetResult.message;
+                     toast({ variant: 'destructive', title: 'Falha no Cadastro', description: errorMsg || 'Não foi possível completar seu registro.' });
                 }
             } else { // 'login'
                 result = await verifyUser({ imageBase64 });

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
-import { ShoppingCart, Trash2, Loader2, Instagram, Facebook } from 'lucide-react';
+import { ShoppingCart, Trash2, Loader2, Instagram, Facebook, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagram-shop-flow';
 import { fetchFacebookProducts, type FacebookProduct } from '@/ai/flows/facebook-products-flow';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 interface Video {
   id: string;
@@ -98,7 +99,11 @@ const FacebookProductsStore = () => {
             setError(null);
             try {
                 const response = await fetchFacebookProducts();
-                setProducts(response.products);
+                if(response.error) {
+                    setError(response.error);
+                } else {
+                    setProducts(response.products);
+                }
             } catch (e: any) {
                 const errorMessage = e.message || "Ocorreu um erro desconhecido.";
                 setError(`Não foi possível carregar os produtos do Facebook. Motivo: ${errorMessage}`);
@@ -122,7 +127,15 @@ const FacebookProductsStore = () => {
         );
     }
 
-    if (error) return <p className="text-destructive text-center">{error}</p>;
+    if (error) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Não foi possível carregar o catálogo</AlertTitle>
+                <CardDescription>{error}</CardDescription>
+            </Alert>
+        );
+    }
     
     if (products.length === 0) return <p className="text-muted-foreground text-center">Nenhum produto encontrado no catálogo do Facebook.</p>;
 
