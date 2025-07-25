@@ -11,7 +11,7 @@ import MainHeader from './main-header';
 import MainFooter from './main-footer';
 import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 const getOrCreateChatId = (): string => {
@@ -47,25 +47,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         const chatId = getOrCreateChatId();
         if (chatId) {
             const chatDocRef = doc(db, 'chats', chatId);
-            const chatDoc = await getDoc(chatDocRef);
-            if (!chatDoc.exists()) {
-                const userLanguage = navigator.language.split('-')[0] || 'pt';
-                try {
-                    await setDoc(chatDocRef, {
-                        createdAt: serverTimestamp(),
-                        userLanguage: userLanguage,
-                        lastSeen: serverTimestamp(),
-                    });
-                } catch (error) {
-                    console.error("Error creating visitor tracking document:", error);
-                }
+            const userLanguage = navigator.language.split('-')[0] || 'pt';
+            try {
+                // Use setDoc com merge: true para criar o documento se não existir,
+                // ou atualizar o lastSeen se ele existir. Isso evita a leitura prévia (getDoc)
+                // que estava causando problemas de permissão.
+                await setDoc(chatDocRef, {
+                    createdAt: serverTimestamp(),
+                    userLanguage: userLanguage,
+                    lastSeen: serverTimestamp(),
+                }, { merge: true });
+            } catch (error) {
+                console.error("Error creating/updating visitor tracking document:", error);
             }
         }
     };
 
     trackVisitor();
 
-  }, [pathname, db]);
+  }, [pathname]);
 
   const handleConfirmAge = () => {
     localStorage.setItem('ageConfirmed', 'true');
