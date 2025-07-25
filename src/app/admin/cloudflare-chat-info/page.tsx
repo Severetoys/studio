@@ -15,7 +15,7 @@ import { getCloudflareChatInfo, generateAuthTokenAction } from './actions';
 export default function CloudflareChatInfoPage() {
     const { toast } = useToast();
     const [orgId, setOrgId] = useState<string | undefined>('');
-    const [userId, setUserId] = useState('user-1234');
+    const [userId, setUserId] = useState('Italo Santos');
     const [authToken, setAuthToken] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingOrgId, setIsLoadingOrgId] = useState(true);
@@ -95,7 +95,7 @@ export default function CloudflareChatInfoPage() {
                 <CardContent className="space-y-4">
                     <div>
                         <Label htmlFor="userId">ID do Usuário para gerar o token</Label>
-                        <Input id="userId" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="Ex: user-1234"/>
+                        <Input id="userId" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="Ex: Italo Santos" readOnly/>
                     </div>
                     <Button onClick={handleGenerateToken} disabled={isLoading || !userId}>
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
