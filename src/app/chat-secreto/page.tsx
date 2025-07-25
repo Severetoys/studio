@@ -85,16 +85,7 @@ export default function ChatSecretoPage() {
     setIsSending(true);
 
     try {
-      const chatDocRef = doc(db, 'chats', chatId);
-      const messagesCollection = collection(chatDocRef, 'messages');
-
-      // Use setDoc com merge:true para criar ou atualizar o documento do chat.
-      // Isso evita a necessidade de ler o documento primeiro (getDoc), que causava o erro de permissão.
-      await setDoc(chatDocRef, { 
-          createdAt: serverTimestamp(), 
-          userLanguage: userLanguage,
-          lastSeen: serverTimestamp(),
-      }, { merge: true });
+      const messagesCollection = collection(db, 'chats', chatId, 'messages');
 
       const messagePayload: any = {
         text: text.trim(),
@@ -107,6 +98,14 @@ export default function ChatSecretoPage() {
       }
       
       await addDoc(messagesCollection, messagePayload);
+
+      // We ensure the chat document exists or has its metadata updated here,
+      // which is safer after the first message is sent.
+      const chatDocRef = doc(db, 'chats', chatId);
+      await setDoc(chatDocRef, { 
+          userLanguage: userLanguage,
+          lastActivity: serverTimestamp(),
+      }, { merge: true });
 
       setNewMessage('');
     } catch (error) {
