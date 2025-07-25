@@ -1,14 +1,15 @@
 
 'use server';
 /**
- * @fileOverview User authentication flow using Google Sheets and AI face comparison.
- * - registerUser: Registers a new user by storing their data in a Google Sheet.
+ * @fileOverview User authentication flow using Firebase Storage, Realtime Database, and AI face comparison.
+ * - registerUser: Registers a new user by storing their data and face image.
  * - verifyUser: Authenticates a user by comparing their face image against all stored images.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { appendToSheet, getAllUserImages } from '@/services/google-sheets';
+import { saveUser, getAllUsers } from '@/services/user-auth-service';
+import { detectFace } from '@/services/vision';
 
 // Input schema for user registration
 const RegisterUserInputSchema = z.object({
@@ -43,7 +44,8 @@ export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 const VIP_URL = "https://www.italosantos.com";
 
 /**
- * Genkit flow to register a new user by saving their data to Google Sheets.
+ * Genkit flow to register a new user.
+ * It validates the face using Google Vision API, then saves the user data.
  */
 const registerUserFlow = ai.defineFlow(
   {
@@ -51,21 +53,18 @@ const registerUserFlow = ai.defineFlow(
     inputSchema: RegisterUserInputSchema,
     outputSchema: RegisterUserOutputSchema,
   },
-  async ({ name, email, phone, imageBase64 }) => {
+  async (userData) => {
     try {
-      const rowData = {
-        timestamp: new Date().toISOString(),
-        name,
-        email,
-        phone,
-        imageId: imageBase64,
-        videoBase64: '', 
-        paymentId: '',
-      };
+      // 1. Validate face using Google Vision API
+      const faceValidation = await detectFace(userData.imageBase64);
+      if (!faceValidation.faceDetected) {
+        return { success: false, message: faceValidation.error || 'Nenhuma face válida detectada.' };
+      }
+
+      // 2. Save user data to Realtime DB and image to Storage
+      await saveUser(userData);
       
-      await appendToSheet(rowData);
-      
-      console.log(`User ${name} registered successfully.`);
+      console.log(`User ${userData.name} registered successfully.`);
       return { success: true, message: 'Usuário registrado com sucesso!' };
     } catch (e: any) {
       console.error('Error during user registration flow:', e);
@@ -76,7 +75,7 @@ const registerUserFlow = ai.defineFlow(
 
 /**
  * Genkit flow to authenticate a user by comparing their face against all stored images
- * in Google Sheets using an AI model.
+ * using an AI model.
  */
 const verifyUserFlow = ai.defineFlow(
   {
@@ -87,15 +86,18 @@ const verifyUserFlow = ai.defineFlow(
   async ({ imageBase64 }) => {
     try {
       console.log('Starting user verification flow...');
-      const storedImagesData = await getAllUserImages();
+      const allUsers = await getAllUsers();
 
-      if (storedImagesData.length === 0) {
-        console.log('No registered users found in the sheet.');
+      if (allUsers.length === 0) {
+        console.log('No registered users found.');
         return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.' };
       }
 
-      console.log(`Found ${storedImagesData.length} stored images. Comparing against the provided image.`);
+      const storedImageUrls = allUsers.map(u => u.imageUrl).filter(Boolean);
+      console.log(`Found ${storedImageUrls.length} stored images. Comparing against the provided image.`);
       
+      // Convert URLs to data URIs for the prompt if necessary, or pass URLs directly if model supports it.
+      // For this example, we assume the model can take public URLs.
       const { output } = await ai.generate({
         model: 'googleai/gemini-2.0-flash',
         prompt: `
@@ -112,8 +114,8 @@ const verifyUserFlow = ai.defineFlow(
           {{/each}}
         `,
         context: {
-          newUserImage: imageBase64,
-          storedImages: storedImagesData,
+          newUserImage: imageBase64, // Pass the new image as a data URI
+          storedImages: storedImageUrls, // Pass the stored images as URLs
         },
         output: {
           format: 'text'
@@ -126,8 +128,7 @@ const verifyUserFlow = ai.defineFlow(
       const resultText = (output as string).trim().toUpperCase();
       console.log(`AI verification result: "${resultText}"`);
 
-      //if (resultText.includes('SIM')) {
-        if (true) {
+      if (resultText.includes('SIM')) {
         console.log('User verification successful.');
         return { success: true, message: 'Autenticado! Redirecionando...', redirectUrl: VIP_URL };
       } else {
@@ -135,7 +136,7 @@ const verifyUserFlow = ai.defineFlow(
         return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.' };
       }
 
-    } catch (e: any) {
+    } catch (e: any)      {
       console.error('Error during user verification flow:', e);
       return { success: false, message: e.message || 'Ocorreu um erro inesperado durante a verificação.' };
     }

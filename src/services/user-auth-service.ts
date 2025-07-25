@@ -1,0 +1,86 @@
+
+'use server';
+/**
+ * @fileOverview User authentication service using Firebase Realtime Database and Storage.
+ * Handles saving user data and their face images.
+ */
+
+import { adminApp } from '@/lib/firebase-admin';
+import { getDatabase } from 'firebase-admin/database';
+import { getStorage } from 'firebase-admin/storage';
+import { z } from 'zod';
+
+// Schema for user data to be saved.
+const UserDataSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  imageBase64: z.string(),
+});
+type UserData = z.infer<typeof UserDataSchema>;
+
+const db = getDatabase(adminApp);
+const storage = getStorage(adminApp);
+const bucket = storage.bucket('authkit-y9vjx.appspot.com');
+
+/**
+ * Saves user data to Realtime Database and uploads their face image to Storage.
+ * @param userData The user's registration data.
+ * @returns A Promise that resolves when the user is saved.
+ */
+export async function saveUser(userData: UserData): Promise<void> {
+    const { name, email, phone, imageBase64 } = userData;
+
+    // 1. Upload image to Firebase Storage
+    const fileName = `facial-auth-users/${Date.now()}_${email.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+    const file = bucket.file(fileName);
+    const buffer = Buffer.from(imageBase64.split(',')[1], 'base64');
+
+    await file.save(buffer, {
+        metadata: { contentType: 'image/jpeg' },
+    });
+    
+    // Make the file public to be read by the AI flow
+    await file.makePublic();
+    const publicUrl = file.publicUrl();
+
+    // 2. Save user metadata to Realtime Database
+    const usersRef = db.ref('facialAuth/users');
+    const newUserRef = usersRef.push(); // Generate a unique ID
+    
+    await newUserRef.set({
+        name,
+        email,
+        phone,
+        imageUrl: publicUrl,
+        storagePath: fileName,
+        createdAt: new Date().toISOString(),
+    });
+
+    console.log(`User ${name} saved successfully with image at ${publicUrl}`);
+}
+
+/**
+ * Retrieves all registered users from the Realtime Database.
+ * @returns An array of user objects.
+ */
+export async function getAllUsers(): Promise<Array<{
+    name: string,
+    email: string,
+    imageUrl: string
+}>> {
+    const usersRef = db.ref('facialAuth/users');
+    const snapshot = await usersRef.once('value');
+    
+    if (!snapshot.exists()) {
+        return [];
+    }
+
+    const usersData = snapshot.val();
+    const usersList = Object.keys(usersData).map(key => ({
+        id: key,
+        ...usersData[key],
+    }));
+
+    return usersList;
+}

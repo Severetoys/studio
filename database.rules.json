@@ -13,6 +13,15 @@
         ".write": "auth != null && newData.child('senderId').val() == auth.uid && newData.child('text').val().length > 0"
       }
     },
+    "facialAuth": {
+       "users": {
+          ".read": true, 
+          ".indexOn": ["email"],
+          "$userId": {
+            ".write": "!data.exists() || auth != null" 
+          }
+       }
+    },
     ".read": false,
     ".write": false
   }
