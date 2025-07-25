@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
-import { ShoppingCart, Trash2, Loader2 } from 'lucide-react';
+import { ShoppingCart, Trash2, Loader2, Instagram } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +14,8 @@ import { db } from '@/lib/firebase';
 import MercadoPagoButton from '@/components/mercadopago-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagram-shop-flow';
+import { Separator } from '@/components/ui/separator';
 
 interface Video {
   id: string;
@@ -28,6 +30,61 @@ interface Video {
 interface CartItem extends Video {
   quantity: number;
 }
+
+// Componente para a galeria do Instagram
+const InstagramShopFeed = () => {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(true);
+    const [media, setMedia] = useState<InstagramMedia[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const getFeed = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetchInstagramShopFeed();
+                const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
+                setMedia(photosOnly);
+            } catch (e: any) {
+                const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+                setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
+                toast({
+                    variant: 'destructive',
+                    title: 'Erro ao Carregar o Feed da Loja',
+                    description: errorMessage,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        getFeed();
+    }, [toast]);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+    
+    if (error) return <p className="text-destructive text-center">{error}</p>;
+
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {media.map((item) => (
+                <a key={item.id} href={item.permalink} target="_blank" rel="noopener noreferrer" className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
+                    <Image src={item.media_url!} alt={item.caption || 'Instagram Post'} width={300} height={300} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="instagram shop product"/>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {item.caption && <p className="text-white text-xs font-bold line-clamp-2">{item.caption}</p>}
+                    </div>
+                </a>
+            ))}
+        </div>
+    );
+};
+
 
 export default function LojaPage() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -70,7 +127,7 @@ export default function LojaPage() {
     };
 
     fetchVideosAndLocale();
-  }, [db, toast]);
+  }, [toast]);
 
   const addToCart = (video: Video) => {
     setCart(prevCart => {
@@ -103,21 +160,8 @@ export default function LojaPage() {
       description: `O pagamento ${details.id || 'mock_id'} foi concluído.`,
     });
     
-    try {
-        await fetch('/api/payment-webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                paymentId: details.id || `mock_${Date.now()}`,
-                payer: {
-                  name: customerName,
-                  email: customerEmail,
-                }
-            }),
-        });
-    } catch (e) {
-        console.error("Falha ao chamar o webhook interno", e);
-    }
+    // Webhook logic has been removed for now.
+    // We can re-implement it later if needed.
 
     setCart([]);
     setCustomerEmail('');
@@ -246,6 +290,15 @@ export default function LojaPage() {
               <p className="text-sm text-muted-foreground">Volte em breve para novidades!</p>
             </div>
           )}
+
+           <Separator className="my-8 bg-primary/20" />
+
+            <div>
+                <CardTitle className="text-2xl text-primary text-shadow-neon-red-light flex items-center gap-3 mb-4">
+                    <Instagram /> Galeria da Loja (@severetoys)
+                </CardTitle>
+                <InstagramShopFeed />
+            </div>
         </CardContent>
       </Card>
     </main>
