@@ -1,8 +1,8 @@
 
 'use server';
 /**
- * @fileOverview User authentication service using Firebase Realtime Database and Storage.
- * Handles saving user data and their face images.
+ * @fileOverview User authentication and payment service using Firebase Realtime Database and Storage.
+ * Handles saving user data, face images, and payment details.
  */
 
 import { adminApp } from '@/lib/firebase-admin';
@@ -18,6 +18,13 @@ const UserDataSchema = z.object({
   imageBase64: z.string(),
 });
 type UserData = z.infer<typeof UserDataSchema>;
+
+const PaymentDetailsSchema = z.object({
+  paymentId: z.string(),
+  customerEmail: z.string().email(),
+  customerName: z.string(),
+});
+type PaymentDetails = z.infer<typeof PaymentDetailsSchema>;
 
 const db = getDatabase(adminApp);
 const storage = getStorage(adminApp);
@@ -83,4 +90,24 @@ export async function getAllUsers(): Promise<Array<{
     }));
 
     return usersList;
+}
+
+/**
+ * Saves payment details to the Realtime Database.
+ * @param paymentDetails The payment details object.
+ * @returns A Promise that resolves when the details are saved.
+ */
+export async function savePaymentDetails(paymentDetails: PaymentDetails): Promise<void> {
+  const { paymentId, customerEmail, customerName } = paymentDetails;
+  
+  const paymentsRef = db.ref('payments');
+  const newPaymentRef = paymentsRef.child(paymentId); // Use paymentId as the key
+
+  await newPaymentRef.set({
+    customerEmail,
+    customerName,
+    paymentDate: new Date().toISOString(),
+  });
+
+  console.log(`Payment ${paymentId} for ${customerEmail} saved successfully.`);
 }

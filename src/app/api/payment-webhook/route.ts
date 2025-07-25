@@ -2,13 +2,13 @@
 'use server';
 /**
  * @fileOverview Endpoint de API para receber webhooks de pagamento.
- * Este endpoint é projetado para ser chamado pelo nosso próprio frontend (via botão do PayPal)
+ * Este endpoint é projetado para ser chamado pelo nosso próprio frontend
  * ou por um sistema de pagamento externo quando um pagamento é concluído.
- * Ele atualiza a Planilha Google com o ID do pagamento.
+ * Ele salva os detalhes do pagamento no Firebase Realtime Database.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { updatePaymentIdForUser } from '@/services/google-sheets';
+import { savePaymentDetails } from '@/services/user-auth-service';
 import { z } from 'zod';
 
 // Define o schema esperado para os dados do corpo da requisição.
@@ -46,14 +46,17 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Webhook] Recebida atualização de pagamento para o email: ${email} com ID: ${paymentId}`);
 
-    // Chama a função de serviço para encontrar o usuário pelo email e atualizar a coluna de pagamento.
-    // Esta função agora também pode registrar o usuário se ele não existir.
-    await updatePaymentIdForUser(email, paymentId, name || 'Nome não fornecido');
+    // Chama a função de serviço para salvar os detalhes do pagamento no Realtime Database.
+    await savePaymentDetails({
+      paymentId,
+      customerEmail: email,
+      customerName: name || 'Nome não fornecido',
+    });
 
-    console.log(`[Webhook] Planilha atualizada com sucesso para o email: ${email}`);
+    console.log(`[Webhook] Detalhes do pagamento salvos com sucesso para o email: ${email}`);
 
     // Retorna uma resposta de sucesso.
-    return NextResponse.json({ message: 'Planilha atualizada com sucesso.' }, { status: 200 });
+    return NextResponse.json({ message: 'Detalhes do pagamento salvos com sucesso.' }, { status: 200 });
 
   } catch (error: any) {
     console.error('[Webhook] Erro ao processar o webhook de pagamento:', error);
