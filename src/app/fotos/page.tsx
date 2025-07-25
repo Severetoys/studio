@@ -4,11 +4,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload, PlayCircle, LogIn } from 'lucide-react';
+import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload } from 'lucide-react';
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
-import { fetchInstagramFeed } from '@/ai/flows/instagram-flow';
+import { fetchInstagramProfileFeed, type InstagramMedia as ProfileInstagramMedia } from '@/ai/flows/instagram-feed-flow';
 import { collection, getDocs, Timestamp, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -27,15 +27,6 @@ interface TweetWithMedia {
   text: string;
   created_at?: string;
   media: TwitterMedia[];
-}
-
-interface InstagramMedia {
-  id: string;
-  caption?: string;
-  media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
-  media_url?: string;
-  thumbnail_url?: string;
-  permalink: string;
 }
 
 interface UploadedPhoto {
@@ -99,75 +90,63 @@ const TwitterFeed = () => {
   );
 };
 
-// Componente para a aba do Instagram
-const InstagramFeed = () => {
-  const { toast } = useToast();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [media, setMedia] = useState<InstagramMedia[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+// Componente para a aba do Instagram (@Severepics)
+const InstagramProfileFeed = () => {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(true);
+    const [media, setMedia] = useState<ProfileInstagramMedia[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem('fb_access_token');
-    setIsConnected(!!accessToken);
-    
-    if (!accessToken) {
-        setError("Para ver o feed, conecte sua conta do Instagram no painel de administração.");
-        setIsLoading(false);
-        return;
-    }
+    useEffect(() => {
+        const getFeed = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetchInstagramProfileFeed();
+                if(response.error) {
+                    setError(response.error);
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro ao Carregar Feed do Instagram',
+                        description: response.error,
+                    });
+                } else {
+                    const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
+                    setMedia(photosOnly);
+                }
+            } catch (e: any) {
+                const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+                setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
+                toast({
+                    variant: 'destructive',
+                    title: 'Erro ao Carregar o Feed do Instagram',
+                    description: errorMessage,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        getFeed();
+    }, [toast]);
 
-    const getFeed = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetchInstagramFeed({
-          userId: 'me',
-          accessToken: accessToken,
-          maxResults: 50,
-        });
-        const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
-        setMedia(photosOnly);
-      } catch (e: any) {
-        const errorMessage = e.message || "Ocorreu um erro desconhecido.";
-        setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao Carregar o Feed do Instagram',
-          description: errorMessage,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    getFeed();
-  }, [toast]);
+    if (isLoading) return <FeedLoading message="Carregando feed do Instagram (@severepics)..." />;
+    if (error) return <FeedError message={error} />;
+    if (media.length === 0) return <FeedEmpty message="Nenhuma foto encontrada no feed do Instagram." />;
 
-  if (isLoading) return <FeedLoading message="Carregando feed do Instagram..." />;
-  if (error) {
-      if (!isConnected) {
-          return <FeedNotConnected message={error} />;
-      }
-      return <FeedError message={error} />;
-  }
-  if (media.length === 0) return <FeedEmpty message="Nenhuma foto encontrada no feed do Instagram." />;
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {media.map((item) => (
-        <a key={item.id} href={item.permalink} target="_blank" rel="noopener noreferrer" className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
-          <Image src={item.media_url!} alt={item.caption || 'Instagram Post'} width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="instagram feed image"/>
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {item.caption && <p className="text-white text-sm font-bold line-clamp-2">{item.caption}</p>}
-          </div>
-          {item.media_type === 'VIDEO' && <PlayCircle className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 text-white/80" />}
-        </a>
-      ))}
-    </div>
-  );
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {media.map((item) => (
+                <a key={item.id} href={item.permalink} target="_blank" rel="noopener noreferrer" className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
+                    <Image src={item.media_url!} alt={item.caption || 'Instagram Post'} width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="instagram feed image"/>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {item.caption && <p className="text-white text-sm font-bold line-clamp-2">{item.caption}</p>}
+                    </div>
+                </a>
+            ))}
+        </div>
+    );
 };
+
 
 // Componente para a aba de Uploads
 const UploadsFeed = () => {
@@ -237,20 +216,6 @@ const FeedError = ({ message }: { message: string }) => (
   </div>
 );
 
-const FeedNotConnected = ({ message }: { message: string }) => {
-    const router = useRouter();
-    return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground bg-muted/20 rounded-lg p-4">
-            <LogIn className="h-12 w-12" />
-            <p className="mt-4 font-semibold text-lg">Conexão Necessária</p>
-            <p className="text-sm text-center max-w-md">{message}</p>
-            <Button className="mt-4" onClick={() => router.push('/admin/integrations')}>
-                Conectar Agora
-            </Button>
-        </div>
-    );
-};
-
 const FeedEmpty = ({ message }: { message: string }) => (
   <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
     <Camera className="h-12 w-12" />
@@ -279,7 +244,7 @@ export default function FotosPage() {
               <TwitterFeed />
             </TabsContent>
             <TabsContent value="instagram" className="pt-6">
-              <InstagramFeed />
+              <InstagramProfileFeed />
             </TabsContent>
             <TabsContent value="uploads" className="pt-6">
                 <UploadsFeed />
