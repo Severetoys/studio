@@ -56,7 +56,7 @@ const TwitterFeed = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 50 });
+        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 10 });
         const tweetsWithPhotos = response.tweets.map(tweet => ({
           ...tweet,
           media: tweet.media.filter(m => m.type === 'photo' && m.url),
