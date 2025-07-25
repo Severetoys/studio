@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import Image from 'next/image';
 
 
 interface Message {
@@ -246,9 +247,18 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                                         )}
                                     </Tooltip>
                                     {msg.senderId !== 'admin' && (
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarFallback>U</AvatarFallback>
-                                        </Avatar>
+                                        <div className="relative">
+                                            <Avatar className="h-8 w-8">
+                                                <AvatarFallback>U</AvatarFallback>
+                                            </Avatar>
+                                            <Image
+                                                src="https://w7.pngwing.com/pngs/267/59/png-transparent-blue-and-white-check-logo-illustration-verified-badge-logo-youtube-youtube-thumbnail.png"
+                                                alt="Selo de verificado"
+                                                width={16}
+                                                height={16}
+                                                className="absolute -bottom-1 -right-1"
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             ))}
