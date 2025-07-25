@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,26 +9,7 @@ import { Label } from "@/components/ui/label";
 import { KeyRound, Copy, Loader2, Info } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
-// Esta é uma função de servidor simulada. Em um cenário real, 
-// ela estaria em um arquivo 'actions.ts' e chamaria a API da Cloudflare.
-async function getCloudflareChatInfo(): Promise<{ orgId: string | undefined }> {
-    "use server";
-    // As variáveis de ambiente só são acessíveis no servidor.
-    return {
-        orgId: process.env.CLOUDFLARE_ORG_ID
-    };
-}
-
-async function generateAuthTokenAction(userId: string): Promise<string> {
-    "use server";
-    // Em um cenário real, aqui você usaria o ORG_ID e a API_KEY para chamar
-    // a API da Cloudflare e gerar um token de autenticação para o `userId`.
-    console.log(`Gerando token para o usuário: ${userId}`);
-    // Simulando a geração de um token
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
-    return `dummy_token_for_${userId}_${Math.random().toString(36).substring(2, 10)}`;
-}
+import { getCloudflareChatInfo, generateAuthTokenAction } from './actions';
 
 
 export default function CloudflareChatInfoPage() {
@@ -36,10 +18,17 @@ export default function CloudflareChatInfoPage() {
     const [userId, setUserId] = useState('user-1234');
     const [authToken, setAuthToken] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingOrgId, setIsLoadingOrgId] = useState(true);
 
-    useState(() => {
-        getCloudflareChatInfo().then(info => setOrgId(info.orgId));
-    });
+    useEffect(() => {
+        const fetchInfo = async () => {
+            setIsLoadingOrgId(true);
+            const info = await getCloudflareChatInfo();
+            setOrgId(info.orgId);
+            setIsLoadingOrgId(false);
+        };
+        fetchInfo();
+    }, []);
 
     const handleGenerateToken = async () => {
         if (!userId) {
@@ -87,8 +76,8 @@ export default function CloudflareChatInfoPage() {
                     <div>
                         <Label htmlFor="orgId">Organization ID</Label>
                         <div className="flex items-center gap-2">
-                            <Input id="orgId" value={orgId || "Carregando..."} readOnly className="font-mono"/>
-                            <Button variant="outline" size="icon" onClick={() => orgId && copyToClipboard(orgId)} disabled={!orgId}>
+                            <Input id="orgId" value={isLoadingOrgId ? "Carregando..." : (orgId || "Não encontrado")} readOnly className="font-mono"/>
+                            <Button variant="outline" size="icon" onClick={() => orgId && copyToClipboard(orgId)} disabled={!orgId || isLoadingOrgId}>
                                 <Copy className="h-4 w-4" />
                             </Button>
                         </div>
