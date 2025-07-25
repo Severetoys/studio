@@ -23,6 +23,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
+import { connectService, disconnectService } from "../../../../dataconnect/connector/auth";
 
 // Placeholder icons for PayPal and Mercado Pago
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -127,11 +128,17 @@ export default function AdminIntegrationsPage() {
         toast({ variant: "destructive", title: "SDK do Facebook não carregado."});
         return;
     }
-    window.FB.login((response: any) => {
+    window.FB.login(async (response: any) => {
         if (response.status === 'connected') {
-            updateIntegrationStatus('facebook', true);
-            updateIntegrationStatus('instagram', true);
-            localStorage.setItem('fb_access_token', response.authResponse.accessToken);
+            const authResponse = await connectService('facebook');
+            if (authResponse.success) {
+                updateIntegrationStatus('facebook', true);
+                updateIntegrationStatus('instagram', true);
+                localStorage.setItem('fb_access_token', response.authResponse.accessToken);
+                toast({ title: 'Conectado com Facebook!', description: 'Sua conta foi vinculada com sucesso.' });
+            } else {
+                 toast({ variant: 'destructive', title: 'Falha no Servidor', description: authResponse.message });
+            }
         } else {
             toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
         }
@@ -143,23 +150,28 @@ export default function AdminIntegrationsPage() {
         toast({ variant: "destructive", title: "SDK do Facebook não carregado."});
         return;
     }
-    window.FB.getLoginStatus((response: any) => {
-        if (response.status === 'connected') {
-            window.FB.logout(() => {
+    window.FB.getLoginStatus(async (response: any) => {
+        const logoutOnServer = async () => {
+            const authResponse = await disconnectService('facebook');
+            if (authResponse.success) {
                 updateIntegrationStatus('facebook', false);
                 updateIntegrationStatus('instagram', false);
                 localStorage.removeItem('fb_access_token');
-            });
+            } else {
+                toast({ variant: 'destructive', title: 'Falha no Servidor', description: authResponse.message });
+            }
+        };
+
+        if (response.status === 'connected') {
+            window.FB.logout(logoutOnServer);
         } else {
-            // Already logged out
-            updateIntegrationStatus('facebook', false);
-            updateIntegrationStatus('instagram', false);
-            localStorage.removeItem('fb_access_token');
+            // Already logged out on FB side, just log out on our server
+            await logoutOnServer();
         }
     });
   };
 
-  const handleToggleIntegration = (integration: Integration) => {
+  const handleToggleIntegration = async (integration: Integration) => {
     const isConnected = integrations[integration];
 
     if (integration === 'facebook' || integration === 'instagram') {
@@ -171,14 +183,20 @@ export default function AdminIntegrationsPage() {
         return;
     }
     
-    // For other integrations, we still show a placeholder toast.
     if (isConnected) {
-        updateIntegrationStatus(integration, false);
+        const response = await disconnectService(integration);
+        if (response.success) {
+            updateIntegrationStatus(integration, false);
+        } else {
+            toast({ variant: 'destructive', title: 'Falha ao Desconectar', description: response.message });
+        }
     } else {
-       toast({
-            title: 'Funcionalidade em Desenvolvimento',
-            description: `A lógica de conexão real para ${integration} ainda não foi implementada.`,
-        });
+       const response = await connectService(integration);
+       if (response.success) {
+           updateIntegrationStatus(integration, true);
+       } else {
+            toast({ variant: 'destructive', title: 'Falha ao Conectar', description: response.message });
+       }
     }
   };
 
@@ -209,7 +227,7 @@ export default function AdminIntegrationsPage() {
                     </div>
                     {isClient && (
                         isConnected ? (
-                            <Button variant="destructive" onClick={() => updateIntegrationStatus('twitter', false)}>
+                            <Button variant="destructive" onClick={() => handleToggleIntegration('twitter')}>
                                 <LogOut className="mr-2 h-4 w-4" /> Desconectar
                             </Button>
                         ) : (
@@ -226,7 +244,7 @@ export default function AdminIntegrationsPage() {
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => updateIntegrationStatus('twitter', true)}>Continuar</AlertDialogAction>
+                                    <AlertDialogAction onClick={() => handleToggleIntegration('twitter')}>Continuar</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
