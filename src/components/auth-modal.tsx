@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
             title: 'Câmera não está Pronta',
             description: 'Por favor, conceda acesso à câmera e espere ela inicializar.',
         });
-        //return;
+        return;
     }
     
     if (action === 'register' && (!name || !email)) {
@@ -189,6 +189,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     toast({ title: 'Analisando rosto...', description: 'Por favor, olhe para a câmera.' });
 
     const imageBase64 = captureImage();
+    
     
     if (imageBase64) {
         try {

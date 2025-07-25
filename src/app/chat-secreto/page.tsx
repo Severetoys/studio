@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send, Video, MapPin, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Video, MapPin, User, Loader2, Mic, MicOff, VideoOff, PhoneOff } from 'lucide-react';
 import { auth, database } from '@/lib/firebase';
 import { ref, set, onValue, push, onDisconnect, serverTimestamp, DataSnapshot } from "firebase/database";
 import { signInAnonymously, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
@@ -37,7 +37,7 @@ export default function ChatSecretoPage() {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   // --- 1. Autenticação Anônima e Gerenciamento de Presença ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -133,11 +133,11 @@ export default function ChatSecretoPage() {
   };
   
   const handleVideoCall = () => {
-      toast({
-          title: 'Funcionalidade em desenvolvimento',
-          description: 'A chamada de vídeo ainda não está disponível.'
-      });
-  };
+    toast({
+      title: "Funcionalidade em desenvolvimento",
+      description: "A chamada de vídeo será implementada em breve.",
+    });
+  }
 
   const getSenderInitial = (senderId: string) => {
     const user = onlineUsers[senderId];
@@ -172,37 +172,40 @@ export default function ChatSecretoPage() {
                     {Object.values(onlineUsers).filter(u => u.isOnline).length} online
                 </p>
             </div>
-            <div className="w-10"></div>
+            <Button variant="ghost" size="icon" onClick={handleVideoCall}>
+                <Video />
+            </Button>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg) => (
                 <div key={msg.id} className={cn("flex items-end gap-2", msg.senderId === currentUser.uid ? 'justify-end' : 'justify-start')}>
-                     {msg.senderId !== currentUser.uid && (
+                    {msg.senderId !== currentUser.uid && (
                         <Avatar className="h-8 w-8">
                             <AvatarFallback>{getSenderInitial(msg.senderId)}</AvatarFallback>
                         </Avatar>
-                     )}
-                     <div className={cn(
-                         "max-w-xs md:max-w-md rounded-lg px-4 py-2",
-                         msg.senderId === currentUser.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-                     )}>
-                         <p className="text-sm font-semibold">{onlineUsers[msg.senderId]?.displayName || `Anônimo-${msg.senderId.substring(0,4)}`}</p>
-                         <p className="text-sm mt-1" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                           {msg.text}
-                         </p>
-                         <p className="text-xs text-right opacity-70 mt-1">
-                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
-                         </p>
-                     </div>
-                     {msg.senderId === currentUser.uid && (
+                    )}
+                    <div className={cn(
+                        "max-w-xs md:max-w-md rounded-lg px-4 py-2",
+                        msg.senderId === currentUser.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                    )}>
+                        <p className="text-sm font-semibold">{onlineUsers[msg.senderId]?.displayName || `Anônimo-${msg.senderId.substring(0,4)}`}</p>
+                        <p className="text-sm mt-1" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        {msg.text}
+                        </p>
+                        <p className="text-xs text-right opacity-70 mt-1">
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
+                        </p>
+                    </div>
+                    {msg.senderId === currentUser.uid && (
                         <Avatar className="h-8 w-8">
                             <AvatarFallback>{getSenderInitial(msg.senderId)}</AvatarFallback>
                         </Avatar>
-                     )}
+                    )}
                 </div>
             ))}
             <div ref={messagesEndRef} />
         </CardContent>
+
         <CardFooter className="border-t border-primary/20 p-4">
             <div className="flex w-full items-center space-x-2">
                 <Textarea
