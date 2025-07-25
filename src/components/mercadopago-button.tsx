@@ -12,8 +12,6 @@ interface MercadoPagoButtonProps {
   onSuccess: (details: any) => void;
   disabled?: boolean;
   customerInfo?: { name: string; email: string };
-  isQuickPay?: boolean;
-  label?: string;
   isBrazil?: boolean;
 }
 
@@ -23,19 +21,11 @@ declare global {
     }
 }
 
-const PayPalIcon = ({ className }: { className?: string }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M7.74,2.42,7.36,5.1a.21.21,0,0,0,.2.23l2.88-.1a.21.21,0,0,1,.21.23L9.6,13.75a.21.21,0,0,0,.21.22l2.37-.08a.21.21,0,0,1,.21.23L11.23,21.8a.22.22,0,0,0,.21.21h2.82a.22.22,0,0,0,.22-.2l2-13.43a.22.22,0,0,0-.21-.24l-3.23.11a.22.22,0,0,1-.21-.24L12.7,2.42a.21.21,0,0,0-.21-.21H8a.21.21,0,0,0-.24.21Z" fill="#253b80"></path>
-      <path d="M10.87,14.57,11.82.93A.21.21,0,0,0,11.61.71H8.69a.21.21,0,0,0-.21.2L7.36,7.59a.22.22,0,0,0,.21.24l2.58-.09a.21.21,0,0,1,.21.23l-.93,6.3a.21.21,0,0,0,.21.22l2.74-.09a.21.21,0,0,0,.2-.23Z" fill="#179bd7"></path>
-    </svg>
-);
-
-
-export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isQuickPay = false, label, isBrazil }: MercadoPagoButtonProps) {
+export default function MercadoPagoButton({ amount, onSuccess, disabled = false, customerInfo, isBrazil }: MercadoPagoButtonProps) {
   const { toast } = useToast();
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const paymentBrickContainerId = `paymentBrick_container_${label?.replace(/\s+/g, '') || 'default'}`;
+  const paymentBrickContainerId = `paymentBrick_container_mercado_pago`;
   const brickInstance = useRef<any>(null);
   const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
 
@@ -113,9 +103,6 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
             callbacks: {
                 onReady: () => setIsProcessing(false),
                 onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
-                   // Para um protótipo, simulamos a resposta e redirecionamos.
-                   // Numa aplicação real, o backend criaria uma preferência de pagamento
-                   // e redirecionaria para a URL do Mercado Pago.
                    console.log("Submitting payment...", { selectedPaymentMethod, formData });
                    const paymentData = { 
                      id: `mock_${Date.now()}`, 
@@ -144,49 +131,12 @@ export default function MercadoPagoButton({ amount, onSuccess, disabled = false,
         setIsProcessing(false);
       }
   };
-  
-  const handleQuickPayClick = () => {
-    if (disabled || isProcessing || amount <= 0) return;
-
-    setIsProcessing(true);
-    toast({ title: "Preparando pagamento..." });
-
-    // Em um cenário real, você faria uma chamada ao seu backend para criar uma preferência de pagamento no Mercado Pago.
-    // O backend retornaria uma `init_point` (URL de checkout).
-    // Para este protótipo, vamos simular isso redirecionando para uma URL de exemplo e chamando o webhook de sucesso.
-    console.log("Simulando criação de preferência de pagamento para:", { amount, customerInfo });
-
-    // Simula o redirecionamento e sucesso após um tempo.
-    setTimeout(() => {
-        handlePaymentSuccess({
-            id: `mock_quickpay_${Date.now()}`,
-            payer: customerInfo
-        });
-        // Aqui você faria: window.location.href = 'URL_DO_MERCADO_PAGO';
-        // Como não temos backend, chamamos o sucesso diretamente.
-    }, 2000);
-  };
-
 
   useEffect(() => {
-    if (!isQuickPay && isSdkReady && document.getElementById(paymentBrickContainerId)) {
+    if (isSdkReady && document.getElementById(paymentBrickContainerId)) {
         renderPaymentBrick(paymentBrickContainerId);
     }
-  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isBrazil, isQuickPay]);
-
-  if (isQuickPay) {
-      return (
-        <Button 
-            className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
-            onClick={handleQuickPayClick}
-            disabled={disabled || isProcessing}
-        >
-            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
-              label === 'PayPal' ? <PayPalIcon className="h-5 w-5" /> : <span className="truncate">{label}</span>
-            )}
-        </Button>
-      )
-  }
+  }, [isSdkReady, amount, disabled, customerInfo?.email, customerInfo?.name, publicKey, isBrazil]);
 
   if (!isSdkReady || !publicKey) {
     return (

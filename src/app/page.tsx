@@ -46,6 +46,8 @@ export default function HomePage() {
   const [isLoadingPrice, setIsLoadingPrice] = useState(true);
   const { toast } = useToast();
   const [isBrazil, setIsBrazil] = useState(true);
+  const [paymentProvider, setPaymentProvider] = useState<'mercado-pago' | 'paypal' | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const userLocale = navigator.language || 'pt-BR';
@@ -66,6 +68,8 @@ export default function HomePage() {
   }, []);
   
   const handlePaymentSuccess = () => {
+    setIsProcessing(false);
+    setPaymentProvider(null);
     localStorage.setItem('hasPaid', 'true');
     toast({
         title: "Pagamento Aprovado!",
@@ -75,10 +79,22 @@ export default function HomePage() {
     router.push('/old-auth-page');
   }
 
+  const handleQuickPayClick = (provider: 'mercado-pago' | 'paypal') => {
+    setPaymentProvider(provider);
+    if (provider === 'paypal') {
+        // Simulating PayPal flow
+        setIsProcessing(true);
+        toast({ title: 'Redirecionando para o PayPal...' });
+        setTimeout(() => {
+            handlePaymentSuccess();
+        }, 2000);
+    }
+  }
+
   const quickPayButtons = [
-    { label: 'Google'},
-    { label: 'Pix' },
-    { label: 'Apple' },
+    { label: 'Google', provider: 'paypal' as const },
+    { label: 'Pix', provider: 'mercado-pago' as const },
+    { label: 'Apple', provider: 'paypal' as const },
   ].filter(btn => isBrazil || btn.label !== 'Pix');
 
 
@@ -104,17 +120,26 @@ export default function HomePage() {
                     priceInfo && (
                         <>
                           <div className="flex w-full">
-                              {quickPayButtons.map(({ label }) => (
-                                <MercadoPagoButton
+                              {quickPayButtons.map(({ label, provider }) => (
+                                <Button
                                   key={label}
-                                  amount={priceInfo.amount}
-                                  onSuccess={handlePaymentSuccess}
-                                  isQuickPay={true}
-                                  label={label}
-                                  isBrazil={isBrazil}
-                                />
+                                  onClick={() => handleQuickPayClick(provider)}
+                                  disabled={isProcessing}
+                                  className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
+                                >
+                                  {isProcessing && paymentProvider === provider ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="truncate">{label}</span>}
+                                </Button>
                               ))}
                           </div>
+                          {paymentProvider === 'mercado-pago' && (
+                              <div className="mt-4">
+                                <MercadoPagoButton
+                                    amount={priceInfo.amount}
+                                    onSuccess={handlePaymentSuccess}
+                                    isBrazil={isBrazil}
+                                />
+                              </div>
+                          )}
                            <div className="text-center py-4">
                                 <p className="text-muted-foreground">Assinatura Mensal</p>
                                 <h3 className="font-bold text-8xl text-primary text-shadow-neon-red animate-pulse-glow">
@@ -142,6 +167,3 @@ export default function HomePage() {
     </>
   );
 }
-    
-
-    
