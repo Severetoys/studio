@@ -49,12 +49,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             const chatDocRef = doc(db, 'chats', chatId);
             const userLanguage = navigator.language.split('-')[0] || 'pt';
             try {
-                // Use setDoc com merge: true para criar o documento se não existir,
-                // ou atualizar o lastSeen se ele existir. Isso evita a leitura prévia (getDoc)
-                // que estava causando problemas de permissão.
                 await setDoc(chatDocRef, {
-                    createdAt: serverTimestamp(),
-                    userLanguage: userLanguage,
                     lastSeen: serverTimestamp(),
                 }, { merge: true });
             } catch (error) {
@@ -78,7 +73,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const handleFetishSelect = (fetish: Fetish) => {
     setSelectedFetish(fetish);
-    setSidebarOpen(false); // Fecha a sidebar ao selecionar um item
+    setSidebarOpen(false); 
   };
 
   const handleCloseModal = () => {
@@ -89,14 +84,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  // Se estiver em uma rota do admin, renderiza apenas o children
   if (pathname.startsWith('/admin')) {
     return <>{children}</>;
   }
 
-  // Define as rotas que NÃO devem exibir o cabeçalho e rodapé principais.
   const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
-  const showMainHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route));
+  const showHeader = !pathname.startsWith('/chat-secreto');
+  const showMainHeader = showHeader && !noMainLayoutRoutes.some(route => pathname.startsWith(route));
   const showMainFooter = pathname === '/';
   const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/';
 
@@ -104,7 +98,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <>
       <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
-        { !pathname.startsWith('/chat-secreto') && <Header onMenuClick={toggleSidebar} /> }
+        { showHeader && <Header onMenuClick={toggleSidebar} /> }
         <Sidebar 
             isOpen={isSidebarOpen} 
             onClose={toggleSidebar} 

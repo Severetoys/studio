@@ -20,7 +20,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 export default function WhatsAppButton() {
   const pathname = usePathname();
-  const whatsappUrl = `https://wa.me/italosantos`;
+  const whatsappUrl = `https://wa.me/5521990479104`;
   
   if (pathname.startsWith('/admin') || pathname.startsWith('/chat-secreto')) {
     return null;
