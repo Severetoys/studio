@@ -32,7 +32,7 @@ export async function saveUser(userData: UserData): Promise<void> {
     const { name, email, phone, imageBase64 } = userData;
 
     // 1. Upload image to Firebase Storage
-    const fileName = `facial-auth-users/${Date.now()}_${email.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+    const fileName = `italosantos.com/facial-auth-users/${Date.now()}_${email.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
     const file = bucket.file(fileName);
     const buffer = Buffer.from(imageBase64.split(',')[1], 'base64');
 

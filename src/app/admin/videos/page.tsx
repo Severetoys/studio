@@ -101,7 +101,7 @@ export default function AdminVideosPage() {
     }
 
     setIsSubmitting(true);
-    const videoStoragePath = `videos/${Date.now()}_${videoFile.name}`;
+    const videoStoragePath = `italosantos.com/videos/${Date.now()}_${videoFile.name}`;
     try {
       // 1. Upload video file to Firebase Storage
       const videoStorageRef = ref(storage, videoStoragePath);

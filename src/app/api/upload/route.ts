@@ -1,3 +1,4 @@
+
 // src/app/api/upload/route.ts
 import { NextResponse, type NextRequest } from 'next/server';
 import { getStorage } from 'firebase-admin/storage';
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const bucket = getStorage(adminApp).bucket('authkit-y9vjx.appspot.com');
-    const fileName = `general-uploads/${Date.now()}_${file.name}`;
+    const fileName = `italosantos.com/general-uploads/${Date.now()}_${file.name}`;
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
     const blob = bucket.file(fileName);

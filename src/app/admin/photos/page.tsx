@@ -92,7 +92,7 @@ export default function AdminPhotosPage() {
     }
 
     setIsSubmitting(true);
-    const storagePath = `photos/${Date.now()}_${file.name}`;
+    const storagePath = `italosantos.com/photos/${Date.now()}_${file.name}`;
     try {
       // 1. Upload file to Firebase Storage
       const storageRef = ref(storage, storagePath);
