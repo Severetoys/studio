@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send, Video, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Video, User, Loader2, PhoneOff } from 'lucide-react';
 import { auth, database } from '@/lib/firebase';
 import { ref, set, onValue, push, onDisconnect, serverTimestamp, DataSnapshot, query, orderByChild, off } from "firebase/database";
 import { signInAnonymously, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface Message {
   id: string;
@@ -38,6 +39,14 @@ export default function ChatSecretoPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // State for video call
+  const [showVideoCall, setShowVideoCall] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // --- 1. Autenticação Anônima ---
   useEffect(() => {
@@ -80,9 +89,7 @@ export default function ChatSecretoPage() {
         });
     });
 
-    // Cleanup function for the listener
     return () => {
-      // The listener should be detached using the same reference and event type
       off(presenceRef, 'value', listener);
     };
   }, [currentUser]);
@@ -92,7 +99,6 @@ export default function ChatSecretoPage() {
   useEffect(() => {
     if (!currentUser) return;
 
-    // --- Ouvinte para mensagens do chat ---
     const chatMessagesRef = ref(database, 'secretChat/messages');
     const messagesQuery = query(chatMessagesRef, orderByChild('timestamp'));
     const messagesUnsubscribe = onValue(messagesQuery, (snapshot) => {
@@ -104,7 +110,6 @@ export default function ChatSecretoPage() {
       setMessages(messagesData);
     });
 
-    // --- Ouvinte para usuários online ---
     const usersRef = ref(database, 'users');
     const usersUnsubscribe = onValue(usersRef, (snapshot) => {
       const usersData = snapshot.val() || {};
@@ -143,11 +148,11 @@ export default function ChatSecretoPage() {
     }
   };
   
-  const handleVideoCall = () => {
-    toast({
-      title: "Funcionalidade em desenvolvimento",
-      description: "A chamada de vídeo será implementada em breve.",
-    });
+  const handleToggleVideoCall = () => {
+    setShowVideoCall(prev => !prev);
+    if (!showVideoCall) {
+        toast({ title: "Funcionalidade em desenvolvimento", description: "A chamada de vídeo será implementada em breve."});
+    }
   }
 
   const getSenderInitial = (senderId: string) => {
@@ -168,6 +173,7 @@ export default function ChatSecretoPage() {
   }
 
   return (
+    <>
     <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-2xl h-[85vh] flex flex-col animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader className="flex flex-row items-center justify-between border-b border-primary/20">
@@ -183,8 +189,8 @@ export default function ChatSecretoPage() {
                     {Object.values(onlineUsers).filter(u => u.isOnline).length} online
                 </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={handleVideoCall}>
-                <Video />
+            <Button variant={showVideoCall ? "destructive" : "ghost"} size="icon" onClick={handleToggleVideoCall}>
+                {showVideoCall ? <PhoneOff /> : <Video />}
             </Button>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -247,5 +253,6 @@ export default function ChatSecretoPage() {
         </CardFooter>
       </Card>
     </main>
+    </>
   );
 }
