@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
-import { ShoppingCart, Trash2, Loader2, Instagram } from 'lucide-react';
+import { ShoppingCart, Trash2, Loader2, Instagram, Facebook } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +15,7 @@ import MercadoPagoButton from '@/components/mercadopago-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagram-shop-flow';
+import { fetchFacebookProducts, type FacebookProduct } from '@/ai/flows/facebook-products-flow';
 import { Separator } from '@/components/ui/separator';
 
 interface Video {
@@ -31,8 +32,8 @@ interface CartItem extends Video {
   quantity: number;
 }
 
-// Componente para a galeria do Instagram
 const InstagramShopFeed = () => {
+    // ... (componente existente, sem alterações)
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [media, setMedia] = useState<InstagramMedia[]>([]);
@@ -80,6 +81,75 @@ const InstagramShopFeed = () => {
                         {item.caption && <p className="text-white text-xs font-bold line-clamp-2">{item.caption}</p>}
                     </div>
                 </a>
+            ))}
+        </div>
+    );
+};
+
+const FacebookProductsStore = () => {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(true);
+    const [products, setProducts] = useState<FacebookProduct[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const getProducts = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetchFacebookProducts();
+                setProducts(response.products);
+            } catch (e: any) {
+                const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+                setError(`Não foi possível carregar os produtos do Facebook. Motivo: ${errorMessage}`);
+                toast({
+                    variant: 'destructive',
+                    title: 'Erro ao Carregar Catálogo',
+                    description: errorMessage,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        getProducts();
+    }, [toast]);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (error) return <p className="text-destructive text-center">{error}</p>;
+    
+    if (products.length === 0) return <p className="text-muted-foreground text-center">Nenhum produto encontrado no catálogo do Facebook.</p>;
+
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map(product => (
+                <Card key={product.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col group">
+                     <CardHeader className="p-0">
+                        <div className="aspect-video bg-muted overflow-hidden">
+                           <Image src={product.image_url} alt={product.name} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint="facebook catalog product"/>
+                        </div>
+                     </CardHeader>
+                     <CardContent className="p-4 flex-1 flex flex-col">
+                        <CardTitle className="text-lg text-foreground">{product.name}</CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground mt-1 flex-grow">{product.description}</CardDescription>
+                         <p className="text-primary font-semibold text-xl mt-2">{product.price}</p>
+                     </CardContent>
+                     <CardFooter className="p-4 mt-auto">
+                        <Button asChild className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-300">
+                           <a href={product.url} target="_blank" rel="noopener noreferrer">
+                                <Facebook className="mr-2 h-5 w-5" />
+                                Ver no Facebook
+                           </a>
+                        </Button>
+                     </CardFooter>
+                </Card>
             ))}
         </div>
     );
@@ -252,49 +322,63 @@ export default function LojaPage() {
             </SheetContent>
           </Sheet>
         </CardHeader>
-        <CardContent className="p-6">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center min-h-[400px]">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="mt-4 text-muted-foreground">Carregando vídeos...</p>
+        <CardContent className="p-6 space-y-12">
+            <div>
+              <CardTitle className="text-2xl text-primary text-shadow-neon-red-light flex items-center gap-3 mb-4">
+                <ShoppingCart /> Vídeos da Loja
+              </CardTitle>
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center min-h-[400px]">
+                  <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                  <p className="mt-4 text-muted-foreground">Carregando vídeos...</p>
+                </div>
+              ) : videos.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {videos.map(video => (
+                    <Card key={video.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col group">
+                      <CardHeader className="p-0">
+                         <div className="aspect-video bg-muted overflow-hidden">
+                            <Image src={video.thumbnailUrl} alt={video.title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint="video thumbnail"/>
+                         </div>
+                      </CardHeader>
+                      <CardContent className="p-4 flex-1 flex flex-col">
+                        <CardTitle className="text-lg text-foreground">{video.title}</CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground mt-1 flex-grow">{video.description}</CardDescription>
+                         <p className="text-primary font-semibold text-xl mt-2">
+                          {video.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="p-4 mt-auto">
+                        <Button className="w-full h-11 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => addToCart(video)}>
+                          <ShoppingCart className="mr-2 h-5 w-5" />
+                          Adicionar ao Carrinho
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                 <div className="flex flex-col items-center justify-center min-h-[400px]">
+                  <ShoppingCart className="h-16 w-16 text-muted-foreground" />
+                  <p className="mt-4 text-xl font-semibold text-muted-foreground">Nenhum vídeo disponível no momento.</p>
+                  <p className="text-sm text-muted-foreground">Volte em breve para novidades!</p>
+                </div>
+              )}
             </div>
-          ) : videos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {videos.map(video => (
-                <Card key={video.id} className="overflow-hidden bg-card/50 border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all duration-300 flex flex-col group">
-                  <CardHeader className="p-0">
-                     <div className="aspect-video bg-muted overflow-hidden">
-                        <Image src={video.thumbnailUrl} alt={video.title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint="video thumbnail"/>
-                     </div>
-                  </CardHeader>
-                  <CardContent className="p-4 flex-1 flex flex-col">
-                    <CardTitle className="text-lg text-foreground">{video.title}</CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground mt-1 flex-grow">{video.description}</CardDescription>
-                     <p className="text-primary font-semibold text-xl mt-2">
-                      {video.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="p-4 mt-auto">
-                    <Button className="w-full h-11 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => addToCart(video)}>
-                      <ShoppingCart className="mr-2 h-5 w-5" />
-                      Adicionar ao Carrinho
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+
+           <Separator className="my-8 bg-primary/20" />
+            
+            <div>
+                <CardTitle className="text-2xl text-blue-500 flex items-center gap-3 mb-4">
+                    <Facebook /> Catálogo do Facebook
+                </CardTitle>
+                <FacebookProductsStore />
             </div>
-          ) : (
-             <div className="flex flex-col items-center justify-center min-h-[400px]">
-              <ShoppingCart className="h-16 w-16 text-muted-foreground" />
-              <p className="mt-4 text-xl font-semibold text-muted-foreground">Nenhum vídeo disponível no momento.</p>
-              <p className="text-sm text-muted-foreground">Volte em breve para novidades!</p>
-            </div>
-          )}
 
            <Separator className="my-8 bg-primary/20" />
 
             <div>
-                <CardTitle className="text-2xl text-primary text-shadow-neon-red-light flex items-center gap-3 mb-4">
+                <CardTitle className="text-2xl text-pink-500 flex items-center gap-3 mb-4">
                     <Instagram /> Galeria da Loja (@severetoys)
                 </CardTitle>
                 <InstagramShopFeed />
