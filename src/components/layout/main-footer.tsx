@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 interface Review {
   author: string;
@@ -18,6 +19,12 @@ interface Review {
 }
 
 const MainFooter = () => {
+
+    useEffect(() => {
+        if (window.FB) {
+            window.FB.XFBML.parse();
+        }
+    }, []);
 
     const galleryWords = ["ACOMPANHANTE MASCULINO", "SENSUALIDADE", "PRAZER", "BDSM", "FETISH", "FANTASIA", "IS"];
       

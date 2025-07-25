@@ -33,7 +33,7 @@ export default function RootLayout({
               FB.init({
                 appId      : '3924094051199143',
                 cookie     : true,
-                xfbml      : true,
+                xfbml      : false,
                 version    : 'v19.0'
               });
               
