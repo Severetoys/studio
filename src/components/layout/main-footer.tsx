@@ -10,6 +10,12 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 
+declare global {
+  interface Window {
+    FB: any;
+  }
+}
+
 interface Review {
   author: string;
   time: string;
@@ -234,13 +240,10 @@ const MainFooter = () => {
                <div className="my-4 flex justify-center">
                 <div
                     className="fb-like"
-                    data-href="https://developers.facebook.com/docs/plugins/"
-                    data-width="450"
-                    data-layout="standard"
-                    data-action="like"
-                    data-size="large"
                     data-share="true"
-                    data-show-faces="true">
+                    data-width="450"
+                    data-show-faces="true"
+                >
                 </div>
               </div>
               <p>Copyrights © Italo Santos 2019 - Todos os direitos reservados</p>

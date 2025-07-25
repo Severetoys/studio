@@ -31,10 +31,10 @@ export default function RootLayout({
           {`
             window.fbAsyncInit = function() {
               FB.init({
-                appId      : '3924094051199143',
+                appId      : '1029313609296207',
                 cookie     : true,
-                xfbml      : false,
-                version    : 'v19.0'
+                xfbml      : true,
+                version    : 'v23.0'
               });
               
               FB.AppEvents.logPageView();
