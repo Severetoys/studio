@@ -24,6 +24,7 @@ export type RegisterUserInput = z.infer<typeof RegisterUserInputSchema>;
 const RegisterUserOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
+  errorCode: z.enum(['NO_FACE_DETECTED', 'POOR_IMAGE_QUALITY', 'SAVE_FAILED', 'UNKNOWN']).optional(),
 });
 export type RegisterUserOutput = z.infer<typeof RegisterUserOutputSchema>;
 
@@ -38,6 +39,7 @@ const VerifyUserOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   redirectUrl: z.string().optional(),
+  errorCode: z.enum(['NO_USERS_FOUND', 'MATCH_NOT_FOUND', 'VERIFICATION_FAILED', 'UNKNOWN']).optional(),
 });
 export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 
@@ -58,7 +60,11 @@ const registerUserFlow = ai.defineFlow(
       // 1. Validate face using Google Vision API
       const faceValidation = await detectFace(userData.imageBase64);
       if (!faceValidation.faceDetected) {
-        return { success: false, message: faceValidation.error || 'Nenhuma face válida detectada.' };
+        return { 
+          success: false, 
+          message: faceValidation.error || 'Nenhuma face válida detectada.',
+          errorCode: faceValidation.errorCode,
+        };
       }
 
       // 2. Save user data to Realtime DB and image to Storage
@@ -68,7 +74,7 @@ const registerUserFlow = ai.defineFlow(
       return { success: true, message: 'Usuário registrado com sucesso!' };
     } catch (e: any) {
       console.error('Error during user registration flow:', e);
-      return { success: false, message: e.message || 'An unexpected error occurred during registration.' };
+      return { success: false, message: e.message || 'An unexpected error occurred during registration.', errorCode: 'SAVE_FAILED' };
     }
   }
 );
@@ -90,7 +96,7 @@ const verifyUserFlow = ai.defineFlow(
 
       if (allUsers.length === 0) {
         console.log('No registered users found.');
-        return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.' };
+        return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.', errorCode: 'NO_USERS_FOUND' };
       }
       
       console.log(`Found ${allUsers.length} users to check. Comparing against the provided image.`);
@@ -139,11 +145,11 @@ const verifyUserFlow = ai.defineFlow(
 
       // If the loop completes and no match was found.
       console.log('User verification failed: No matching user found after checking all images.');
-      return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.' };
+      return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.', errorCode: 'MATCH_NOT_FOUND' };
 
     } catch (e: any)      {
       console.error('Error during user verification flow:', e);
-      return { success: false, message: e.message || 'Ocorreu um erro inesperado durante a verificação.' };
+      return { success: false, message: e.message || 'Ocorreu um erro inesperado durante a verificação.', errorCode: 'VERIFICATION_FAILED' };
     }
   }
 );

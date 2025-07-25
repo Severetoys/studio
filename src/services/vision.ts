@@ -17,18 +17,21 @@ const visionClient = new ImageAnnotatorClient({
     },
 });
 
+type FaceDetectionResult = {
+  faceDetected: boolean;
+  error?: string;
+  errorCode?: 'NO_FACE_DETECTED' | 'POOR_IMAGE_QUALITY' | 'UNKNOWN';
+};
+
 /**
  * Detects faces in a base64 encoded image.
  * @param imageBase64 The base64 encoded image string.
  * @returns An object indicating if a face was detected and is of sufficient quality.
  */
-export async function detectFace(imageBase64: string): Promise<{
-  faceDetected: boolean;
-  error?: string;
-}> {
+export async function detectFace(imageBase64: string): Promise<FaceDetectionResult> {
   try {
     if (!imageBase64 || !imageBase64.includes(',')) {
-      return { faceDetected: false, error: 'Invalid or empty image data received.' };
+      return { faceDetected: false, error: 'Invalid or empty image data received.', errorCode: 'POOR_IMAGE_QUALITY' };
     }
 
     const request = {
@@ -43,20 +46,20 @@ export async function detectFace(imageBase64: string): Promise<{
     const faces = result.faceAnnotations;
 
     if (!faces || faces.length === 0) {
-      return { faceDetected: false, error: 'No face detected in the image.' };
+      return { faceDetected: false, error: 'No face detected in the image.', errorCode: 'NO_FACE_DETECTED' };
     }
     if (faces.length > 1) {
-      return { faceDetected: false, error: 'Multiple faces detected. Please ensure only one person is in the frame.' };
+      return { faceDetected: false, error: 'Multiple faces detected. Please ensure only one person is in the frame.', errorCode: 'POOR_IMAGE_QUALITY' };
     }
     
     const face = faces[0];
     const confidence = face.detectionConfidence || 0;
 
     if (confidence < 0.75) { 
-        return { faceDetected: false, error: `Low confidence in face detection: ${confidence.toFixed(2)}. Try better lighting.` };
+        return { faceDetected: false, error: `Low confidence in face detection: ${confidence.toFixed(2)}. Try better lighting.`, errorCode: 'POOR_IMAGE_QUALITY' };
     }
     if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
-        return { faceDetected: false, error: 'Image quality is too low (blurry or underexposed). Try a clearer, well-lit image.'};
+        return { faceDetected: false, error: 'Image quality is too low (blurry or underexposed). Try a clearer, well-lit image.', errorCode: 'POOR_IMAGE_QUALITY'};
     }
     
     console.log("Face detected successfully.");
@@ -64,6 +67,6 @@ export async function detectFace(imageBase64: string): Promise<{
 
   } catch (error: any) {
     console.error('Google Vision API Error:', error);
-    return { faceDetected: false, error: 'An error occurred during facial analysis.' };
+    return { faceDetected: false, error: 'An error occurred during facial analysis.', errorCode: 'UNKNOWN' };
   }
 }
