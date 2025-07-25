@@ -26,9 +26,10 @@ function initializeFirebaseAdmin(): App {
     // Cast the imported JSON to the ServiceAccount type
     const serviceAccountCredential = serviceAccount as ServiceAccount;
 
-    // Initialize the app with the service account credentials.
+    // Initialize the app with the service account credentials and database URL.
     const app = initializeApp({
       credential: cert(serviceAccountCredential),
+      databaseURL: "https://facei-id-italosantos-com.firebaseio.com"
     });
     console.log(`[Admin SDK] Firebase Admin SDK initialized successfully for project: ${app.options.projectId}`);
     return app;
