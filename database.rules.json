@@ -18,7 +18,7 @@
           ".read": true, 
           ".indexOn": ["email"],
           "$userId": {
-            ".write": "!data.exists() || auth != null" 
+            ".write": true
           }
        }
     },
@@ -26,3 +26,4 @@
     ".write": false
   }
 }
+
