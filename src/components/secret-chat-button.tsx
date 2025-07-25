@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useRouter, usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
+import { X } from 'lucide-react';
 
 const TelegramIcon = ({ className }: { className?: string }) => (
     <svg 
@@ -17,29 +17,22 @@ const TelegramIcon = ({ className }: { className?: string }) => (
 );
 
 
-export default function SecretChatButton() {
-    const router = useRouter();
-    const pathname = usePathname();
+interface SecretChatButtonProps {
+    onClick: () => void;
+    isChatOpen: boolean;
+}
 
-    const handleChatSecretoClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        router.push('/chat-secreto');
-    };
-    
-    if (pathname.startsWith('/admin') || pathname.startsWith('/chat-secreto')) {
-        return null;
-    }
-
+export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButtonProps) {
     return (
        <Button
-            onClick={handleChatSecretoClick}
-            aria-label="Abrir Chat Secreto"
+            onClick={onClick}
+            aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
             className={cn(
-                "fixed bottom-6 left-6 z-50 flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                "fixed bottom-6 right-6 z-[1001] flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
                 "bg-primary hover:bg-primary/90 animate-pulse-red-glow"
             )}
        >
-            <TelegramIcon className="h-9 w-9" />
+            {isChatOpen ? <X className="h-9 w-9" /> : <TelegramIcon className="h-9 w-9" />}
        </Button>
     );
 }

@@ -13,6 +13,8 @@ import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import SecretChatWidget from '@/components/secret-chat-widget';
+import SecretChatButton from '@/components/secret-chat-button';
 
 const getOrCreateChatId = (): string => {
     if (typeof window === 'undefined') {
@@ -31,6 +33,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFetish, setSelectedFetish] = useState<Fetish | null>(null);
   const [isWarningOpen, setIsWarningOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
 
@@ -47,7 +50,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         const chatId = getOrCreateChatId();
         if (chatId) {
             const chatDocRef = doc(db, 'chats', chatId);
-            const userLanguage = navigator.language.split('-')[0] || 'pt';
             try {
                 await setDoc(chatDocRef, {
                     lastSeen: serverTimestamp(),
@@ -71,6 +73,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     setSidebarOpen(!isSidebarOpen);
   };
 
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
   const handleFetishSelect = (fetish: Fetish) => {
     setSelectedFetish(fetish);
     setSidebarOpen(false); 
@@ -84,15 +90,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  if (pathname.startsWith('/admin')) {
+  const isAdminPanel = pathname.startsWith('/admin');
+  const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
+  const showHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && !isAdminPanel;
+  const showMainHeader = showHeader && pathname === '/';
+  const showMainFooter = pathname === '/';
+  const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/' && !isAdminPanel;
+  const showChat = !isAdminPanel;
+
+  if (isAdminPanel) {
     return <>{children}</>;
   }
 
-  const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
-  const showHeader = !pathname.startsWith('/chat-secreto');
-  const showMainHeader = showHeader && !noMainLayoutRoutes.some(route => pathname.startsWith(route));
-  const showMainFooter = pathname === '/';
-  const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/';
 
   return (
     <>
@@ -109,6 +118,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {showMainFooter && <MainFooter />}
         {showSiteFooter && <SiteFooter />}
       </div>
+      {showChat && (
+        <>
+            <SecretChatWidget isOpen={isChatOpen} />
+            <SecretChatButton onClick={toggleChat} isChatOpen={isChatOpen} />
+        </>
+      )}
       {selectedFetish && (
         <FetishModal
           fetish={selectedFetish}

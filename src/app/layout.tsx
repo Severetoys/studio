@@ -7,7 +7,6 @@ import Layout from '@/components/layout/layout';
 import WhatsAppButton from '@/components/whatsapp-button';
 import Script from 'next/script';
 import ScreenProtector from '@/components/screen-protector';
-import SecretChatButton from '@/components/secret-chat-button';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -59,11 +58,8 @@ export default function RootLayout({
         </Layout>
         <Toaster />
         <WhatsAppButton />
-        <SecretChatButton />
         <ScreenProtector />
       </body>
     </html>
   );
 }
-
-    
