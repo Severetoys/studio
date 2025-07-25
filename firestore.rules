@@ -1,17 +1,38 @@
-firestore
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if true; // Allows read and write for any user, authenticated or not
+    
+    // Regras para o Chat
+    match /chats/{chatId} {
+      allow read, write: if true; // Permite leitura/escrita para rastreamento de visitantes e chat do admin.
+      
+      match /messages/{messageId} {
+        allow read, write: if true; // Permite leitura/escrita de mensagens dentro de um chat.
+      }
     }
-  }
-}
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if true;
+
+    // Regras para Produtos
+    match /products/{productId} {
+      allow read: if true; // Qualquer um pode ler a lista de produtos.
+      allow create, update, delete: if request.auth != null; // Apenas administradores autenticados podem modificar produtos.
+    }
+
+    // Regras para Fotos
+    match /photos/{photoId} {
+      allow read: if true; // Qualquer um pode ver as fotos.
+      allow create, update, delete: if request.auth != null; // Apenas administradores autenticados podem modificar fotos.
+    }
+
+    // Regras para Vídeos
+    match /videos/{videoId} {
+      allow read: if true; // Qualquer um pode ver os vídeos da loja.
+      allow create, update, delete: if request.auth != null; // Apenas administradores autenticados podem modificar vídeos.
+    }
+
+    // Nega acesso a qualquer outra coleção por padrão.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
