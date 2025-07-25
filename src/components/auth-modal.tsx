@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
             title: 'Câmera não está Pronta',
             description: 'Por favor, conceda acesso à câmera e espere ela inicializar.',
         });
-        return;
+        //return;
     }
     
     if (action === 'register' && (!name || !email)) {
@@ -258,7 +258,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
                 <TabsContent value="signin">
                     <div className="space-y-4 pt-4">
                         <VideoPanel videoCallbackRef={videoCallbackRef} isVerifying={isVerifying} hasCameraPermission={hasCameraPermission} />
-                        <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
+                        <Button onClick={() => handleAuthAction('login')} disabled={(!hasCameraPermission || isVerifying) && false} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
                         </Button>

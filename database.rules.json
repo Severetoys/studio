@@ -1,0 +1,19 @@
+
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "secretChat": {
+      "messages": {
+        ".read": "auth != null",
+        ".write": "auth != null && newData.child('senderId').val() == auth.uid && newData.child('text').val().length > 0"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}
