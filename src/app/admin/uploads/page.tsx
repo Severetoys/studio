@@ -44,7 +44,7 @@ export default function AdminUploadsPage() {
     const fetchUploadedFiles = async () => {
         setIsLoadingFiles(true);
         try {
-            const storageRef = ref(storage, 'general-uploads/');
+            const storageRef = ref(storage, 'italosantos.com/general-uploads/');
             const result = await listAll(storageRef);
             const filesData = await Promise.all(
                 result.items.map(async (itemRef) => {
@@ -97,8 +97,10 @@ export default function AdminUploadsPage() {
                     'Content-Type': 'multipart/form-data',
                 },
                 onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total ?? 1));
-                    setUploadProgress(percentCompleted);
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted);
+                    }
                 },
             });
 
@@ -176,9 +178,14 @@ export default function AdminUploadsPage() {
                                     <Label htmlFor="file-upload">Selecione um arquivo</Label>
                                     <Input ref={fileInputRef} id="file-upload" type="file" onChange={handleFileChange} className="mt-1" disabled={isUploading}/>
                                 </div>
-                                {isUploading && <Progress value={uploadProgress} className="w-full" />}
+                                {isUploading && (
+                                    <div className="space-y-2">
+                                        <Progress value={uploadProgress} className="w-full" />
+                                        <p className="text-sm text-muted-foreground text-center">{uploadProgress}% concluído</p>
+                                    </div>
+                                )}
                                 <Button onClick={handleUpload} disabled={!file || isUploading}>
-                                    {isUploading ? `Enviando... ${Math.round(uploadProgress)}%` : "Enviar Arquivo"}
+                                    {isUploading ? `Enviando... ${uploadProgress}%` : "Enviar Arquivo"}
                                 </Button>
                             </div>
                         </TabsContent>
