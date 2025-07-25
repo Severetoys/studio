@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Send, Video, User, Loader2 } from 'lucide-react';
 import { auth, database } from '@/lib/firebase';
-import { ref, set, onValue, push, onDisconnect, serverTimestamp, DataSnapshot } from "firebase/database";
+import { ref, set, onValue, push, onDisconnect, serverTimestamp, DataSnapshot, query, orderByChild, off } from "firebase/database";
 import { signInAnonymously, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -80,9 +80,10 @@ export default function ChatSecretoPage() {
         });
     });
 
+    // Cleanup function for the listener
     return () => {
-        // Detach the listener
-        off(presenceRef, 'value', listener);
+      // The listener should be detached using the same reference and event type
+      off(presenceRef, 'value', listener);
     };
   }, [currentUser]);
   
@@ -188,15 +189,15 @@ export default function ChatSecretoPage() {
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg) => (
-                <div key={msg.id} className={cn("flex items-end gap-2", msg.senderId === currentUser.uid ? 'justify-end' : 'justify-start')}>
-                    {msg.senderId !== currentUser.uid && (
+                <div key={msg.id} className={cn("flex items-end gap-2", msg.senderId === currentUser?.uid ? 'justify-end' : 'justify-start')}>
+                    {msg.senderId !== currentUser?.uid && (
                         <Avatar className="h-8 w-8">
                             <AvatarFallback>{getSenderInitial(msg.senderId)}</AvatarFallback>
                         </Avatar>
                     )}
                     <div className={cn(
                         "max-w-xs md:max-w-md rounded-lg px-4 py-2",
-                        msg.senderId === currentUser.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                        msg.senderId === currentUser?.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                     )}>
                         <p className="text-sm font-semibold">{onlineUsers[msg.senderId]?.displayName || `Anônimo-${msg.senderId.substring(0,4)}`}</p>
                         <p className="text-sm mt-1" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
@@ -206,7 +207,7 @@ export default function ChatSecretoPage() {
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
                         </p>
                     </div>
-                    {msg.senderId === currentUser.uid && (
+                    {msg.senderId === currentUser?.uid && (
                         <Avatar className="h-8 w-8">
                             <AvatarFallback>{getSenderInitial(msg.senderId)}</AvatarFallback>
                         </Avatar>
