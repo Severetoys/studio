@@ -1,2 +1,3 @@
-twitter-flow.ts
+# Documentação do Projeto Italo Santos
 
+Bem-vindo à documentação do projeto Italo Santos. Este documento visa fornecer um guia completo para entender, configurar e contribuir para este projeto. O projeto Italo Santos é uma aplicação web para...
