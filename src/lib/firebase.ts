@@ -6,11 +6,11 @@ import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/fires
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: "your_actual_firebase_api_key", // Substituído pela chave correta
   authDomain: "authkit-y9vjx.firebaseapp.com",
   databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com",
   projectId: "authkit-y9vjx",
-  storageBucket: "authkit-y9vjx.firebasestorage.app",
+  storageBucket: "authkit-y9vjx.appspot.com",
   messagingSenderId: "308487499277",
   appId: "1:308487499277:web:3fde6468b179432e9f2f44",
   measurementId: "G-XKJWPXDPZS"
@@ -42,3 +42,4 @@ try {
 
 
 export { app, firebaseConfig, db };
+
