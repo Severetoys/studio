@@ -93,70 +93,51 @@ const verifyUserFlow = ai.defineFlow(
         return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.' };
       }
       
-      const storedImageUrls = allUsers.map(u => u.imageUrl).filter(Boolean);
-
-      // Early exit if no images are available to compare against.
-      if (storedImageUrls.length === 0) {
-        console.log('No stored images found for registered users.');
-        return { success: false, message: 'Nenhuma imagem de referência encontrada para os usuários.' };
-      }
-
-      console.log(`Found ${storedImageUrls.length} stored images. Comparing against the provided image.`);
+      console.log(`Found ${allUsers.length} users to check. Comparing against the provided image.`);
       
-      // Use the media helper to pass image data to the prompt.
-      const { output } = await ai.generate({
-        model: 'googleai/gemini-2.0-flash',
-        prompt: `
-          Você é um especialista em verificação facial. Sua única tarefa é comparar a "Imagem de Login" com a "Imagem Armazenada".
-          Responda apenas com "SIM" se for a mesma pessoa, ou "NÃO" se não for.
+      // Iterate through each registered user and compare their face.
+      for (const user of allUsers) {
+        if (!user.imageUrl) {
+            console.log(`Skipping user ${user.email} as they have no imageUrl.`);
+            continue;
+        }
 
-          Imagem de Login: {{media url=loginImage}}
-          Imagem Armazenada: {{media url=storedImage}}
-        `,
-        // The model can only compare one image at a time effectively in this setup.
-        // We will iterate and check for any match.
-      });
+        console.log(`Comparing face with user: ${user.email}`);
+        const { output } = await ai.generate({
+            model: 'googleai/gemini-2.0-flash',
+            prompt: `
+              Você é um especialista em verificação facial. Compare a "Imagem de Login" com a "Imagem Armazenada".
+              Responda APENAS com "SIM" se for a mesma pessoa, ou "NÃO" se não for. Não adicione nenhuma outra palavra ou pontuação.
 
-      // This logic needs to be revisited. A single prompt can't compare one against a list easily.
-      // A better approach would be to iterate or use a model/tool designed for one-to-many comparison.
-      // For now, let's simulate a check against the first user for demonstration. A real implementation would loop this.
+              Imagem de Login:
+              {{media url=loginImage}}
 
-      if (storedImageUrls.length > 0) {
-          const firstUserImage = storedImageUrls[0];
-          const { output: singleComparisonOutput } = await ai.generate({
-              model: 'googleai/gemini-2.0-flash',
-               prompt: `
-                Você é um especialista em verificação facial. Compare a "Imagem de Login" com a "Imagem Armazenada".
-                Responda APENAS com "SIM" se for a mesma pessoa, ou "NÃO" se não for. Não adicione nenhuma outra palavra ou pontuação.
+              Imagem Armazenada:
+              {{media url=storedImage}}
+            `,
+            context: {
+              loginImage: { url: imageBase64 }, // Pass the new image as a data URI
+              storedImage: { url: user.imageUrl }, // Pass the stored image as a URL
+            },
+            output: {
+              format: 'text'
+            },
+            config: {
+              temperature: 0, // Be deterministic
+            }
+        });
+        
+        const resultText = (output as string || "").trim().toUpperCase();
+        console.log(`AI verification result for ${user.email}: "${resultText}"`);
 
-                Imagem de Login:
-                {{media url=loginImage}}
-
-                Imagem Armazenada:
-                {{media url=storedImage}}
-              `,
-              context: {
-                loginImage: imageBase64, // Pass the new image as a data URI
-                storedImage: firstUserImage, // Pass the stored image as a URL
-              },
-              output: {
-                format: 'text'
-              },
-              config: {
-                temperature: 0, // Be deterministic
-              }
-          });
-          
-          const resultText = (singleComparisonOutput as string || "").trim().toUpperCase();
-          console.log(`AI verification result for the first user: "${resultText}"`);
-
-          if (resultText.includes('SIM')) {
-              console.log('User verification successful.');
-              return { success: true, message: 'Autenticado! Redirecionando...', redirectUrl: VIP_URL };
-          }
+        // If a match is found, immediately return success.
+        if (resultText.includes('SIM')) {
+            console.log(`User verification successful for ${user.email}.`);
+            return { success: true, message: 'Autenticado! Redirecionando...', redirectUrl: VIP_URL };
+        }
       }
 
-      // If loop finished and no match was found
+      // If the loop completes and no match was found.
       console.log('User verification failed: No matching user found after checking all images.');
       return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.' };
 
