@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
 
-// This page now only serves to redirect to the old auth page.
+// This page now only serves to redirect to the new auth page.
 export default function AuthPageRedirect() {
   const router = useRouter();
 
