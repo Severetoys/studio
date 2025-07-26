@@ -145,7 +145,7 @@ const capturePayPalOrderFlow = ai.defineFlow(
  * Função para obter a Client ID do PayPal do ambiente do servidor.
  */
 export async function getPayPalClientId(): Promise<string | null> {
-    return process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || null;
+    return process.env.PAYPAL_CLIENT_ID || null;
 }
 
 /**
