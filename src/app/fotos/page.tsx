@@ -48,11 +48,11 @@ const TwitterFeed = () => {
       setError(null);
       try {
         const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 50 });
-        const tweetsWithPhotos = response.tweets.map(tweet => ({
-          ...tweet,
-          media: tweet.media.filter(m => m.type === 'photo' && m.url),
-        })).filter(tweet => tweet.media.length > 0);
-        setTweets(tweetsWithPhotos);
+        // Exibe FOTOS e VÍDEOS no mesmo feed
+        const tweetsWithMedia = response.tweets.filter(tweet =>
+            tweet.media.some(m => (m.type === 'photo' && m.url) || (m.type === 'video' && m.preview_image_url))
+        );
+        setTweets(tweetsWithMedia);
       } catch (e: any) {
         const errorMessage = e.message || "Ocorreu um erro desconhecido.";
         setError(`Não foi possível carregar as fotos do Twitter. Motivo: ${errorMessage}`);
@@ -70,21 +70,23 @@ const TwitterFeed = () => {
 
   if (isLoading) return <FeedLoading message="Carregando feed do X (Twitter)..." />;
   if (error) return <FeedError message={error} />;
-  if (tweets.length === 0) return <FeedEmpty message="Nenhuma foto encontrada no feed do Twitter." />;
+  if (tweets.length === 0) return <FeedEmpty message="Nenhuma foto ou vídeo encontrado no feed do Twitter." />;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {tweets.flatMap(tweet => 
-        tweet.media.map((media) => (
-          media.url && (
-            <div key={media.media_key} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
-              <Image src={media.url} alt={tweet.text} width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="twitter feed image" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="text-white text-sm font-bold line-clamp-2">{tweet.text}</p>
-              </div>
-            </div>
-          )
-        ))
+        tweet.media.map((media) => {
+            const imageUrl = media.type === 'video' ? media.preview_image_url : media.url;
+            if (!imageUrl) return null;
+            return (
+                <div key={media.media_key} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
+                    <Image src={imageUrl} alt={tweet.text} width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="twitter feed image" />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p className="text-white text-sm font-bold line-clamp-2">{tweet.text}</p>
+                    </div>
+                </div>
+            )
+        })
       )}
     </div>
   );
@@ -104,7 +106,7 @@ const InstagramProfileFeed = () => {
             try {
                 const response = await fetchInstagramProfileFeed();
                 if(response.error) {
-                    setError(response.error);
+                    setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${response.error}`);
                 } else {
                     const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
                     setMedia(photosOnly);

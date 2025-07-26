@@ -46,7 +46,7 @@ const InstagramShopFeed = () => {
             try {
                 const response = await fetchInstagramShopFeed();
                 if (response.error) {
-                    setError(response.error);
+                    setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${response.error}`);
                 } else {
                     const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
                     setMedia(photosOnly);
@@ -113,7 +113,7 @@ const FacebookProductsStore = () => {
             try {
                 const response = await fetchFacebookProducts();
                 if(response.error) {
-                    setError(response.error);
+                    setError(`Não foi possível carregar os produtos do Facebook. Motivo: ${response.error}`);
                 } else {
                     setProducts(response.products);
                 }

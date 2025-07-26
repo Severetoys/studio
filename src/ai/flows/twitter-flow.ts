@@ -63,8 +63,10 @@ const fetchTwitterMediaFlow = ai.defineFlow(
     console.log("Cache do Twitter expirado ou vazio. Buscando novos dados.");
     
     const bearerToken = process.env.TWITTER_BEARER_TOKEN;
-    if (!bearerToken) {
-      throw new Error("A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.");
+    if (!bearerToken || bearerToken === 'YOUR_TWITTER_BEARER_TOKEN') {
+      const errorMsg = "A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.";
+      console.warn(errorMsg);
+      throw new Error(errorMsg);
     }
 
     const headers = {
@@ -117,7 +119,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
               }
               const medias = tweet.attachments.media_keys
                   .map((key: string) => mediaMap.get(key))
-                  .filter(Boolean);
+                  .filter(Boolean); // Filtra itens nulos se a chave não for encontrada
               
               if (medias.length === 0) {
                   return null;
