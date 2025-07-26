@@ -39,11 +39,11 @@ const VerifyUserOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   redirectUrl: z.string().optional(),
-  errorCode: z.enum(['NO_USERS_FOUND', 'MATCH_NOT_FOUND', 'VERIFICATION_FAILED', 'UNKNOWN']).optional(),
+  errorCode: z.enum(['NO_USERS_FOUND', 'MATCH_NOT_FOUND', 'VERIFICATION_FAILED', 'UNKNOWN', 'NO_FACE_DETECTED']).optional(),
 });
 export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 
-const VIP_URL = "https://www.italosantos.com";
+const VIP_URL = "https://www.italosantos.com/dashboard";
 
 /**
  * Genkit flow to register a new user.
@@ -92,6 +92,18 @@ const verifyUserFlow = ai.defineFlow(
   async ({ imageBase64 }) => {
     try {
       console.log('Starting user verification flow...');
+      
+      // 1. Validate the new face image first
+      const faceValidation = await detectFace(imageBase64);
+      if (!faceValidation.faceDetected) {
+        return { 
+          success: false, 
+          message: faceValidation.error || 'Nenhuma face válida detectada na sua imagem.',
+          errorCode: 'NO_FACE_DETECTED',
+        };
+      }
+
+      // 2. Get all registered users
       const allUsers = await getAllUsers();
 
       if (allUsers.length === 0) {
@@ -101,7 +113,7 @@ const verifyUserFlow = ai.defineFlow(
       
       console.log(`Found ${allUsers.length} users to check. Comparing against the provided image.`);
       
-      // Iterate through each registered user and compare their face.
+      // 3. Iterate through each registered user and compare their face.
       for (const user of allUsers) {
         if (!user.imageUrl) {
             console.log(`Skipping user ${user.email} as they have no imageUrl.`);

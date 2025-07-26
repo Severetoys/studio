@@ -72,14 +72,16 @@ export async function saveUser(userData: UserData): Promise<void> {
  * @returns An array of user objects.
  */
 export async function getAllUsers(): Promise<Array<{
-    name: string,
-    email: string,
-    imageUrl: string
+    id: string;
+    name: string;
+    email: string;
+    imageUrl: string;
 }>> {
     const usersRef = db.ref('facialAuth/users');
     const snapshot = await usersRef.once('value');
     
     if (!snapshot.exists()) {
+        console.log("No users found in facialAuth/users path.");
         return [];
     }
 
@@ -89,6 +91,7 @@ export async function getAllUsers(): Promise<Array<{
         ...usersData[key],
     }));
 
+    console.log(`Found ${usersList.length} users in the database.`);
     return usersList;
 }
 
