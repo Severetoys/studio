@@ -128,7 +128,7 @@ export default function HomePage() {
                   Face ID
               </Button>
             
-             <div className="text-center py-4">
+             <div className="text-center py-4 space-y-4">
                 {isLoadingPrice ? (
                      <div className="flex items-center justify-center h-[72px]">
                         <Loader2 className="h-8 w-8 animate-spin text-primary"/>
@@ -152,10 +152,10 @@ export default function HomePage() {
                               />
                             </button>
                          
-                           <div className="text-center py-4">
+                           <div className="text-center">
                                 <p className="text-muted-foreground">Assinatura Mensal</p>
-                                <h3 className="font-bold text-8xl text-primary text-shadow-neon-red animate-pulse-glow">
-                                    {priceInfo.amount.toFixed(2)}
+                                <h3 className="font-bold text-5xl text-primary text-shadow-neon-red animate-pulse-glow">
+                                    {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
                                     <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
                                 </h3>
                             </div>

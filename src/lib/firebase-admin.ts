@@ -1,3 +1,4 @@
+
 // src/lib/firebase-admin.ts
 /**
  * @fileOverview Initializes and exports the Firebase Admin SDK instance.
@@ -29,7 +30,7 @@ function initializeFirebaseAdmin(): App {
     // Initialize the app with the service account credentials and database URL.
     const app = initializeApp({
       credential: cert(serviceAccountCredential),
-      databaseURL: "https://facei-id-italosantos-com.firebaseio.com"
+      databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com/"
     });
     console.log(`[Admin SDK] Firebase Admin SDK initialized successfully for project: ${app.options.projectId}`);
     return app;
