@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload } from 'lucide-react';
+import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload, Video } from 'lucide-react';
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
@@ -35,62 +35,49 @@ interface UploadedPhoto {
   imageUrl: string;
 }
 
-// Componente para a aba do Twitter
-const TwitterFeed = () => {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [tweets, setTweets] = useState<TweetWithMedia[]>([]);
-  const [error, setError] = useState<string | null>(null);
+const TwitterPhotos = ({ tweets, isLoading, error }: { tweets: TweetWithMedia[], isLoading: boolean, error: string | null }) => {
+    const photos = tweets.flatMap(tweet => 
+        tweet.media.filter(m => m.type === 'photo' && m.url)
+    );
 
-  useEffect(() => {
-    const fetchFeed = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 50 });
-        // Exibe FOTOS e VÍDEOS no mesmo feed
-        const tweetsWithMedia = response.tweets.filter(tweet =>
-            tweet.media.some(m => (m.type === 'photo' && m.url) || (m.type === 'video' && m.preview_image_url))
-        );
-        setTweets(tweetsWithMedia);
-      } catch (e: any) {
-        const errorMessage = e.message || "Ocorreu um erro desconhecido.";
-        setError(`Não foi possível carregar as fotos do Twitter. Motivo: ${errorMessage}`);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao Carregar o Feed do Twitter',
-          description: errorMessage,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchFeed();
-  }, [toast]);
+    if (isLoading) return <FeedLoading message="Carregando fotos do X (Twitter)..." />;
+    if (error) return <FeedError message={error} />;
+    if (photos.length === 0) return <FeedEmpty message="Nenhuma foto encontrada no feed do Twitter." />;
 
-  if (isLoading) return <FeedLoading message="Carregando feed do X (Twitter)..." />;
-  if (error) return <FeedError message={error} />;
-  if (tweets.length === 0) return <FeedEmpty message="Nenhuma foto ou vídeo encontrado no feed do Twitter." />;
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {tweets.flatMap(tweet => 
-        tweet.media.map((media) => {
-            const imageUrl = media.type === 'video' ? media.preview_image_url : media.url;
-            if (!imageUrl) return null;
-            return (
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {photos.map(media => (
                 <div key={media.media_key} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
-                    <Image src={imageUrl} alt={tweet.text} width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="twitter feed image" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <p className="text-white text-sm font-bold line-clamp-2">{tweet.text}</p>
+                    <Image src={media.url!} alt="Twitter Photo" width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="twitter feed image" />
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const TwitterVideos = ({ tweets, isLoading, error }: { tweets: TweetWithMedia[], isLoading: boolean, error: string | null }) => {
+    const videos = tweets.flatMap(tweet => 
+        tweet.media.filter(m => (m.type === 'video' || m.type === 'animated_gif') && m.preview_image_url)
+    );
+
+    if (isLoading) return <FeedLoading message="Carregando vídeos do X (Twitter)..." />;
+    if (error) return <FeedError message={error} />;
+    if (videos.length === 0) return <FeedEmpty message="Nenhum vídeo encontrado no feed do Twitter." />;
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {videos.map(media => (
+                <div key={media.media_key} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
+                    <Image src={media.preview_image_url!} alt="Twitter Video Thumbnail" width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="twitter video thumbnail" />
+                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Video className="h-12 w-12 text-white" />
                     </div>
                 </div>
-            )
-        })
-      )}
-    </div>
-  );
+            ))}
+        </div>
+    );
 };
+
 
 // Componente para a aba do Instagram (@Severepics)
 const InstagramProfileFeed = () => {
@@ -221,6 +208,33 @@ const FeedEmpty = ({ message }: { message: string }) => (
 );
 
 export default function FotosPage() {
+  const { toast } = useToast();
+  const [twitterTweets, setTwitterTweets] = useState<TweetWithMedia[]>([]);
+  const [isTwitterLoading, setIsTwitterLoading] = useState(true);
+  const [twitterError, setTwitterError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTwitter = async () => {
+      setIsTwitterLoading(true);
+      setTwitterError(null);
+      try {
+        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 100 });
+        setTwitterTweets(response.tweets);
+      } catch (e: any) {
+        const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+        setTwitterError(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao Carregar o Feed do Twitter',
+          description: errorMessage,
+        });
+      } finally {
+        setIsTwitterLoading(false);
+      }
+    };
+    fetchTwitter();
+  }, [toast]);
+
   return (
     <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
@@ -231,14 +245,18 @@ export default function FotosPage() {
           <CardDescription>Feeds de imagens de várias fontes.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="twitter" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-background/50 border border-primary/20">
-              <TabsTrigger value="twitter" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Twitter className="h-4 w-4 mr-2"/>X (Twitter)</TabsTrigger>
+          <Tabs defaultValue="twitter_fotos" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-background/50 border border-primary/20">
+              <TabsTrigger value="twitter_fotos" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Twitter className="h-4 w-4 mr-2"/>Fotos do X</TabsTrigger>
+              <TabsTrigger value="twitter_videos" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Video className="h-4 w-4 mr-2"/>Vídeos do X</TabsTrigger>
               <TabsTrigger value="instagram" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Instagram className="h-4 w-4 mr-2"/>Instagram</TabsTrigger>
               <TabsTrigger value="uploads" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Upload className="h-4 w-4 mr-2"/>Uploads</TabsTrigger>
             </TabsList>
-            <TabsContent value="twitter" className="pt-6">
-              <TwitterFeed />
+            <TabsContent value="twitter_fotos" className="pt-6">
+              <TwitterPhotos tweets={twitterTweets} isLoading={isTwitterLoading} error={twitterError} />
+            </TabsContent>
+            <TabsContent value="twitter_videos" className="pt-6">
+              <TwitterVideos tweets={twitterTweets} isLoading={isTwitterLoading} error={twitterError} />
             </TabsContent>
             <TabsContent value="instagram" className="pt-6">
               <InstagramProfileFeed />
