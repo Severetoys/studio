@@ -80,7 +80,7 @@ export default function HomePage() {
         title: "Pagamento Aprovado!",
         description: "Você será redirecionado para a autenticação para finalizar seu acesso."
     });
-    router.push('/old-auth-page');
+    router.push('/dashboard');
   }
   
   const handleGeneratePix = async () => {
@@ -127,6 +127,15 @@ export default function HomePage() {
                   <Fingerprint className="h-12 w-12 mr-4" />
                   Face ID
               </Button>
+
+            <div className="flex items-center justify-center gap-2">
+                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800">
+                    <Image src="https://developer.apple.com/assets/elements/badges/apple-pay-logo-white.svg" alt="Apple Pay" width={48} height={20} />
+                </Button>
+                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800">
+                     <Image src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" width={48} height={20} />
+                </Button>
+            </div>
             
              <div className="text-center py-4 space-y-4">
                 {isLoadingPrice ? (
