@@ -4,15 +4,13 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload, Video } from 'lucide-react';
+import { Loader2, AlertCircle, Camera, Twitter, Instagram, Upload } from 'lucide-react';
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
-import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
+import { fetchTwitterFeed, type TweetWithMedia } from '@/ai/flows/twitter-flow';
 import { fetchInstagramProfileFeed, type InstagramMedia as ProfileInstagramMedia } from '@/ai/flows/instagram-feed-flow';
 import { collection, getDocs, Timestamp, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 
 // Interfaces para os tipos de mídia
 interface TwitterMedia {
@@ -22,18 +20,35 @@ interface TwitterMedia {
   media_key: string;
 }
 
-interface TweetWithMedia {
-  id: string;
-  text: string;
-  created_at?: string;
-  media: TwitterMedia[];
-}
-
 interface UploadedPhoto {
   id: string;
   title: string;
   imageUrl: string;
 }
+
+// Componentes de estado reutilizáveis
+const FeedLoading = ({ message }: { message: string }) => (
+  <div className="flex flex-col items-center justify-center min-h-[400px]">
+    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    <p className="mt-4 text-muted-foreground">{message}</p>
+  </div>
+);
+
+const FeedError = ({ message }: { message: string }) => (
+  <div className="flex flex-col items-center justify-center min-h-[400px] text-destructive bg-destructive/10 rounded-lg p-4">
+    <AlertCircle className="h-12 w-12" />
+    <p className="mt-4 font-semibold">Erro ao carregar</p>
+    <p className="text-sm text-center">{message}</p>
+  </div>
+);
+
+const FeedEmpty = ({ message }: { message: string }) => (
+  <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
+    <Camera className="h-12 w-12" />
+    <p className="mt-4 text-lg font-semibold text-center">{message}</p>
+  </div>
+);
+
 
 const TwitterPhotos = ({ tweets, isLoading, error }: { tweets: TweetWithMedia[], isLoading: boolean, error: string | null }) => {
     const photos = tweets.flatMap(tweet => 
@@ -54,30 +69,6 @@ const TwitterPhotos = ({ tweets, isLoading, error }: { tweets: TweetWithMedia[],
         </div>
     );
 };
-
-const TwitterVideos = ({ tweets, isLoading, error }: { tweets: TweetWithMedia[], isLoading: boolean, error: string | null }) => {
-    const videos = tweets.flatMap(tweet => 
-        tweet.media.filter(m => (m.type === 'video' || m.type === 'animated_gif') && m.preview_image_url)
-    );
-
-    if (isLoading) return <FeedLoading message="Carregando vídeos do X (Twitter)..." />;
-    if (error) return <FeedError message={error} />;
-    if (videos.length === 0) return <FeedEmpty message="Nenhum vídeo encontrado no feed do Twitter." />;
-
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {videos.map(media => (
-                <div key={media.media_key} className="group relative aspect-square overflow-hidden rounded-lg border border-primary/20 hover:border-primary hover:shadow-neon-red-light transition-all">
-                    <Image src={media.preview_image_url!} alt="Twitter Video Thumbnail" width={600} height={600} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" data-ai-hint="twitter video thumbnail" />
-                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Video className="h-12 w-12 text-white" />
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
-
 
 // Componente para a aba do Instagram (@Severepics)
 const InstagramProfileFeed = () => {
@@ -184,28 +175,6 @@ const UploadsFeed = () => {
     );
 }
 
-// Componentes de estado reutilizáveis
-const FeedLoading = ({ message }: { message: string }) => (
-  <div className="flex flex-col items-center justify-center min-h-[400px]">
-    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-    <p className="mt-4 text-muted-foreground">{message}</p>
-  </div>
-);
-
-const FeedError = ({ message }: { message: string }) => (
-  <div className="flex flex-col items-center justify-center min-h-[400px] text-destructive bg-destructive/10 rounded-lg p-4">
-    <AlertCircle className="h-12 w-12" />
-    <p className="mt-4 font-semibold">Erro ao carregar</p>
-    <p className="text-sm text-center">{message}</p>
-  </div>
-);
-
-const FeedEmpty = ({ message }: { message: string }) => (
-  <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
-    <Camera className="h-12 w-12" />
-    <p className="mt-4 text-lg font-semibold text-center">{message}</p>
-  </div>
-);
 
 export default function FotosPage() {
   const { toast } = useToast();
@@ -246,17 +215,13 @@ export default function FotosPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="twitter_fotos" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-background/50 border border-primary/20">
+            <TabsList className="grid w-full grid-cols-3 bg-background/50 border border-primary/20">
               <TabsTrigger value="twitter_fotos" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Twitter className="h-4 w-4 mr-2"/>Fotos do X</TabsTrigger>
-              <TabsTrigger value="twitter_videos" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Video className="h-4 w-4 mr-2"/>Vídeos do X</TabsTrigger>
               <TabsTrigger value="instagram" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Instagram className="h-4 w-4 mr-2"/>Instagram</TabsTrigger>
               <TabsTrigger value="uploads" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Upload className="h-4 w-4 mr-2"/>Uploads</TabsTrigger>
             </TabsList>
             <TabsContent value="twitter_fotos" className="pt-6">
               <TwitterPhotos tweets={twitterTweets} isLoading={isTwitterLoading} error={twitterError} />
-            </TabsContent>
-            <TabsContent value="twitter_videos" className="pt-6">
-              <TwitterVideos tweets={twitterTweets} isLoading={isTwitterLoading} error={twitterError} />
             </TabsContent>
             <TabsContent value="instagram" className="pt-6">
               <InstagramProfileFeed />
