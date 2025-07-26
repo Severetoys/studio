@@ -30,7 +30,7 @@ export default function DyteMeetingComponent({ show, onClose }: DyteMeetingProps
             },
         });
     }
-  }, [show]);
+  }, [show, initMeeting]);
 
   useEffect(() => {
     if (meeting) {
@@ -40,9 +40,11 @@ export default function DyteMeetingComponent({ show, onClose }: DyteMeetingProps
     }
   }, [meeting, onClose]);
 
+  if (!meeting) return null;
+
   return (
     <DyteProvider client={meeting}>
-        <DyteMeeting meeting={meeting} showSetupScreen={true} />
+        <DyteMeeting meeting={meeting} />
     </DyteProvider>
   );
 }

@@ -4,24 +4,33 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, MapPin } from 'lucide-react';
-import { db, auth } from '@/lib/firebase';
+import { Send, Loader2, MapPin, Paperclip, Video } from 'lucide-react';
+import { db, auth, storage } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, doc, setDoc, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged, signInAnonymously, type User as FirebaseUser } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+const DyteMeetingComponent = dynamic(() => import('@/components/dyte-meeting'), {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-full w-full bg-black text-white"><Loader2 className="h-8 w-8 animate-spin"/></div>,
+});
+
 
 interface Message {
   id: string;
   senderId: string;
-  text: string; // For admin, this is the user's language. For user, it's their original message.
-  originalText?: string; // For user, this is their original message.
+  text: string; 
+  originalText?: string;
   timestamp: Timestamp;
   isLocation?: boolean;
+  imageUrl?: string;
 }
 
 const getOrCreateChatId = (): string => {
@@ -47,7 +56,10 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
     const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const chatId = useRef<string>('');
+
+    const [showVideoCall, setShowVideoCall] = useState(false);
 
     useEffect(() => {
         if (isOpen && !chatId.current) {
@@ -103,16 +115,17 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
         }
     }, [messages, isOpen]);
 
-    const handleSendMessage = useCallback(async (text: string, isLocation = false) => {
+    const handleSendMessage = useCallback(async (text: string, options: { isLocation?: boolean; imageUrl?: string } = {}) => {
+        const { isLocation = false, imageUrl = '' } = options;
         const trimmedMessage = text.trim();
-        if (trimmedMessage === '' || isSending || !currentUser || !chatId.current) return;
+        if ((trimmedMessage === '' && !imageUrl) || isSending || !currentUser || !chatId.current) return;
         
         setIsSending(true);
         const chatDocRef = doc(db, 'chats', chatId.current);
         const messagesCollection = collection(chatDocRef, 'messages');
 
         try {
-            const userLanguage = (await detectLanguage({ text: trimmedMessage })).language || navigator.language.split('-')[0] || 'pt';
+            const userLanguage = (await detectLanguage({ text: trimmedMessage || 'Image sent' })).language || navigator.language.split('-')[0] || 'pt';
             
             await setDoc(chatDocRef, { 
                 createdAt: serverTimestamp(),
@@ -122,14 +135,15 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
             const translated = await translateText({ text: trimmedMessage, targetLanguage: 'pt' });
 
             await addDoc(messagesCollection, {
-                text: translated.translatedText, // Always store the PT version for admin
-                originalText: trimmedMessage, // Keep original for user's view
+                text: translated.translatedText,
+                originalText: trimmedMessage,
                 senderId: currentUser.uid,
                 timestamp: serverTimestamp(),
                 isLocation,
+                imageUrl,
             });
 
-            if (!isLocation) {
+            if (!isLocation && !imageUrl) {
                 setNewMessage('');
             }
         } catch (error) {
@@ -149,7 +163,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
             position => {
                 const { latitude, longitude } = position.coords;
                 const link = `https://maps.google.com/?q=${latitude},${longitude}`;
-                handleSendMessage(link, true);
+                handleSendMessage(link, { isLocation: true });
             },
             () => {
                 toast({ variant: 'destructive', title: 'Não foi possível obter sua localização.' });
@@ -157,8 +171,34 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
         );
     }, [handleSendMessage, toast]);
 
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !currentUser || !chatId.current) return;
+
+        setIsSending(true);
+        toast({ title: "Enviando imagem..." });
+        try {
+            const storageRef = ref(storage, `chat_uploads/${chatId.current}/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            const imageUrl = await getDownloadURL(storageRef);
+            await handleSendMessage(`Imagem: ${file.name}`, { imageUrl: imageUrl });
+             toast({ title: "Imagem enviada com sucesso!" });
+        } catch (error) {
+            console.error("Erro ao enviar imagem:", error);
+            toast({ variant: 'destructive', title: 'Erro ao enviar imagem.' });
+        } finally {
+            setIsSending(false);
+        }
+    };
+
     const renderMessageContent = (msg: Message) => {
-        // User always sees their own original message
+        if (msg.imageUrl) {
+            return (
+                 <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
+                    <Image src={msg.imageUrl} alt="Imagem enviada" width={200} height={200} className="rounded-md max-w-full h-auto" />
+                </a>
+            );
+        }
         if (msg.senderId === currentUser?.uid) {
             if (msg.isLocation && msg.originalText?.startsWith('http')) {
                  return (
@@ -169,11 +209,19 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
             }
             return msg.originalText;
         }
-        // User sees admin's message (already in user's language)
         return msg.text;
     };
     
     if (!isOpen) return null;
+
+    if (showVideoCall) {
+        return (
+            <div className="fixed inset-0 z-[2000] bg-black">
+                <DyteMeetingComponent show={showVideoCall} onClose={() => setShowVideoCall(false)} />
+            </div>
+        );
+    }
+
 
     return (
         <div className={cn("fixed bottom-24 right-6 z-[1000] transition-all duration-300", isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none")}>
@@ -197,12 +245,12 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                                     </Avatar>
                                 )}
                                 <div className={cn(
-                                    "max-w-xs md:max-w-md rounded-lg px-4 py-2 relative",
+                                    "max-w-xs md:max-w-md rounded-lg px-3 py-2 relative",
                                     msg.senderId === 'admin' ? 'bg-secondary text-secondary-foreground rounded-bl-sm' : 'bg-primary text-primary-foreground rounded-br-sm'
                                 )}>
-                                    <p className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                    <div className="text-sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                                         {renderMessageContent(msg)}
-                                    </p>
+                                    </div>
                                     <p className="text-xs text-right opacity-70 mt-1">
                                         {msg.timestamp?.toDate()?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'Enviando...'}
                                     </p>
@@ -226,7 +274,12 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                     )}
                     <div ref={messagesEndRef} />
                 </CardContent>
-                <CardFooter className="border-t border-primary/20 p-2.5">
+                <CardFooter className="border-t border-primary/20 p-2.5 flex-col items-start gap-2">
+                     <div className="flex w-full items-center space-x-1">
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => setShowVideoCall(true)}><Video className="h-5 w-5"/></Button>
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => fileInputRef.current?.click()}><Paperclip className="h-5 w-5"/></Button>
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={sendLocation}><MapPin className="h-5 w-5"/></Button>
+                     </div>
                     <div className="flex w-full items-center space-x-2">
                         <Textarea
                             placeholder="Mensagem..." 
@@ -242,16 +295,6 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                             disabled={isSending}
                             rows={1}
                         />
-                         <Button 
-                            variant="ghost"
-                            size="icon" 
-                            onClick={sendLocation} 
-                            disabled={isSending}
-                            className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full w-10 h-10 flex-shrink-0"
-                            aria-label="Enviar Localização"
-                        >
-                            <MapPin className="h-5 w-5" />
-                        </Button>
                         <Button 
                             type="submit" 
                             size="icon" 
@@ -262,6 +305,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                         >
                             <Send className="h-5 w-5" />
                         </Button>
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                     </div>
                 </CardFooter>
             </Card>
