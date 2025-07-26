@@ -1,18 +1,6 @@
 
 {
   "rules": {
-    "users": {
-      "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null && auth.uid == $uid"
-      }
-    },
-    "secretChat": {
-      "messages": {
-        ".read": "auth != null",
-        ".write": "auth != null && newData.child('senderId').val() == auth.uid && newData.child('text').val().length > 0"
-      }
-    },
     "facialAuth": {
        "users": {
           ".read": true, 
@@ -22,8 +10,13 @@
           }
        }
     },
+    "admin": {
+      "integrations": {
+        ".read": "auth != null && auth.uid == 'YOUR_ADMIN_UID'",
+        ".write": "auth != null && auth.uid == 'YOUR_ADMIN_UID'"
+      }
+    },
     ".read": false,
     ".write": false
   }
 }
-

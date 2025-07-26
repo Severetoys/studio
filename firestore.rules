@@ -1,36 +1,36 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Regras para o Chat
+
+    // Allow admin full access to content collections
+    match /products/{productId} {
+      allow read, write: if request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+    match /photos/{photoId} {
+      allow read, write: if request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+    match /videos/{videoId} {
+      allow read, write: if request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+
+    // Rules for the Secret Chat
     match /chats/{chatId} {
-      allow read, write: if true; // Permite leitura/escrita para rastreamento de visitantes e chat do admin.
-      
+      // Anyone (anonymous users) can create their own chat document.
+      // Admin can read any chat document.
+      allow read, create: if request.auth != null;
+      allow update: if request.auth != null && (request.auth.token.isAnonymous == true || request.auth.uid == 'YOUR_ADMIN_UID');
+
       match /messages/{messageId} {
-        allow read, write: if true; // Permite leitura/escrita de mensagens dentro de um chat.
+        // Anyone can read messages in any chat.
+        // Anyone can write a message to their own chat.
+        // Admin can write to any chat.
+        allow read, create: if request.auth != null;
       }
     }
-
-    // Regras para Produtos
-    match /products/{productId} {
-      allow read: if true; // Qualquer um pode ler a lista de produtos.
-      allow create, update, delete: if request.auth != null; // Apenas administradores autenticados podem modificar produtos.
-    }
-
-    // Regras para Fotos
-    match /photos/{photoId} {
-      allow read: if true; // Qualquer um pode ver as fotos.
-      allow create, update, delete: if request.auth != null; // Apenas administradores autenticados podem modificar fotos.
-    }
-
-    // Regras para Vídeos
-    match /videos/{videoId} {
-      allow read: if true; // Qualquer um pode ver os vídeos da loja.
-      allow create, update, delete: if request.auth != null; // Apenas administradores autenticados podem modificar vídeos.
-    }
-
-    // Nega acesso a qualquer outra coleção por padrão.
+    
+    // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;
     }
