@@ -7,7 +7,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import mercadopago from 'mercadopago';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 // Schema de entrada
 const CreatePixPaymentInputSchema = z.object({
@@ -42,9 +42,8 @@ const createPixPaymentFlow = ai.defineFlow(
       return { error: errorMessage };
     }
 
-    mercadopago.configure({
-      access_token: accessToken,
-    });
+    const client = new MercadoPagoConfig({ accessToken });
+    const payment = new Payment(client);
     
     const paymentData = {
       transaction_amount: amount,
@@ -57,10 +56,10 @@ const createPixPaymentFlow = ai.defineFlow(
     };
 
     try {
-      const response = await mercadopago.payment.create(paymentData);
+      const response = await payment.create({ body: paymentData });
       
-      const qrCodeBase64 = response.body.point_of_interaction?.transaction_data?.qr_code_base64;
-      const qrCode = response.body.point_of_interaction?.transaction_data?.qr_code;
+      const qrCodeBase64 = response.point_of_interaction?.transaction_data?.qr_code_base64;
+      const qrCode = response.point_of_interaction?.transaction_data?.qr_code;
 
       if (!qrCodeBase64 || !qrCode) {
         throw new Error('A resposta da API do Mercado Pago não incluiu os dados do QR Code.');
