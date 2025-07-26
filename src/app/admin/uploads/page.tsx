@@ -163,7 +163,7 @@ export default function AdminUploadsPage() {
                         Gerenciador de Mídias
                     </CardTitle>
                     <CardDescription>
-                       Envie arquivos do seu computador ou importe através de um link externo.
+                       Envie arquivos do seu computador ou importe através de um link externo. Use os links abaixo ao criar produtos e galerias.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -207,7 +207,7 @@ export default function AdminUploadsPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Arquivos Enviados</CardTitle>
+                    <CardTitle>Arquivos Enviados (Bucket)</CardTitle>
                     <CardDescription>Lista de arquivos na pasta 'general-uploads'.</CardDescription>
                 </CardHeader>
                 <CardContent>
