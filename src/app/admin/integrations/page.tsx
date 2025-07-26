@@ -21,6 +21,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { connectService, disconnectService, getIntegrationStatus, type Integration } from './actions';
 
