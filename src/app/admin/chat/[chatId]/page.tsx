@@ -73,7 +73,7 @@ export default function AdminChatPage() {
         unsubChat();
         unsubMessages();
     };
-  }, [db, chatId]);
+  }, [chatId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

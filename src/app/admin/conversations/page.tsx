@@ -71,7 +71,7 @@ export default function AdminConversationsPage() {
         });
 
         return () => unsubscribe();
-    }, [db]);
+    }, []);
     
     const getChatParticipantName = (chatId: string) => {
         if (chatId.startsWith('secret-chat-')) {
