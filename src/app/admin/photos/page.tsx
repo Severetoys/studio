@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Upload, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,6 +27,8 @@ import { useToast } from "@/hooks/use-toast";
 import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { app as firebaseApp, db } from '@/lib/firebase';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import axios from 'axios';
 
 interface Photo {
   id: string;
@@ -47,7 +49,9 @@ export default function AdminPhotosPage() {
   // Form state
   const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("upload");
 
   const fetchPhotos = async () => {
     setIsLoading(true);
@@ -79,31 +83,42 @@ export default function AdminPhotosPage() {
   const resetForm = () => {
     setTitle('');
     setFile(null);
+    setImageUrl('');
+    setActiveTab("upload");
   };
 
   const handleAddPhoto = async () => {
-    if (!title || !file) {
-      toast({
-        variant: "destructive",
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha o título e selecione um arquivo.",
-      });
-      return;
+    if (!title) {
+        toast({ variant: "destructive", title: "Título é obrigatório" });
+        return;
+    }
+    if (activeTab === 'upload' && !file) {
+        toast({ variant: "destructive", title: "Arquivo é obrigatório" });
+        return;
+    }
+    if (activeTab === 'link' && !imageUrl) {
+        toast({ variant: "destructive", title: "URL da imagem é obrigatória" });
+        return;
     }
 
     setIsSubmitting(true);
-    const storagePath = `italosantos.com/photos/${Date.now()}_${file.name}`;
-    try {
-      // 1. Upload file to Firebase Storage
-      const storageRef = ref(storage, storagePath);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
+    let finalImageUrl = imageUrl;
+    let storagePath = `italosantos.com/photos-by-url/${Date.now()}_${title.replace(/\s/g, '_')}`;
 
-      // 2. Add photo metadata to Firestore
+    try {
+      if (activeTab === 'upload' && file) {
+        // Upload do arquivo
+        storagePath = `italosantos.com/photos/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, storagePath);
+        await uploadBytes(storageRef, file);
+        finalImageUrl = await getDownloadURL(storageRef);
+      }
+      
+      // Add photo metadata to Firestore
       await addDoc(collection(db, "photos"), {
         title,
-        imageUrl: downloadURL,
-        storagePath: storagePath,
+        imageUrl: finalImageUrl,
+        storagePath: (activeTab === 'upload' ? storagePath : 'external'), // Indica se foi upload ou link
         createdAt: Timestamp.now(),
       });
       
@@ -120,7 +135,7 @@ export default function AdminPhotosPage() {
       toast({
         variant: "destructive",
         title: "Erro ao adicionar foto",
-        description: "Ocorreu um erro ao salvar a foto. Verifique as regras do Firebase Storage.",
+        description: "Ocorreu um erro ao salvar a foto. Verifique as regras do Firebase Storage e as permissões de CORS se estiver usando um link.",
       });
     } finally {
       setIsSubmitting(false);
@@ -131,11 +146,10 @@ export default function AdminPhotosPage() {
     if (!confirm("Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.")) return;
     
     try {
-      // Delete from Firestore
       await deleteDoc(doc(db, "photos", photo.id));
       
-      // Delete from Storage
-      if (photo.storagePath) {
+      // Delete from Storage only if it was uploaded (not from an external link)
+      if (photo.storagePath && photo.storagePath !== 'external') {
         const photoRef = ref(storage, photo.storagePath);
         await deleteObject(photoRef);
       }
@@ -172,19 +186,33 @@ export default function AdminPhotosPage() {
                 <DialogHeader>
                     <DialogTitle>Adicionar Nova Foto</DialogTitle>
                     <DialogDescription>
-                        Faça o upload de uma nova foto para sua galeria.
+                        Faça o upload de uma nova foto para sua galeria a partir de um arquivo ou um link.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="title" className="text-right">Título</Label>
                         <Input id="title" placeholder="Ex: Ensaio na Praia" value={title} onChange={(e) => setTitle(e.target.value)} className="col-span-3" />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="file" className="text-right">Arquivo</Label>
-                        <Input id="file" type="file" accept="image/*" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} className="col-span-3" />
-                    </div>
                 </div>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="upload"><Upload className="h-4 w-4 mr-2"/>Upload</TabsTrigger>
+                        <TabsTrigger value="link"><LinkIcon className="h-4 w-4 mr-2"/>Link Externo</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="upload">
+                         <div className="grid grid-cols-4 items-center gap-4 pt-4">
+                            <Label htmlFor="file" className="text-right">Arquivo</Label>
+                            <Input id="file" type="file" accept="image/*" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} className="col-span-3" />
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="link">
+                         <div className="grid grid-cols-4 items-center gap-4 pt-4">
+                            <Label htmlFor="imageUrl" className="text-right">URL</Label>
+                            <Input id="imageUrl" placeholder="https://exemplo.com/imagem.jpg" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" />
+                        </div>
+                    </TabsContent>
+                </Tabs>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
                     <Button type="submit" onClick={handleAddPhoto} disabled={isSubmitting}>

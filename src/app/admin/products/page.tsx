@@ -44,6 +44,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: string;
@@ -58,6 +59,7 @@ interface Product {
 
 export default function AdminProductsPage() {
   const { toast } = useToast();
+  const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,6 +69,7 @@ export default function AdminProductsPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchProducts = async () => {
@@ -99,14 +102,15 @@ export default function AdminProductsPage() {
     setName('');
     setDescription('');
     setPrice('');
+    setImageUrl('');
   };
 
   const handleAddProduct = async () => {
-    if (!name || !price) {
+    if (!name || !price || !imageUrl) {
       toast({
         variant: "destructive",
         title: "Campos obrigatórios",
-        description: "Por favor, preencha o nome e o preço do produto.",
+        description: "Por favor, preencha o nome, preço e URL da imagem do produto.",
       });
       return;
     }
@@ -120,7 +124,7 @@ export default function AdminProductsPage() {
         status: 'Ativo',
         sales: 0,
         createdAt: Timestamp.now(),
-        imageUrl: 'https://placehold.co/600x400.png',
+        imageUrl: imageUrl,
       });
       
       toast({
@@ -167,6 +171,9 @@ export default function AdminProductsPage() {
       <div className="flex items-center">
         <h1 className="text-lg font-semibold md:text-2xl">Produtos</h1>
         <div className="ml-auto flex items-center gap-2">
+            <Button size="sm" className="h-8 gap-1" onClick={() => router.push('/admin/uploads')}>
+                Procurar Mídia
+            </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
                 <Button size="sm" className="h-8 gap-1" onClick={() => setIsDialogOpen(true)}>
@@ -180,7 +187,7 @@ export default function AdminProductsPage() {
                 <DialogHeader>
                 <DialogTitle>Adicionar Novo Produto</DialogTitle>
                 <DialogDescription>
-                    Insira os detalhes do seu novo produto.
+                    Insira os detalhes do seu novo produto. Você pode enviar uma imagem na página de 'Uploads' e colar o link aqui.
                 </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -201,6 +208,12 @@ export default function AdminProductsPage() {
                     Preço (BRL)
                     </Label>
                     <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="99.90" className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="imageUrl" className="text-right">
+                     URL da Imagem
+                    </Label>
+                    <Input id="imageUrl" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://.../imagem.jpg" className="col-span-3" />
                 </div>
                 </div>
                 <DialogFooter>

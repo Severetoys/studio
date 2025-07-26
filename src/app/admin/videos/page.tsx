@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, Edit } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Upload, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { app as firebaseApp, db } from '@/lib/firebase';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Video {
   id: string;
@@ -55,8 +56,11 @@ export default function AdminVideosPage() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [activeTab, setActiveTab] = useState("upload");
+
   const fetchVideos = async () => {
     setIsLoading(true);
     try {
@@ -88,34 +92,44 @@ export default function AdminVideosPage() {
     setDescription('');
     setPrice('');
     setVideoFile(null);
+    setVideoUrl('');
+    setThumbnailUrl('');
+    setActiveTab("upload");
   };
 
   const handleAddVideo = async () => {
-    if (!title || !price || !videoFile) {
-      toast({
-        variant: "destructive",
-        title: "Campos obrigatórios",
-        description: "Título, preço e arquivo de vídeo são obrigatórios.",
-      });
-      return;
+    if (!title || !price) {
+        toast({ variant: "destructive", title: "Título e preço são obrigatórios." });
+        return;
+    }
+    if (activeTab === 'upload' && !videoFile) {
+        toast({ variant: "destructive", title: "Arquivo de vídeo é obrigatório." });
+        return;
+    }
+    if (activeTab === 'link' && !videoUrl) {
+        toast({ variant: "destructive", title: "URL do vídeo é obrigatória." });
+        return;
     }
 
     setIsSubmitting(true);
-    const videoStoragePath = `italosantos.com/videos/${Date.now()}_${videoFile.name}`;
-    try {
-      // 1. Upload video file to Firebase Storage
-      const videoStorageRef = ref(storage, videoStoragePath);
-      await uploadBytes(videoStorageRef, videoFile);
-      const videoDownloadURL = await getDownloadURL(videoStorageRef);
+    let finalVideoUrl = videoUrl;
+    let videoStoragePath = `italosantos.com/videos-by-url/${Date.now()}_${title.replace(/\s/g, '_')}`;
 
-      // 2. Add video metadata to Firestore
+    try {
+      if (activeTab === 'upload' && videoFile) {
+        videoStoragePath = `italosantos.com/videos/${Date.now()}_${videoFile.name}`;
+        const videoStorageRef = ref(storage, videoStoragePath);
+        await uploadBytes(videoStorageRef, videoFile);
+        finalVideoUrl = await getDownloadURL(videoStorageRef);
+      }
+
       await addDoc(collection(db, "videos"), {
         title,
         description,
         price: parseFloat(price),
-        videoUrl: videoDownloadURL,
-        thumbnailUrl: 'https://placehold.co/600x400.png', // Placeholder thumbnail
-        videoStoragePath,
+        videoUrl: finalVideoUrl,
+        thumbnailUrl: thumbnailUrl || 'https://placehold.co/600x400.png',
+        videoStoragePath: activeTab === 'upload' ? videoStoragePath : 'external',
         createdAt: Timestamp.now(),
       });
       
@@ -144,8 +158,10 @@ export default function AdminVideosPage() {
     try {
       await deleteDoc(doc(db, "videos", video.id));
       
-      const videoRef = ref(storage, video.videoStoragePath);
-      await deleteObject(videoRef);
+      if (video.videoStoragePath && video.videoStoragePath !== 'external') {
+        const videoRef = ref(storage, video.videoStoragePath);
+        await deleteObject(videoRef);
+      }
 
       if (video.thumbnailStoragePath && !video.thumbnailUrl.startsWith('https://placehold.co')) {
         const thumbRef = ref(storage, video.thumbnailStoragePath);
@@ -183,10 +199,10 @@ export default function AdminVideosPage() {
                 <DialogHeader>
                     <DialogTitle>Adicionar Novo Vídeo</DialogTitle>
                     <DialogDescription>
-                        Faça o upload de um novo vídeo para venda.
+                        Faça o upload de um novo vídeo para venda a partir de um arquivo ou um link externo.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="title" className="text-right">Título</Label>
                         <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Bastidores Exclusivos" className="col-span-3" />
@@ -200,10 +216,28 @@ export default function AdminVideosPage() {
                         <Input id="price" type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="49.90" className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="file" className="text-right">Arquivo</Label>
-                        <Input id="file" type="file" accept="video/*" onChange={e => setVideoFile(e.target.files ? e.target.files[0] : null)} className="col-span-3" />
+                        <Label htmlFor="thumbnailUrl" className="text-right">URL da Thumbnail</Label>
+                        <Input id="thumbnailUrl" value={thumbnailUrl} onChange={e => setThumbnailUrl(e.target.value)} placeholder="Opcional: https://.../thumb.jpg" className="col-span-3" />
                     </div>
                 </div>
+                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="upload"><Upload className="h-4 w-4 mr-2"/>Upload de Vídeo</TabsTrigger>
+                        <TabsTrigger value="link"><LinkIcon className="h-4 w-4 mr-2"/>Link do Vídeo</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="upload">
+                         <div className="grid grid-cols-4 items-center gap-4 pt-4">
+                            <Label htmlFor="file" className="text-right">Arquivo</Label>
+                            <Input id="file" type="file" accept="video/*" onChange={e => setVideoFile(e.target.files ? e.target.files[0] : null)} className="col-span-3" />
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="link">
+                         <div className="grid grid-cols-4 items-center gap-4 pt-4">
+                            <Label htmlFor="videoUrl" className="text-right">URL</Label>
+                            <Input id="videoUrl" placeholder="https://exemplo.com/video.mp4" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} className="col-span-3" />
+                        </div>
+                    </TabsContent>
+                </Tabs>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
                     <Button type="submit" onClick={handleAddVideo} disabled={isSubmitting}>
