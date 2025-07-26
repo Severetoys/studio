@@ -19,12 +19,6 @@ import { cn } from '@/lib/utils';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-interface PaymentButton {
-  id: string;
-  name: string;
-  iconUrl: string;
-}
-
 const features = [
     "Conteúdo exclusivo e sem censura.",
     "Acesso a vídeos e ensaios completos.",
@@ -65,10 +59,6 @@ export default function HomePage() {
   const [isGeneratingPix, setIsGeneratingPix] = useState(false);
   const [pixData, setPixData] = useState<CreatePixPaymentOutput | null>(null);
   
-  // State for dynamic payment buttons
-  const [paymentButtons, setPaymentButtons] = useState<PaymentButton[]>([]);
-  const [isLoadingButtons, setIsLoadingButtons] = useState(true);
-
 
   useEffect(() => {
     const userLocale = navigator.language || 'pt-BR';
@@ -84,27 +74,7 @@ export default function HomePage() {
       }
     };
     
-    const fetchPaymentButtons = async () => {
-        setIsLoadingButtons(true);
-        try {
-            const buttonsCollection = collection(db, "paymentButtons");
-            const q = query(buttonsCollection, orderBy("order", "asc"));
-            const querySnapshot = await getDocs(q);
-            const buttonsList = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as PaymentButton));
-            setPaymentButtons(buttonsList);
-        } catch (error) {
-            console.error("Error fetching payment buttons: ", error);
-            // Don't show toast for this, just fail silently
-        } finally {
-            setIsLoadingButtons(false);
-        }
-    };
-
     getLocalCurrency();
-    fetchPaymentButtons();
   }, []);
   
   const handlePaymentSuccess = () => {
@@ -162,15 +132,12 @@ export default function HomePage() {
               </Button>
 
             <div className="flex items-center justify-center gap-2">
-                {isLoadingButtons ? (
-                    <div className="h-11 flex-1 bg-muted rounded-md animate-pulse"></div>
-                ) : (
-                    paymentButtons.map(button => (
-                        <Button key={button.id} onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800">
-                            <Image src={button.iconUrl} alt={button.name} width={48} height={20} />
-                        </Button>
-                    ))
-                )}
+                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
+                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Pagar com Google Pay" width={100} height={44} className="object-contain" data-ai-hint="payment button" />
+                </Button>
+                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
+                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Pagar com Apple Pay" width={100} height={44} className="object-contain" data-ai-hint="payment button" />
+                </Button>
             </div>
             
              <div className="text-center py-4 space-y-4">
