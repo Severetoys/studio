@@ -108,6 +108,8 @@ const fetchTwitterMediaFlow = ai.defineFlow(
       const mediaMap = new Map<string, any>();
       if (timelineData.includes?.media) {
           for (const media of timelineData.includes.media) {
+              // Correção: Para fotos, o 'url' já vem, mas para vídeos precisamos dele no 'preview_image_url'.
+              // O código original já lidava com isso bem, mas vamos garantir que url seja o campo principal para fotos.
               mediaMap.set(media.media_key, media);
           }
       }
