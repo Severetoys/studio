@@ -16,6 +16,14 @@ import { Label } from '@/components/ui/label';
 import { createPixPayment, type CreatePixPaymentOutput } from '@/ai/flows/mercado-pago-pix-flow';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+interface PaymentButton {
+  id: string;
+  name: string;
+  iconUrl: string;
+}
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -56,6 +64,10 @@ export default function HomePage() {
   const [pixEmail, setPixEmail] = useState('');
   const [isGeneratingPix, setIsGeneratingPix] = useState(false);
   const [pixData, setPixData] = useState<CreatePixPaymentOutput | null>(null);
+  
+  // State for dynamic payment buttons
+  const [paymentButtons, setPaymentButtons] = useState<PaymentButton[]>([]);
+  const [isLoadingButtons, setIsLoadingButtons] = useState(true);
 
 
   useEffect(() => {
@@ -71,7 +83,28 @@ export default function HomePage() {
         setIsLoadingPrice(false);
       }
     };
+    
+    const fetchPaymentButtons = async () => {
+        setIsLoadingButtons(true);
+        try {
+            const buttonsCollection = collection(db, "paymentButtons");
+            const q = query(buttonsCollection, orderBy("order", "asc"));
+            const querySnapshot = await getDocs(q);
+            const buttonsList = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            } as PaymentButton));
+            setPaymentButtons(buttonsList);
+        } catch (error) {
+            console.error("Error fetching payment buttons: ", error);
+            // Don't show toast for this, just fail silently
+        } finally {
+            setIsLoadingButtons(false);
+        }
+    };
+
     getLocalCurrency();
+    fetchPaymentButtons();
   }, []);
   
   const handlePaymentSuccess = () => {
@@ -129,12 +162,15 @@ export default function HomePage() {
               </Button>
 
             <div className="flex items-center justify-center gap-2">
-                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800">
-                    <Image src="https://developer.apple.com/assets/elements/badges/apple-pay-logo-white.svg" alt="Apple Pay" width={48} height={20} />
-                </Button>
-                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800">
-                     <Image src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" width={48} height={20} />
-                </Button>
+                {isLoadingButtons ? (
+                    <div className="h-11 flex-1 bg-muted rounded-md animate-pulse"></div>
+                ) : (
+                    paymentButtons.map(button => (
+                        <Button key={button.id} onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800">
+                            <Image src={button.iconUrl} alt={button.name} width={48} height={20} />
+                        </Button>
+                    ))
+                )}
             </div>
             
              <div className="text-center py-4 space-y-4">
