@@ -44,7 +44,7 @@ const fetchInstagramProfileMediaFlow = ai.defineFlow(
   async () => {
     
     const accessToken = process.env.INSTAGRAM_FEED_ACCESS_TOKEN;
-    const userId = '17841405559436798'; // ID do perfil @severepics
+    const userId = 'me'; // Usar "me" para se referir ao usuário autenticado pelo token.
     const maxResults = 50;
 
     if (!accessToken || accessToken === "YOUR_INSTAGRAM_FEED_ACCESS_TOKEN") {

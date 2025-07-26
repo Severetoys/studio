@@ -43,7 +43,7 @@ const fetchInstagramShopMediaFlow = ai.defineFlow(
   async () => {
     
     const accessToken = process.env.INSTAGRAM_SHOP_ACCESS_TOKEN;
-    const userId = '17841451284030585'; // ID do perfil @severetoys
+    const userId = 'me'; // Usar "me" para se referir ao usuário autenticado pelo token.
     const maxResults = 50;
 
     if (!accessToken || accessToken === 'YOUR_INSTAGRAM_SHOP_ACCESS_TOKEN') {
