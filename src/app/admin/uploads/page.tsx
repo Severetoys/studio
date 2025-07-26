@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { UploadCloud, ClipboardCopy, Link as LinkIcon, Trash2 } from "lucide-react";
+import { UploadCloud, ClipboardCopy, Link as LinkIcon, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,6 +38,7 @@ export default function AdminUploadsPage() {
     const [file, setFile] = useState<File | null>(null);
     const [linkUrl, setLinkUrl] = useState('');
     const [isUploading, setIsUploading] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
     const [isLoadingFiles, setIsLoadingFiles] = useState(true);
@@ -124,16 +126,36 @@ export default function AdminUploadsPage() {
         }
     };
     
-    const handleImportFromLink = () => {
-        if(!linkUrl) {
+    const handleImportFromLink = async () => {
+        if(!linkUrl || !URL.canParse(linkUrl)) {
             toast({ variant: "destructive", title: "URL Inválida", description: "Por favor, insira um link válido." });
             return;
         }
-        toast({
-            title: "Funcionalidade em desenvolvimento",
-            description: "A importação de mídias por link ainda não foi implementada.",
-        });
-        console.log("Tentativa de importação da URL:", linkUrl);
+        
+        setIsImporting(true);
+        toast({ title: "Importando mídia...", description: "Isso pode levar alguns segundos."});
+        try {
+            const response = await fetch('/api/import-from-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: linkUrl }),
+            });
+            
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Falha ao importar o arquivo.');
+            }
+            
+            toast({ title: "Importação Concluída!", description: `Arquivo salvo como ${result.fileName}`});
+            setLinkUrl('');
+            await fetchUploadedFiles();
+
+        } catch (error: any) {
+             toast({ variant: "destructive", title: "Erro na Importação", description: error.message });
+        } finally {
+            setIsImporting(false);
+        }
     }
 
     const handleDelete = async (filePath: string) => {
@@ -185,7 +207,7 @@ export default function AdminUploadsPage() {
                                     </div>
                                 )}
                                 <Button onClick={handleUpload} disabled={!file || isUploading}>
-                                    {isUploading ? `Enviando... ${uploadProgress}%` : "Enviar Arquivo"}
+                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Enviando...</> : "Enviar Arquivo"}
                                 </Button>
                             </div>
                         </TabsContent>
@@ -193,11 +215,10 @@ export default function AdminUploadsPage() {
                             <div className="space-y-4 pt-4">
                                 <div>
                                     <Label htmlFor="link-url">URL da Mídia</Label>
-                                    <Input id="link-url" type="url" placeholder="https://exemplo.com/imagem.jpg" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className="mt-1" />
+                                    <Input id="link-url" type="url" placeholder="https://exemplo.com/imagem.jpg" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className="mt-1" disabled={isImporting} />
                                 </div>
-                                <Button onClick={handleImportFromLink} disabled={!linkUrl}>
-                                    <LinkIcon className="mr-2 h-4 w-4"/>
-                                    Importar via Link
+                                <Button onClick={handleImportFromLink} disabled={!linkUrl || isImporting}>
+                                    {isImporting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Importando...</> : <><LinkIcon className="mr-2 h-4 w-4"/>Importar via Link</>}
                                 </Button>
                             </div>
                         </TabsContent>
@@ -212,7 +233,9 @@ export default function AdminUploadsPage() {
                 </CardHeader>
                 <CardContent>
                     {isLoadingFiles ? (
-                        <p>Carregando arquivos...</p>
+                        <div className="flex justify-center items-center py-10">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
                     ) : (
                         <Table>
                             <TableHeader>

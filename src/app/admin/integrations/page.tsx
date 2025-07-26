@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Facebook, Instagram, Twitter, LogOut, LogIn } from "lucide-react";
+import { Facebook, Instagram, Twitter, LogOut, LogIn, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
     AlertDialog,
@@ -21,8 +21,9 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-  } from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { connectService, disconnectService, getIntegrationStatus, type Integration } from './actions';
+
 
 // Placeholder icons for PayPal and Mercado Pago
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -38,140 +39,71 @@ const MercadoPagoIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-declare global {
-  interface Window {
-    FB: any;
-  }
-}
-
-type Integration = "twitter" | "instagram" | "facebook" | "paypal" | "mercadopago";
 
 export default function AdminIntegrationsPage() {
   const { toast } = useToast();
-  const [integrations, setIntegrations] = useState({
+  const [integrations, setIntegrations] = useState<Record<Integration, boolean>>({
     twitter: false,
     instagram: false,
     facebook: false,
     paypal: false,
     mercadopago: false,
   });
-  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState<Record<Integration, boolean> | null>(null);
 
   useEffect(() => {
-    setIsClient(true);
-    try {
-      const savedState = {
-        twitter: localStorage.getItem("integration_twitter") === "true",
-        instagram: localStorage.getItem("integration_instagram") === "true",
-        facebook: localStorage.getItem("integration_facebook") === "true",
-        paypal: localStorage.getItem("integration_paypal") === "true",
-        mercadopago: localStorage.getItem("integration_mercadopago") === "true",
-      };
-      setIntegrations(savedState);
-    } catch (error) {
-      console.error("Failed to access localStorage", error);
+    async function fetchAllStatus() {
+        const services: Integration[] = ['twitter', 'instagram', 'facebook', 'paypal', 'mercadopago'];
+        const statuses = await Promise.all(services.map(service => getIntegrationStatus(service)));
+        const newIntegrationsState: Record<Integration, boolean> = {
+            twitter: false,
+            instagram: false,
+            facebook: false,
+            paypal: false,
+            mercadopago: false,
+        };
+        services.forEach((service, index) => {
+            newIntegrationsState[service] = statuses[index];
+        });
+        setIntegrations(newIntegrationsState);
     }
+    fetchAllStatus();
   }, []);
 
-  const updateIntegrationStatus = (integration: Integration, isConnected: boolean, showToast: boolean = true) => {
-    setIntegrations(prevState => ({ ...prevState, [integration]: isConnected }));
-    try {
-      localStorage.setItem(`integration_${integration}`, String(isConnected));
-      if (showToast) {
-        toast({
-            title: `Integração ${isConnected ? 'Conectada' : 'Desconectada'}`,
-            description: `A integração com ${integration} foi ${isConnected ? 'ativada' : 'desativada'}.`,
-        });
-      }
-    } catch (error) {
-      console.error("Failed to write to localStorage", error);
-    }
-  };
-
-  const handleFacebookLogin = () => {
-    if (!window.FB) {
-        toast({ variant: "destructive", title: "SDK do Facebook não carregado."});
-        return;
-    }
-    window.FB.login((response: any) => {
-        if (response.status === 'connected') {
-            updateIntegrationStatus('facebook', true);
-            updateIntegrationStatus('instagram', true);
-            localStorage.setItem('fb_access_token', response.authResponse.accessToken);
-            toast({ title: 'Conectado com Facebook!', description: 'Sua conta foi vinculada com sucesso.' });
-        } else {
-            toast({ variant: 'destructive', title: 'Login com Facebook falhou', description: 'O usuário cancelou o login ou não autorizou completamente.' });
-        }
-    }, { scope: 'public_profile,email,instagram_basic,pages_show_list,instagram_content_publish', auth_type: 'rerequest' });
-  };
-
-  const handleFacebookLogout = () => {
-    if (!window.FB) {
-        toast({ variant: "destructive", title: "SDK do Facebook não carregado."});
-        return;
-    }
-    window.FB.getLoginStatus((response: any) => {
-        const logoutClientSide = () => {
-            updateIntegrationStatus('facebook', false);
-            updateIntegrationStatus('instagram', false);
-            localStorage.removeItem('fb_access_token');
-        };
-
-        if (response.status === 'connected') {
-            window.FB.logout(logoutClientSide);
-        } else {
-            logoutClientSide();
-        }
-    });
-  };
-
-  useEffect(() => {
-    if (!isClient) return;
-    
-    const checkFbStatus = () => {
-        if (window.FB) {
-            window.FB.getLoginStatus((response: any) => {
-              if (response.status === 'connected') {
-                updateIntegrationStatus('facebook', true, false);
-                updateIntegrationStatus('instagram', true, false);
-                localStorage.setItem('fb_access_token', response.authResponse.accessToken);
-              } else {
-                updateIntegrationStatus('facebook', false, false);
-                updateIntegrationStatus('instagram', false, false);
-                localStorage.removeItem('fb_access_token');
-              }
-            });
-        }
-    };
-    
-    if (window.FB) {
-      checkFbStatus();
-    } else {
-      window.addEventListener('fb-sdk-ready', checkFbStatus);
-    }
-
-    return () => {
-       window.removeEventListener('fb-sdk-ready', checkFbStatus);
-    }
-
-  }, [isClient]);
-
   const handleToggleIntegration = async (integration: Integration) => {
+    setIsLoading(prev => ({...(prev || {}), [integration]: true }));
     const isConnected = integrations[integration];
 
-    if (integration === 'facebook' || integration === 'instagram') {
+    try {
+        let result: { success: boolean, message: string };
         if (isConnected) {
-            handleFacebookLogout();
+            result = await disconnectService(integration);
         } else {
-            handleFacebookLogin();
+            result = await connectService(integration);
         }
-        return;
-    }
-    
-    if (isConnected) {
-      updateIntegrationStatus(integration, false);
-    } else {
-      updateIntegrationStatus(integration, true);
+
+        if (result.success) {
+            setIntegrations(prevState => ({ ...prevState, [integration]: !isConnected }));
+            toast({
+                title: `Integração ${!isConnected ? 'Conectada' : 'Desconectada'}`,
+                description: result.message,
+            });
+        } else {
+             toast({
+                variant: 'destructive',
+                title: `Falha na Operação`,
+                description: result.message,
+            });
+        }
+
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: `Erro de Servidor`,
+            description: error.message,
+        });
+    } finally {
+        setIsLoading(prev => ({...(prev || {}), [integration]: false }));
     }
   };
 
@@ -188,12 +120,17 @@ export default function AdminIntegrationsPage() {
     description: string;
     isConnected: boolean;
   }) => {
-    
-    const requiresDialog = platform === 'twitter' || platform === 'paypal' || platform === 'mercadopago';
+
+    const isCardLoading = isLoading?.[platform] ?? false;
 
     const connectButton = (
-      <Button variant="default" onClick={() => handleToggleIntegration(platform)}>
-        <LogIn className="mr-2 h-4 w-4" /> Conectar
+      <Button 
+        variant="default" 
+        onClick={() => handleToggleIntegration(platform)}
+        disabled={isCardLoading}
+      >
+        {isCardLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
+        Conectar
       </Button>
     );
 
@@ -207,12 +144,16 @@ export default function AdminIntegrationsPage() {
                 <p className="text-sm text-muted-foreground">{description}</p>
               </div>
             </div>
-            {isClient && (
-              isConnected ? (
-                <Button variant="destructive" onClick={() => handleToggleIntegration(platform)}>
-                  <LogOut className="mr-2 h-4 w-4" /> Desconectar
+              {isConnected ? (
+                <Button 
+                    variant="destructive" 
+                    onClick={() => handleToggleIntegration(platform)}
+                    disabled={isCardLoading}
+                >
+                    {isCardLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+                     Desconectar
                 </Button>
-              ) : requiresDialog ? (
+              ) : (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     {connectButton}
@@ -230,10 +171,8 @@ export default function AdminIntegrationsPage() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              ) : (
-                connectButton
               )
-            )}
+            }
           </div>
         </Card>
       );
@@ -248,7 +187,7 @@ export default function AdminIntegrationsPage() {
         <CardHeader>
           <CardTitle>Conectar Contas</CardTitle>
           <CardDescription>
-            Gerencie as conexões com redes sociais e serviços de pagamento.
+            Gerencie as conexões com redes sociais e serviços de pagamento. O status de conectado/desconectado é salvo no servidor.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
