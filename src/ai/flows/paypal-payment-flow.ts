@@ -2,6 +2,7 @@
 'use server';
 /**
  * @fileOverview Fluxo para criar e capturar ordens de pagamento no PayPal.
+ * - getPayPalClientId: Obtém a Client ID do PayPal do ambiente do servidor.
  * - createPayPalOrder: Gera uma ordem de pagamento e retorna o ID para o frontend.
  * - capturePayPalOrder: Captura o pagamento após a aprovação do usuário.
  */
@@ -140,6 +141,12 @@ const capturePayPalOrderFlow = ai.defineFlow(
   }
 );
 
+/**
+ * Função para obter a Client ID do PayPal do ambiente do servidor.
+ */
+export async function getPayPalClientId(): Promise<string | null> {
+    return process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || null;
+}
 
 /**
  * Função exportada para ser chamada do lado do cliente.
