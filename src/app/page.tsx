@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import PayPalButtonsWrapper from '@/components/paypal-buttons-wrapper';
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -132,10 +133,9 @@ export default function HomePage() {
               </Button>
             
             <div className="flex items-center justify-center gap-2">
-                {/* Botão Google Pay */}
-                <Button onClick={handlePaymentSuccess} className="h-20 flex-1 bg-black text-white hover:bg-gray-800 p-0 overflow-hidden">
-                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Pagar com Google Pay" width={203} height={88} className="object-contain" data-ai-hint="payment button" />
-                </Button>
+                <div id="google-pay-button-container" className="h-20 w-[203px]">
+                   {priceInfo && <PayPalButtonsWrapper amount={priceInfo.amount} currencyCode={priceInfo.currencyCode} onPaymentSuccess={handlePaymentSuccess} />}
+                </div>
                 
                 {/* Botão Pix */}
                  {!isLoadingPrice && (
