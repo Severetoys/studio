@@ -118,8 +118,16 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                   return null;
               }
               const medias = tweet.attachments.media_keys
-                  .map((key: string) => mediaMap.get(key))
-                  .filter(Boolean); // Filtra itens nulos se a chave não for encontrada
+                  .map((key: string) => {
+                      const mediaData = mediaMap.get(key);
+                      if (!mediaData) return null;
+                      // Correção: Garante que a URL da foto seja a correta, e vídeos tenham preview
+                      if (mediaData.type === 'photo' && !mediaData.url) {
+                        return null; // Ignora fotos sem URL
+                      }
+                      return mediaData;
+                  })
+                  .filter(Boolean);
               
               if (medias.length === 0) {
                   return null;
