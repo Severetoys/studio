@@ -115,9 +115,21 @@ export default function HomePage() {
   };
   
   const quickPayButtons = [
-    { label: 'Google', onClick: () => handlePaymentSuccess() },
-    { label: 'Pix', onClick: () => setIsPixModalOpen(true) },
-    { label: 'Apple', onClick: () => handlePaymentSuccess() },
+    { 
+        label: 'Google', 
+        onClick: () => handlePaymentSuccess(),
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37%20(1).jpeg?alt=media&token=3096f952-ede8-4b33-a255-472eee8ccd03'
+    },
+    { 
+        label: 'Pix', 
+        onClick: () => setIsPixModalOpen(true),
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649'
+    },
+    { 
+        label: 'Apple', 
+        onClick: () => handlePaymentSuccess(),
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37%20(2).jpeg?alt=media&token=a49d5948-55a2-4da8-8224-90a3b294a414'
+    },
   ];
 
   return (
@@ -141,15 +153,24 @@ export default function HomePage() {
                 ) : (
                     priceInfo && (
                         <>
-                          <div className="flex w-full">
-                              {quickPayButtons.map(({ label, onClick }) => (
-                                <Button
+                           <div className="flex justify-center items-center gap-2">
+                              {quickPayButtons.map(({ label, onClick, imageUrl }) => (
+                                <button
                                   key={label}
                                   onClick={onClick}
-                                  className="w-full h-10 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold border-2 border-neutral-700 hover:border-neutral-500 transition-all duration-300 flex items-center justify-center flex-1 px-2"
+                                  className="flex-1 bg-transparent border-none p-0 h-14 w-full transition-transform duration-200 ease-in-out hover:scale-105"
+                                  aria-label={`Pagar com ${label}`}
                                 >
-                                 <span className="truncate">{label}</span>
-                                </Button>
+                                  <Image
+                                    src={imageUrl}
+                                    alt={`${label} Pay button`}
+                                    width={150}
+                                    height={56}
+                                    className="object-contain w-full h-full"
+                                    data-ai-hint="payment button"
+                                    unoptimized
+                                  />
+                                </button>
                               ))}
                           </div>
                          
