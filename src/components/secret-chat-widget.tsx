@@ -224,7 +224,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
 
 
     return (
-        <div className={cn("fixed bottom-24 right-6 z-[1000] transition-all duration-300", isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none")}>
+        <div className={cn("fixed bottom-24 left-6 z-[1000] transition-all duration-300", isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none")}>
             <Card className="w-[360px] h-[500px] max-w-md flex flex-col animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-black/90 backdrop-blur-xl md:rounded-2xl">
                 <CardHeader className="flex flex-row items-center justify-center relative border-b border-primary/20">
                     <CardTitle className="text-xl text-primary text-shadow-neon-red-light">
