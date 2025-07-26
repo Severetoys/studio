@@ -133,8 +133,8 @@ export default function HomePage() {
             
             <div className="flex items-center justify-center gap-2">
                 {/* Botão Google Pay */}
-                <Button onClick={handlePaymentSuccess} className="h-16 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
-                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Pagar com Google Pay" width={156} height={68} className="object-contain" data-ai-hint="payment button" />
+                <Button onClick={handlePaymentSuccess} className="h-20 flex-1 bg-black text-white hover:bg-gray-800 p-0 overflow-hidden">
+                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Pagar com Google Pay" width={203} height={88} className="object-contain" data-ai-hint="payment button" />
                 </Button>
                 
                 {/* Botão Pix */}
@@ -157,8 +157,8 @@ export default function HomePage() {
                  )}
                 
                 {/* Botão Apple Pay */}
-                <Button onClick={handlePaymentSuccess} className="h-16 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
-                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Pagar com Apple Pay" width={156} height={68} className="object-contain" data-ai-hint="payment button" />
+                <Button onClick={handlePaymentSuccess} className="h-20 flex-1 bg-black text-white hover:bg-gray-800 p-0 overflow-hidden">
+                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Pagar com Apple Pay" width={203} height={88} className="object-contain" data-ai-hint="payment button" />
                 </Button>
             </div>
             
