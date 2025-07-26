@@ -42,11 +42,13 @@ const createPixPaymentFlow = ai.defineFlow(
       return { error: errorMessage };
     }
 
-    const client = new MercadoPagoConfig({ accessToken });
+    const client = new MercadoPagoConfig({ 
+      accessToken, 
+      options: { integratorId: 'dev_aa2d89add88111ebb2fb0242ac130004' }
+    });
     const payment = new Payment(client);
     
     const paymentData = {
-      integrator_id: 'dev_aa2d89add88111ebb2fb0242ac130004',
       transaction_amount: amount,
       description: 'Assinatura Mensal - Italo Santos',
       payment_method_id: 'pix',
