@@ -15,7 +15,7 @@ export type InstagramFeedInput = z.infer<typeof InstagramFeedInputSchema>;
 // Define o schema de saída.
 const MediaSchema = z.object({
     id: z.string(),
-    caption: z.string().optional(),
+    caption: z.string().optional().nullable(),
     media_type: z.enum(['IMAGE', 'VIDEO', 'CAROUSEL_ALBUM']),
     media_url: z.string().optional(),
     thumbnail_url: z.string().optional(),
@@ -66,7 +66,7 @@ const fetchInstagramProfileMediaFlow = ai.defineFlow(
       }
       
       const data = await response.json();
-      const result = { media: data.data || [] };
+      const result = { media: (data.data || []).map((item: any) => ({...item, caption: item.caption || null})) };
       return result;
 
     } catch (error: any) {

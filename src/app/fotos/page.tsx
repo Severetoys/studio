@@ -47,7 +47,7 @@ const TwitterFeed = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 10 });
+        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 50 });
         const tweetsWithPhotos = response.tweets.map(tweet => ({
           ...tweet,
           media: tweet.media.filter(m => m.type === 'photo' && m.url),
@@ -105,11 +105,6 @@ const InstagramProfileFeed = () => {
                 const response = await fetchInstagramProfileFeed();
                 if(response.error) {
                     setError(response.error);
-                    toast({
-                        variant: 'destructive',
-                        title: 'Erro ao Carregar Feed do Instagram',
-                        description: response.error,
-                    });
                 } else {
                     const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
                     setMedia(photosOnly);

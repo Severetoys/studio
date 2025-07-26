@@ -12,20 +12,23 @@ import { z } from 'zod';
 const InstagramShopInputSchema = z.object({});
 export type InstagramShopInput = z.infer<typeof InstagramShopInputSchema>;
 
-// Define o schema de saída.
-const InstagramMediaOutputSchema = z.object({
-  media: z.array(z.object({
+const MediaItemSchema = z.object({
     id: z.string(),
-    caption: z.string().optional(),
+    caption: z.string().optional().nullable(),
     media_type: z.enum(['IMAGE', 'VIDEO', 'CAROUSEL_ALBUM']),
     media_url: z.string().optional(),
     thumbnail_url: z.string().optional(),
     permalink: z.string(),
     timestamp: z.string(),
-  })),
+});
+
+// Define o schema de saída.
+const InstagramMediaOutputSchema = z.object({
+  media: z.array(MediaItemSchema),
+  error: z.string().optional(),
 });
 export type InstagramMediaOutput = z.infer<typeof InstagramMediaOutputSchema>;
-export type InstagramMedia = InstagramMediaOutput['media'][0];
+export type InstagramMedia = z.infer<typeof MediaItemSchema>;
 
 
 /**
@@ -43,8 +46,10 @@ const fetchInstagramShopMediaFlow = ai.defineFlow(
     const userId = '17841451284030585'; // ID do perfil @severetoys
     const maxResults = 50;
 
-    if (!accessToken) {
-      throw new Error("O token de acesso do Instagram (INSTAGRAM_SHOP_ACCESS_TOKEN) não está configurado no ambiente do servidor.");
+    if (!accessToken || accessToken === 'YOUR_INSTAGRAM_SHOP_ACCESS_TOKEN') {
+      const errorMessage = "O token de acesso do Instagram (INSTAGRAM_SHOP_ACCESS_TOKEN) não está configurado no ambiente do servidor.";
+      console.warn(errorMessage);
+      return { media: [], error: errorMessage };
     }
 
     const fields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp';
@@ -54,18 +59,19 @@ const fetchInstagramShopMediaFlow = ai.defineFlow(
       const response = await fetch(url);
       if (!response.ok) {
         const errorData = await response.json();
+        const errorMessage = `Erro ao buscar mídia da loja no Instagram: ${errorData.error.message}`;
         console.error("Erro da API do Instagram (Shop Flow):", errorData.error);
-        throw new Error(`Erro ao buscar mídia da loja no Instagram: ${errorData.error.message}`);
+        return { media: [], error: errorMessage };
       }
       
       const data = await response.json();
-      const result = { media: data.data || [] };
+      const result = { media: (data.data || []).map((item: any) => ({...item, caption: item.caption || null})) };
       return result;
 
     } catch (error: any) {
         console.error('Erro no fluxo ao buscar feed da loja do Instagram:', error);
         const errorMessage = error.message || "Erro desconhecido ao acessar a API do Instagram.";
-        throw new Error(`Não foi possível carregar o feed da loja. Motivo: ${errorMessage}`);
+        return { media: [], error: `Não foi possível carregar o feed da loja. Motivo: ${errorMessage}` };
     }
   }
 );

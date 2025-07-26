@@ -17,21 +17,24 @@ const TwitterMediaInputSchema = z.object({
 export type TwitterMediaInput = z.infer<typeof TwitterMediaInputSchema>;
 
 // Define o schema de saída.
-const TwitterMediaOutputSchema = z.object({
-    tweets: z.array(z.object({
-        id: z.string(),
-        text: z.string(),
-        created_at: z.string().optional(),
-        media: z.array(z.object({
-            media_key: z.string(),
-            type: z.enum(['photo', 'video', 'animated_gif']),
-            url: z.string().optional(),
-            preview_image_url: z.string().optional(),
-            variants: z.any().optional(),
-        })),
+const TwitterMediaSchema = z.object({
+    id: z.string(),
+    text: z.string(),
+    created_at: z.string().optional(),
+    media: z.array(z.object({
+        media_key: z.string(),
+        type: z.enum(['photo', 'video', 'animated_gif']),
+        url: z.string().optional(),
+        preview_image_url: z.string().optional(),
+        variants: z.any().optional(),
     })),
 });
+
+const TwitterMediaOutputSchema = z.object({
+    tweets: z.array(TwitterMediaSchema),
+});
 export type TwitterMediaOutput = z.infer<typeof TwitterMediaOutputSchema>;
+export type TweetWithMedia = z.infer<typeof TwitterMediaSchema>;
 
 
 // Cache em memória simples para armazenar os resultados
@@ -108,7 +111,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
       }
       
       const tweetsWithMedia = (timelineData.data || [])
-          .map((tweet: any) => {
+          .map((tweet: any): TweetWithMedia | null => {
                if (!tweet.attachments || !tweet.attachments.media_keys) {
                   return null;
               }
@@ -127,9 +130,9 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                   media: medias,
               };
           })
-          .filter(Boolean);
+          .filter((tweet): tweet is TweetWithMedia => tweet !== null);
 
-      const result = { tweets: tweetsWithMedia as any };
+      const result = { tweets: tweetsWithMedia };
       
       // Atualiza o cache
       cache = {

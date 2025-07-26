@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/
 import { PlayCircle, Video, Loader2, AlertCircle, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { fetchTwitterFeed } from '@/ai/flows/twitter-flow';
+import { fetchTwitterFeed, type TweetWithMedia } from '@/ai/flows/twitter-flow';
 
 interface Media {
   url?: string;
@@ -16,20 +16,13 @@ interface Media {
   variants?: { bit_rate?: number, content_type: string, url: string }[];
 }
 
-interface TweetWithMedia {
-  id: string;
-  text: string;
-  created_at?: string;
-  media: Media[];
-}
-
 const VideoCard = ({ video, text }: { video: Media; text: string }) => {
     // Encontra a melhor variante de vídeo (maior bitrate)
     const videoVariant = video.variants
         ?.filter(v => v.content_type === 'video/mp4')
         .sort((a, b) => (b.bit_rate || 0) - (a.bit_rate || 0))[0];
 
-    const videoUrl = videoVariant?.url || video.url;
+    const videoUrl = videoVariant?.url;
 
     return (
         <Card className="w-full animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl group">
@@ -43,18 +36,13 @@ const VideoCard = ({ video, text }: { video: Media; text: string }) => {
                             className="w-full h-full object-cover"
                          />
                     ) : (
-                        <Image 
-                            src={video.preview_image_url || 'https://placehold.co/600x400.png'} 
-                            alt={`Thumbnail for ${text}`} 
-                            width={600} 
-                            height={400} 
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                            data-ai-hint="video thumbnail"
-                        />
+                        <div className="w-full h-full flex items-center justify-center text-center p-4">
+                             <div className='flex flex-col items-center gap-2'>
+                                <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">Vídeo não disponível para visualização direta.</p>
+                             </div>
+                        </div>
                     )}
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        <PlayCircle className="h-16 w-16 text-white" />
-                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-6">

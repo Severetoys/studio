@@ -16,7 +16,7 @@ export type FacebookProductsInput = z.infer<typeof FacebookProductsInputSchema>;
 const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   price: z.string(),
   image_url: z.string().url(),
   url: z.string().url().optional(),
@@ -45,7 +45,6 @@ const fetchFacebookProductsFlow = ai.defineFlow(
     if (!accessToken || accessToken === "YOUR_FACEBOOK_PAGE_ACCESS_TOKEN") {
       const errorMessage = "O token de acesso do Facebook (FACEBOOK_PAGE_ACCESS_TOKEN) não está configurado no ambiente do servidor.";
       console.warn(errorMessage);
-      // Retorna uma lista vazia com erro em vez de quebrar
       return { products: [], error: errorMessage };
     }
 
@@ -64,7 +63,8 @@ const fetchFacebookProductsFlow = ai.defineFlow(
       const data = await response.json();
       const products = (data.data || []).map((product: any) => ({
           ...product,
-          price: product.price || "0.00"
+          price: product.price || "0.00",
+          description: product.description || null
       }));
 
       return { products };

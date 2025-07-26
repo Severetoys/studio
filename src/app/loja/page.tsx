@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagram-shop-flow';
 import { fetchFacebookProducts, type FacebookProduct } from '@/ai/flows/facebook-products-flow';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertTitle, AlertDescription as AlertDesc } from '@/components/ui/alert';
 
 interface Video {
   id: string;
@@ -34,7 +34,6 @@ interface CartItem extends Video {
 }
 
 const InstagramShopFeed = () => {
-    // ... (componente existente, sem alterações)
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [media, setMedia] = useState<InstagramMedia[]>([]);
@@ -46,8 +45,12 @@ const InstagramShopFeed = () => {
             setError(null);
             try {
                 const response = await fetchInstagramShopFeed();
-                const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
-                setMedia(photosOnly);
+                if (response.error) {
+                    setError(response.error);
+                } else {
+                    const photosOnly = response.media.filter(m => m.media_type === 'IMAGE' && m.media_url);
+                    setMedia(photosOnly);
+                }
             } catch (e: any) {
                 const errorMessage = e.message || "Ocorreu um erro desconhecido.";
                 setError(`Não foi possível carregar as fotos do Instagram. Motivo: ${errorMessage}`);
@@ -71,7 +74,17 @@ const InstagramShopFeed = () => {
         );
     }
     
-    if (error) return <p className="text-destructive text-center">{error}</p>;
+    if (error) {
+       return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Não foi possível carregar o feed</AlertTitle>
+                <AlertDesc>{error}</AlertDesc>
+            </Alert>
+        );
+    }
+    
+    if (media.length === 0) return <p className="text-muted-foreground text-center">Nenhuma foto encontrada no Instagram da loja.</p>;
 
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -132,7 +145,7 @@ const FacebookProductsStore = () => {
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Não foi possível carregar o catálogo</AlertTitle>
-                <CardDescription>{error}</CardDescription>
+                <AlertDesc>{error}</AlertDesc>
             </Alert>
         );
     }
