@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createPixPayment, type CreatePixPaymentOutput } from '@/ai/flows/mercado-pago-pix-flow';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -118,17 +119,20 @@ export default function HomePage() {
     { 
         label: 'Google', 
         onClick: () => handlePaymentSuccess(),
-        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37%20(1).jpeg?alt=media&token=3096f952-ede8-4b33-a255-472eee8ccd03'
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37%20(1).jpeg?alt=media&token=3096f952-ede8-4b33-a255-472eee8ccd03',
+        blendMode: 'multiply'
     },
     { 
         label: 'Pix', 
         onClick: () => setIsPixModalOpen(true),
-        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649'
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649',
+        blendMode: 'screen'
     },
     { 
         label: 'Apple', 
         onClick: () => handlePaymentSuccess(),
-        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37%20(2).jpeg?alt=media&token=a49d5948-55a2-4da8-8224-90a3b294a414'
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37%20(2).jpeg?alt=media&token=a49d5948-55a2-4da8-8224-90a3b294a414',
+        blendMode: 'multiply'
     },
   ];
 
@@ -154,19 +158,22 @@ export default function HomePage() {
                     priceInfo && (
                         <>
                            <div className="flex justify-center items-center gap-2">
-                              {quickPayButtons.map(({ label, onClick, imageUrl }) => (
+                              {quickPayButtons.map(({ label, onClick, imageUrl, blendMode }) => (
                                 <button
                                   key={label}
                                   onClick={onClick}
-                                  className="flex-1 bg-transparent border-none p-0 h-14 w-full transition-transform duration-200 ease-in-out hover:scale-105"
+                                  className="flex-1 bg-transparent border-none p-0 h-16 w-full transition-transform duration-200 ease-in-out hover:scale-105"
                                   aria-label={`Pagar com ${label}`}
                                 >
                                   <Image
                                     src={imageUrl}
                                     alt={`${label} Pay button`}
-                                    width={150}
-                                    height={56}
-                                    className="object-contain w-full h-full"
+                                    width={180}
+                                    height={67}
+                                    className={cn(
+                                      "object-contain w-full h-full",
+                                      blendMode === 'screen' ? 'mix-blend-screen' : 'mix-blend-multiply'
+                                    )}
                                     data-ai-hint="payment button"
                                     unoptimized
                                   />
@@ -262,3 +269,4 @@ export default function HomePage() {
     </>
   );
 }
+
