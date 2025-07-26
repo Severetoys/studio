@@ -130,13 +130,35 @@ export default function HomePage() {
                   <Fingerprint className="h-12 w-12 mr-4" />
                   Face ID
               </Button>
-
+            
             <div className="flex items-center justify-center gap-2">
-                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
-                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Pagar com Google Pay" width={100} height={44} className="object-contain" data-ai-hint="payment button" />
+                {/* Botão Google Pay */}
+                <Button onClick={handlePaymentSuccess} className="h-14 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
+                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Pagar com Google Pay" width={130} height={57} className="object-contain" data-ai-hint="payment button" />
                 </Button>
-                <Button onClick={handlePaymentSuccess} className="h-11 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
-                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Pagar com Apple Pay" width={100} height={44} className="object-contain" data-ai-hint="payment button" />
+                
+                {/* Botão Pix */}
+                 {!isLoadingPrice && (
+                    <button
+                        onClick={() => setIsPixModalOpen(true)}
+                        className="w-24 h-16 bg-transparent border-none p-0 transition-transform duration-200 ease-in-out hover:scale-105"
+                        aria-label="Pagar com Pix"
+                      >
+                        <Image
+                          src='https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649'
+                          alt="Pix payment button"
+                          width={96}
+                          height={67}
+                          className="object-contain w-full h-full mix-blend-screen"
+                          data-ai-hint="payment button"
+                          unoptimized
+                        />
+                    </button>
+                 )}
+                
+                {/* Botão Apple Pay */}
+                <Button onClick={handlePaymentSuccess} className="h-14 flex-1 bg-black text-white border border-white/50 hover:bg-gray-800 p-0 overflow-hidden">
+                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Pagar com Apple Pay" width={130} height={57} className="object-contain" data-ai-hint="payment button" />
                 </Button>
             </div>
             
@@ -147,31 +169,13 @@ export default function HomePage() {
                     </div>
                 ) : (
                     priceInfo && (
-                        <>
-                           <button
-                              onClick={() => setIsPixModalOpen(true)}
-                              className="w-48 h-16 bg-transparent border-none p-0 transition-transform duration-200 ease-in-out hover:scale-105"
-                              aria-label="Pagar com Pix"
-                            >
-                              <Image
-                                src='https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649'
-                                alt="Pix payment button"
-                                width={180}
-                                height={67}
-                                className="object-contain w-full h-full mix-blend-screen"
-                                data-ai-hint="payment button"
-                                unoptimized
-                              />
-                            </button>
-                         
-                           <div className="text-center">
-                                <p className="text-muted-foreground">Assinatura Mensal</p>
-                                <h3 className="font-bold text-5xl text-primary text-shadow-neon-red animate-pulse-glow">
-                                    {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
-                                    <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
-                                </h3>
-                            </div>
-                        </>
+                       <div className="text-center">
+                            <p className="text-muted-foreground">Assinatura Mensal</p>
+                            <h3 className="font-bold text-5xl text-primary text-shadow-neon-red animate-pulse-glow">
+                                {priceInfo.currencySymbol} {priceInfo.amount.toFixed(2)}
+                                <span className="text-lg text-muted-foreground ml-1">{priceInfo.currencyCode}</span>
+                            </h3>
+                        </div>
                     )
                 )}
             </div>
