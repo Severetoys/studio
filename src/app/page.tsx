@@ -151,6 +151,7 @@ export default function HomePage() {
   
   const handlePaymentSuccess = async (details: any) => {
       localStorage.setItem('hasPaid', 'true');
+      localStorage.setItem('customerEmail', pixEmail);
       toast({
           title: "Pagamento Aprovado!",
           description: "Você será redirecionado para a autenticação para finalizar seu acesso."
@@ -368,4 +369,3 @@ export default function HomePage() {
     </>
   );
 }
-

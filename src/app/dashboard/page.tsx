@@ -40,12 +40,17 @@ export default function DashboardPage() {
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState('usuario@exemplo.com');
   
   useEffect(() => {
     setIsClient(true);
-    // Simula a verificação do status da assinatura
+    // Simula a verificação do status da assinatura e busca o email do cliente
     if (localStorage.getItem('hasSubscription') === 'true' || localStorage.getItem('hasPaid') === 'true') {
         setHasSubscription(true);
+        const savedEmail = localStorage.getItem('customerEmail');
+        if (savedEmail) {
+            setCustomerEmail(savedEmail);
+        }
     }
   }, []);
 
@@ -91,6 +96,7 @@ export default function DashboardPage() {
       localStorage.removeItem('hasSubscription');
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('redirectAfterLogin');
+      localStorage.removeItem('customerEmail');
     }
     router.push('/');
   };
@@ -116,7 +122,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-4">
                 <Mail className="h-5 w-5 text-primary" />
-                <p><span className="text-muted-foreground">Email: </span><strong>usuario@exemplo.com</strong></p>
+                <p><span className="text-muted-foreground">Email: </span><strong>{customerEmail}</strong></p>
             </div>
         </CardContent>
         <CardFooter>
