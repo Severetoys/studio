@@ -1,19 +1,14 @@
+
 {
   "rules": {
-    // Regras para a funcionalidade de Autenticação Facial
     "facialAuth": {
       "users": {
-        // Permite que qualquer pessoa leia a lista de usuários para verificação
         ".read": true,
-        // Permite que qualquer pessoa escreva (se cadastre)
         ".write": true,
-        // Indexa o campo de email para otimizar consultas
         ".indexOn": ["email"]
       }
     },
-    // Regras para o painel de Administração
     "admin": {
-      // Permite leitura e escrita pública para as configurações de integração e perfil
       "integrations": {
         ".read": true,
         ".write": true
@@ -23,8 +18,27 @@
         ".write": true
       }
     },
-    // Nega a leitura e escrita em qualquer outro nó não especificado acima
-    ".read": false,
-    ".write": false
+    "payments": {
+      ".read": true,
+      ".write": true
+    },
+    "chats": {
+      ".read": true,
+      ".write": true,
+      "$chatId": {
+        "messages": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "reviews": {
+       ".read": true,
+       ".write": "auth != null",
+       "$reviewId": {
+         ".read": true,
+         ".write": "auth != null"
+       }
+    }
   }
 }
