@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import MercadoPagoButton from '@/components/mercadopago-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagram-shop-flow';
@@ -188,15 +187,13 @@ export default function LojaPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerName, setCustomerName] = useState('');
-  const [isBrazil, setIsBrazil] = useState(true); // Assume Brasil como padrão
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchVideosAndLocale = async () => {
+    const fetchVideos = async () => {
       setIsLoading(true);
       try {
-        // Busca os vídeos
         const videosCollection = collection(db, "videos");
         const q = query(videosCollection, orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
@@ -205,11 +202,6 @@ export default function LojaPage() {
           ...doc.data()
         } as Video));
         setVideos(videosList);
-        
-        // Verifica a localidade do usuário
-        const userLocale = navigator.language || 'pt-BR';
-        setIsBrazil(userLocale.toLowerCase().includes('pt'));
-
       } catch (error) {
         console.error("Error fetching videos: ", error);
         toast({
@@ -222,7 +214,7 @@ export default function LojaPage() {
       }
     };
 
-    fetchVideosAndLocale();
+    fetchVideos();
   }, [toast]);
 
   const addToCart = (video: Video) => {
@@ -250,15 +242,15 @@ export default function LojaPage() {
   const totalItems = cart.length;
   const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
 
-  const handlePaymentSuccess = async (details: any) => {
+  const handlePaymentSuccess = () => {
     toast({
       title: "Pagamento bem-sucedido!",
-      description: `O pagamento ${details.id || 'mock_id'} foi concluído. Redirecionando para sua área de vídeos.`,
+      description: `Seu pagamento foi concluído. Redirecionando...`,
     });
     
-    // Webhook logic has been removed for now.
-    // We can re-implement it later if needed.
-
+    localStorage.setItem('hasPaid', 'true');
+    localStorage.setItem('customerEmail', customerEmail);
+    
     setCart([]);
     setCustomerEmail('');
     setCustomerName('');
@@ -334,13 +326,13 @@ export default function LojaPage() {
                             <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} disabled={cart.length === 0}/>
                         </div>
                         <div className="pt-4">
-                            <MercadoPagoButton
-                                amount={totalPrice}
-                                onSuccess={handlePaymentSuccess}
+                            <Button 
+                                className="w-full"
+                                onClick={handlePaymentSuccess} 
                                 disabled={cart.length === 0 || !customerEmail || !customerName}
-                                customerInfo={{name: customerName, email: customerEmail}}
-                                isBrazil={isBrazil}
-                            />
+                            >
+                                Finalizar com Pagamento (Simulado)
+                            </Button>
                         </div>
                     </div>
                 </SheetFooter>

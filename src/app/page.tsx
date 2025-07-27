@@ -168,7 +168,7 @@ export default function HomePage() {
         // Não bloqueia o usuário, mas registra o erro.
       }
       
-      router.push('/auth');
+      setIsAuthModalOpen(true);
   };
 
   useEffect(() => {
@@ -325,7 +325,7 @@ export default function HomePage() {
                             <Copy className="h-4 w-4"/>
                        </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">Após o pagamento, o acesso será liberado automaticamente.</p>
+                    <p className="text-xs text-muted-foreground">Após o pagamento, clique em continuar para finalizar seu acesso.</p>
                 </div>
             ) : !isGeneratingPix && (
                  <div className="space-y-4">
