@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { getPayPalClientId, createPayPalOrder, capturePayPalOrder } from "@/ai/flows/paypal-payment-flow";
 import { savePaymentDetails } from '@/services/user-auth-service';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const features = [
