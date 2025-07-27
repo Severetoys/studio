@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { getPayPalClientId, createPayPalOrder, capturePayPalOrder } from "@/ai/flows/paypal-payment-flow";
+import { savePaymentDetails } from '@/services/user-auth-service';
 
 
 const features = [
@@ -47,7 +48,7 @@ const FeatureList = () => (
 );
 
 
-const PayPalWrapper = ({ priceInfo, onPaymentSuccess }: { priceInfo: any, onPaymentSuccess: (details: any) => void }) => {
+const PayPalWrapper = ({ priceInfo, customerInfo, onPaymentSuccess }: { priceInfo: any, customerInfo: {name: string, email: string}, onPaymentSuccess: (details: any) => void }) => {
     const { toast } = useToast();
     const [clientId, setClientId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -127,6 +128,7 @@ const PayPalWrapper = ({ priceInfo, onPaymentSuccess }: { priceInfo: any, onPaym
                     console.error("Erro no PayPal Button: ", err);
                 }}
                 fundingSource="paypal"
+                disabled={!customerInfo.name || !customerInfo.email}
             />
         </PayPalScriptProvider>
     );
@@ -143,16 +145,29 @@ export default function HomePage() {
   // State for Pix Modal
   const [isPixModalOpen, setIsPixModalOpen] = useState(false);
   const [pixEmail, setPixEmail] = useState('');
+  const [pixName, setPixName] = useState('');
   const [isGeneratingPix, setIsGeneratingPix] = useState(false);
   const [pixData, setPixData] = useState<CreatePixPaymentOutput | null>(null);
   
-  const handlePaymentSuccess = (details: any) => {
+  const handlePaymentSuccess = async (details: any) => {
       localStorage.setItem('hasPaid', 'true');
       toast({
           title: "Pagamento Aprovado!",
           description: "Você será redirecionado para a autenticação para finalizar seu acesso."
       });
-      router.push('/dashboard');
+
+      try {
+        await savePaymentDetails({
+            paymentId: details.id || `pix_${Date.now()}`,
+            customerEmail: pixEmail,
+            customerName: pixName,
+        });
+      } catch (error) {
+        console.error("Falha ao salvar detalhes do pagamento:", error);
+        // Não bloqueia o usuário, mas registra o erro.
+      }
+      
+      router.push('/auth');
   };
 
   useEffect(() => {
@@ -174,8 +189,8 @@ export default function HomePage() {
   }, [router, toast]);
   
   const handleGeneratePix = async () => {
-      if (!pixEmail) {
-          toast({ variant: 'destructive', title: 'Email obrigatório', description: 'Por favor, insira seu e-mail para gerar o Pix.' });
+      if (!pixEmail || !pixName) {
+          toast({ variant: 'destructive', title: 'Campos obrigatórios', description: 'Por favor, insira seu nome e e-mail para gerar o Pix.' });
           return;
       }
       if (!priceInfo) return;
@@ -221,7 +236,7 @@ export default function HomePage() {
             <div className="flex items-center justify-center gap-2">
                  {!isLoadingPrice && priceInfo && (
                      <div className="flex-1">
-                        <PayPalWrapper priceInfo={priceInfo} onPaymentSuccess={handlePaymentSuccess} />
+                        <PayPalWrapper priceInfo={priceInfo} customerInfo={{name: pixName, email: pixEmail}} onPaymentSuccess={handlePaymentSuccess} />
                     </div>
                  )}
                 
@@ -282,7 +297,7 @@ export default function HomePage() {
             <DialogHeader>
                 <DialogTitle className="text-2xl text-primary text-shadow-neon-red-light">Pagamento com Pix</DialogTitle>
                 <DialogDescription>
-                    {pixData ? 'Escaneie o QR Code com seu aplicativo de banco.' : 'Insira seu e-mail para gerar o código Pix.'}
+                    {pixData ? 'Escaneie o QR Code com seu aplicativo de banco.' : 'Insira seus dados para gerar o código Pix.'}
                 </DialogDescription>
             </DialogHeader>
 
@@ -314,6 +329,16 @@ export default function HomePage() {
             ) : !isGeneratingPix && (
                  <div className="space-y-4">
                     <div className="space-y-2">
+                        <Label htmlFor="name">Nome</Label>
+                        <Input 
+                            id="name" 
+                            type="text" 
+                            placeholder="Seu nome completo"
+                            value={pixName}
+                            onChange={(e) => setPixName(e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-2">
                         <Label htmlFor="email">Seu e-mail</Label>
                         <Input 
                             id="email" 
@@ -327,15 +352,14 @@ export default function HomePage() {
             )}
 
             <DialogFooter>
-                {!pixData && (
-                    <Button type="button" onClick={handleGeneratePix} disabled={isGeneratingPix || !pixEmail} className="w-full">
+                {!pixData ? (
+                    <Button type="button" onClick={handleGeneratePix} disabled={isGeneratingPix || !pixEmail || !pixName} className="w-full">
                        {isGeneratingPix ? <Loader2 className="h-4 w-4 mr-2 animate-spin"/> : null}
                        {isGeneratingPix ? 'Gerando...' : 'Gerar QR Code Pix'}
                     </Button>
-                )}
-                 {pixData && (
-                    <Button type="button" onClick={() => { setIsPixModalOpen(false); setPixData(null); }} className="w-full">
-                       Fechar
+                ) : (
+                    <Button type="button" onClick={() => handlePaymentSuccess({ id: 'pix_payment' })} className="w-full">
+                       Já paguei, continuar
                     </Button>
                 )}
             </DialogFooter>
@@ -344,3 +368,4 @@ export default function HomePage() {
     </>
   );
 }
+
