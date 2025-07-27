@@ -140,8 +140,6 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                   media: medias,
               };
           })
-          .filter((tweet): tweet is TweetWithMedia => tweet !== null);
-
 
       const result = { tweets: tweetsWithMedia };
 
