@@ -43,7 +43,7 @@ const VerifyUserOutputSchema = z.object({
 });
 export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 
-const VIP_URL = "https://www.italosantos.com/dashboard";
+const VIP_URL = "/dashboard";
 
 /**
  * Genkit flow to register a new user.
