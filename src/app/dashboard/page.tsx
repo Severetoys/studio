@@ -17,7 +17,15 @@ interface Video {
   id: string;
   title: string;
   thumbnailUrl: string;
+  aiHint?: string;
 }
+
+const subscriptionVideos: Video[] = [
+  { id: 'sub_vid_1', title: 'Tutorial Exclusivo de Shibari', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'rope art' },
+  { id: 'sub_vid_2', title: 'Sessão Completa de Wax Play', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'candle wax' },
+  { id: 'sub_vid_3', title: 'Introdução ao Findom', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'luxury money' },
+  { id: 'sub_vid_4', title: 'Guia de Pet Play para Iniciantes', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'person collar' },
+];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -37,7 +45,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchPurchasedVideos = async () => {
-      // Por enquanto, isso busca todos os vídeos. No futuro, buscaria apenas os comprados pelo usuário.
+      // Busca os vídeos vendidos avulsos
       setIsLoadingVideos(true);
       try {
         const videosCollection = collection(db, "videos");
@@ -106,52 +114,52 @@ export default function DashboardPage() {
         </CardFooter>
       </Card>
   );
+  
+  const VideoGrid = ({ videos, onVideoClick }: { videos: Video[], onVideoClick: (id: string) => void}) => (
+     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {videos.map(video => (
+            <button key={video.id} className="relative group overflow-hidden rounded-lg border border-primary/20 text-left" onClick={() => onVideoClick(video.id)}>
+                <Image src={video.thumbnailUrl} alt={video.title} width={300} height={169} className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105" data-ai-hint={video.aiHint || 'video content'}/>
+                 <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PlayCircle className="h-12 w-12 text-white mb-2"/>
+                    <h3 className="font-bold text-white line-clamp-2">{video.title}</h3>
+                </div>
+            </button>
+        ))}
+    </div>
+  );
 
-  const SubscriptionCard = () => (
+  const SubscriptionSection = () => (
     <Card className="w-full animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader>
-            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Star /> Minha Assinatura</CardTitle>
-            <CardDescription>Gerencie seu plano de assinatura mensal.</CardDescription>
+            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Star /> Vídeos da Assinatura</CardTitle>
+            <CardDescription>Conteúdo exclusivo liberado para assinantes.</CardDescription>
         </CardHeader>
         <CardContent>
-            {hasSubscription ? (
-                 <div className="text-center p-6 bg-green-500/10 rounded-lg border border-dashed border-green-500/30">
-                    <CheckCircle className="mx-auto h-12 w-12 text-green-400" />
-                    <h3 className="mt-4 text-lg font-semibold">Plano Ativo</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        Sua assinatura será renovada em: <strong>24/08/2024</strong>
-                    </p>
-                </div>
+             {hasSubscription ? (
+                <VideoGrid videos={subscriptionVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
             ) : (
                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <Lock className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">Você não tem uma assinatura</h3>
+                    <h3 className="mt-4 text-lg font-semibold">Assinatura Inativa</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Assine para ter acesso a vídeos e tutoriais exclusivos.
+                        Assine para ter acesso a tutoriais e vídeos exclusivos.
                     </p>
+                    <Button className="mt-4 h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/')}>
+                        <CreditCard className="mr-2" />
+                        Assinar Agora
+                    </Button>
                 </div>
             )}
         </CardContent>
-        <CardFooter>
-             {hasSubscription ? (
-                 <Button className="w-full h-11 text-base bg-secondary" onClick={() => router.push('/videos/assinatura')}>
-                    Gerenciar Assinatura
-                </Button>
-             ) : (
-                <Button className="w-full h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/')}>
-                    <CreditCard className="mr-2" />
-                    Assinar Agora
-                </Button>
-             )}
-        </CardFooter>
     </Card>
   );
 
-  const PurchasedVideosCard = () => (
+  const PurchasedVideosSection = () => (
     <Card className="w-full animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader>
-            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Video /> Vídeos Comprados</CardTitle>
-            <CardDescription>Acesse aqui os vídeos que você comprou avulso.</CardDescription>
+            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Video /> Vídeos Comprados Avulsos</CardTitle>
+            <CardDescription>Acesse aqui os vídeos que você comprou na loja.</CardDescription>
         </CardHeader>
         <CardContent>
             {isLoadingVideos ? (
@@ -159,17 +167,7 @@ export default function DashboardPage() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : purchasedVideos.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {purchasedVideos.map(video => (
-                        <button key={video.id} className="relative group overflow-hidden rounded-lg border border-primary/20 text-left" onClick={() => router.push(`/dashboard/videos?id=${video.id}`)}>
-                            <Image src={video.thumbnailUrl} alt={video.title} width={300} height={169} className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105" data-ai-hint="purchased video"/>
-                             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <PlayCircle className="h-12 w-12 text-white mb-2"/>
-                                <h3 className="font-bold text-white line-clamp-2">{video.title}</h3>
-                            </div>
-                        </button>
-                    ))}
-                </div>
+                <VideoGrid videos={purchasedVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
             ) : (
                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <p className="text-muted-foreground">Você ainda não comprou nenhum vídeo avulso.</p>
@@ -190,10 +188,10 @@ export default function DashboardPage() {
 
   return (
     <main className="flex flex-1 w-full flex-col items-center justify-start p-4 bg-background gap-8">
-       <div className="w-full max-w-md space-y-8">
+       <div className="w-full max-w-4xl space-y-8">
             <UserProfileCard />
-            <SubscriptionCard />
-            <PurchasedVideosCard />
+            <SubscriptionSection />
+            <PurchasedVideosSection />
        </div>
     </main>
   );
