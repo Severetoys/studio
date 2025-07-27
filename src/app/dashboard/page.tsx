@@ -188,7 +188,7 @@ export default function DashboardPage() {
             ) : purchasedVideos.length > 0 ? (
                 <VideoGrid videos={purchasedVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
             ) : (
-                <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
+                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <p className="text-muted-foreground">Você ainda não comprou nenhum vídeo avulso.</p>
                 </div>
             )}
