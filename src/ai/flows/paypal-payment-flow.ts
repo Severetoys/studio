@@ -50,8 +50,8 @@ function payPalClient() {
         throw new Error("Credenciais do PayPal (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET) não estão configuradas corretamente no ambiente do servidor.");
     }
 
-    // Altere para `LiveEnvironment` em produção
-    const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
+    // Usar LiveEnvironment para produção
+    const environment = new paypal.core.LiveEnvironment(clientId, clientSecret);
     return new paypal.core.PayPalHttpClient(environment);
 }
 

@@ -25,7 +25,7 @@ const RegisterUserOutputSchema = z.object({
 });
 export type RegisterUserOutput = z.infer<typeof RegisterUserOutputSchema>;
 
-const GOOGLE_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxtOXktPds8lFZA6a5OdMXJy2cDK1VDL5J0WO6TS2C1ugD0GVa5kbpCNCF831fKhDms/exec';
+const GOOGLE_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbz5E25zWU2dCKzePlO2D9RuWmzhU9PGax0cE8HGxpu8zgOqJGiZKxv0ulfNaHFPXoL-4g/exec';
 
 /**
  * Genkit flow to register a new user by sending their data to a Google Apps Script webhook.
