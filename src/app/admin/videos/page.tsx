@@ -28,7 +28,7 @@ import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { app, db } from '@/lib/firebase';
+import { app as firebaseApp, db } from '@/lib/firebase';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Video {
@@ -45,7 +45,7 @@ interface Video {
 
 export default function AdminVideosPage() {
   const { toast } = useToast();
-  const storage = getStorage(app);
+  const storage = getStorage(firebaseApp);
 
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);

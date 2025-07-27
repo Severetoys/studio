@@ -61,7 +61,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
         return cache.data;
     }
     console.log("Cache do Twitter expirado ou vazio. Buscando novos dados.");
-
+    
     const bearerToken = process.env.TWITTER_BEARER_TOKEN;
     if (!bearerToken || bearerToken === 'YOUR_TWITTER_BEARER_TOKEN') {
       const errorMsg = "A credencial TWITTER_BEARER_TOKEN não está configurada no ambiente do servidor.";
@@ -96,7 +96,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
           'exclude': 'retweets,replies',
           'max_results': maxResults.toString(),
       });
-
+      
       const timelineResponse = await fetch(`https://api.twitter.com/2/users/${userId}/tweets?${params.toString()}`, { headers });
       if (!timelineResponse.ok) {
           const errorData = await timelineResponse.json();
@@ -104,15 +104,15 @@ const fetchTwitterMediaFlow = ai.defineFlow(
           throw new Error(`Erro ao buscar timeline: ${errorData.title} - ${errorData.detail}`);
       }
       const timelineData = await timelineResponse.json();
-
+      
       const mediaMap = new Map<string, any>();
       if (timelineData.includes?.media) {
           for (const media of timelineData.includes.media) {
               mediaMap.set(media.media_key, media);
           }
       }
-
-      const tweetsWithMedia: TweetWithMedia[] = (timelineData.data || [])
+      
+      const tweetsWithMedia = (timelineData.data || [])
           .map((tweet: any): TweetWithMedia | null => {
                if (!tweet.attachments || !tweet.attachments.media_keys) {
                   return null;
@@ -128,7 +128,7 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                       return mediaData;
                   })
                   .filter(Boolean);
-
+              
               if (medias.length === 0) {
                   return null;
               }
@@ -140,9 +140,10 @@ const fetchTwitterMediaFlow = ai.defineFlow(
                   media: medias,
               };
           })
+          .filter((tweet): tweet is TweetWithMedia => tweet !== null);
 
       const result = { tweets: tweetsWithMedia };
-
+      
       // Atualiza o cache
       cache = {
           data: result,

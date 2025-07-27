@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
         hostname: 'www.paypal.com',
         port: '',
         pathname: '/**',
-      },
+      }
     ],
   },
 };

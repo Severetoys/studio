@@ -11,16 +11,5 @@ service firebase.storage {
     match /general-uploads/{allPaths=**} {
       allow write: if true;
     }
-
-    // Permite que APENAS o usuário autenticado escreva (upload) na sua própria pasta de uploads
-    // O caminho do arquivo deve incluir o userId do usuário autenticado
-    match /user-uploads/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-     // Opcional: Permite que apenas usuários autenticados leiam arquivos em suas pastas de uploads
-     // match /user-uploads/{userId}/{allPaths=**} {
-     //   allow read: if request.auth != null; // ou request.auth.uid == userId para leitura restrita ao proprietário
-     // }
   }
 }

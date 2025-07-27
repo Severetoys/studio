@@ -17,21 +17,7 @@ interface Video {
   id: string;
   title: string;
   thumbnailUrl: string;
-  aiHint?: string;
 }
-
-const subscriptionVideos: Video[] = [
-  { id: 'sub_vid_1', title: 'Tutorial Exclusivo de Shibari', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'rope art' },
-  { id: 'sub_vid_2', title: 'Sessão Completa de Wax Play', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'candle wax' },
-  { id: 'sub_vid_3', title: 'Introdução ao Findom', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'luxury money' },
-  { id: 'sub_vid_4', title: 'Guia de Pet Play para Iniciantes', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'person collar' },
-];
-
-// Dados de exemplo para os vídeos comprados avulsos
-const purchasedVideosExample: Video[] = [
-    { id: 'pur_vid_1', title: 'Bastidores Exclusivos #1', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'backstage exclusive' },
-    { id: 'pur_vid_2', title: 'Cena Deletada: O Encontro', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'deleted scene' },
-]
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -40,55 +26,41 @@ export default function DashboardPage() {
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [customerEmail, setCustomerEmail] = useState('usuario@exemplo.com');
   
   useEffect(() => {
     setIsClient(true);
-    // Simula a verificação do status da assinatura e busca o email do cliente
+    // Simula a verificação do status da assinatura
     if (localStorage.getItem('hasSubscription') === 'true' || localStorage.getItem('hasPaid') === 'true') {
         setHasSubscription(true);
-        const savedEmail = localStorage.getItem('customerEmail');
-        if (savedEmail) {
-            setCustomerEmail(savedEmail);
-        }
     }
   }, []);
 
   useEffect(() => {
     const fetchPurchasedVideos = async () => {
-      // Busca os vídeos vendidos avulsos
+      // Por enquanto, isso busca todos os vídeos. No futuro, buscaria apenas os comprados pelo usuário.
       setIsLoadingVideos(true);
       try {
         const videosCollection = collection(db, "videos");
         const q = query(videosCollection, orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-            // Se não houver vídeos reais, usa os de exemplo
-            setPurchasedVideos(purchasedVideosExample);
-        } else {
-            const videosList = querySnapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data()
-            } as Video));
-            setPurchasedVideos(videosList);
-        }
+        const videosList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Video));
+        setPurchasedVideos(videosList);
       } catch (error) {
         console.error("Error fetching videos: ", error);
         toast({
           variant: "destructive",
           title: "Erro ao carregar vídeos comprados.",
         });
-        // Em caso de erro, usa os vídeos de exemplo
-        setPurchasedVideos(purchasedVideosExample);
       } finally {
         setIsLoadingVideos(false);
       }
     };
 
-    if (isClient) {
-      fetchPurchasedVideos();
-    }
-  }, [isClient, toast]);
+    fetchPurchasedVideos();
+  }, [db, toast]);
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -96,7 +68,6 @@ export default function DashboardPage() {
       localStorage.removeItem('hasSubscription');
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('redirectAfterLogin');
-      localStorage.removeItem('customerEmail');
     }
     router.push('/');
   };
@@ -122,7 +93,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-4">
                 <Mail className="h-5 w-5 text-primary" />
-                <p><span className="text-muted-foreground">Email: </span><strong>{customerEmail}</strong></p>
+                <p><span className="text-muted-foreground">Email: </span><strong>usuario@exemplo.com</strong></p>
             </div>
         </CardContent>
         <CardFooter>
@@ -133,52 +104,52 @@ export default function DashboardPage() {
         </CardFooter>
       </Card>
   );
-  
-  const VideoGrid = ({ videos, onVideoClick }: { videos: Video[], onVideoClick: (id: string) => void}) => (
-     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {videos.map(video => (
-            <button key={video.id} className="relative group overflow-hidden rounded-lg border border-primary/20 text-left" onClick={() => onVideoClick(video.id)}>
-                <Image src={video.thumbnailUrl} alt={video.title} width={300} height={169} className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105" data-ai-hint={video.aiHint || 'video content'}/>
-                 <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <PlayCircle className="h-12 w-12 text-white mb-2"/>
-                    <h3 className="font-bold text-white line-clamp-2">{video.title}</h3>
-                </div>
-            </button>
-        ))}
-    </div>
-  );
 
-  const SubscriptionSection = () => (
+  const SubscriptionCard = () => (
     <Card className="w-full animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader>
-            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Star /> Vídeos da Assinatura</CardTitle>
-            <CardDescription>Conteúdo exclusivo liberado para assinantes.</CardDescription>
+            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Star /> Minha Assinatura</CardTitle>
+            <CardDescription>Gerencie seu plano de assinatura mensal.</CardDescription>
         </CardHeader>
         <CardContent>
-             {hasSubscription ? (
-                <VideoGrid videos={subscriptionVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
+            {hasSubscription ? (
+                 <div className="text-center p-6 bg-green-500/10 rounded-lg border border-dashed border-green-500/30">
+                    <CheckCircle className="mx-auto h-12 w-12 text-green-400" />
+                    <h3 className="mt-4 text-lg font-semibold">Plano Ativo</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Sua assinatura será renovada em: <strong>24/08/2024</strong>
+                    </p>
+                </div>
             ) : (
                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <Lock className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">Assinatura Inativa</h3>
+                    <h3 className="mt-4 text-lg font-semibold">Você não tem uma assinatura</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Assine para ter acesso a tutoriais e vídeos exclusivos.
+                        Assine para ter acesso a vídeos e tutoriais exclusivos.
                     </p>
-                    <Button className="mt-4 h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/')}>
-                        <CreditCard className="mr-2" />
-                        Assinar Agora
-                    </Button>
                 </div>
             )}
         </CardContent>
+        <CardFooter>
+             {hasSubscription ? (
+                 <Button className="w-full h-11 text-base bg-secondary" onClick={() => router.push('/videos/assinatura')}>
+                    Gerenciar Assinatura
+                </Button>
+             ) : (
+                <Button className="w-full h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/videos/assinatura')}>
+                    <CreditCard className="mr-2" />
+                    Assinar Agora
+                </Button>
+             )}
+        </CardFooter>
     </Card>
   );
 
-  const PurchasedVideosSection = () => (
+  const PurchasedVideosCard = () => (
     <Card className="w-full animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader>
-            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Video /> Vídeos Comprados Avulsos</CardTitle>
-            <CardDescription>Acesse aqui os vídeos que você comprou na loja.</CardDescription>
+            <CardTitle className="text-2xl text-shadow-neon-red-light flex items-center gap-2"><Video /> Vídeos Comprados</CardTitle>
+            <CardDescription>Acesse aqui os vídeos que você comprou avulso.</CardDescription>
         </CardHeader>
         <CardContent>
             {isLoadingVideos ? (
@@ -186,10 +157,24 @@ export default function DashboardPage() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : purchasedVideos.length > 0 ? (
-                <VideoGrid videos={purchasedVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {purchasedVideos.map(video => (
+                        <div key={video.id} className="relative group overflow-hidden rounded-lg border border-primary/20">
+                            <Image src={video.thumbnailUrl} alt={video.title} width={300} height={169} className="object-cover w-full aspect-video" data-ai-hint="purchased video"/>
+                             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <h3 className="font-bold text-white line-clamp-2">{video.title}</h3>
+                                <Button size="sm" className="mt-2" onClick={() => router.push(`/dashboard/videos?id=${video.id}`)}>
+                                    <PlayCircle className="mr-2 h-4 w-4"/>
+                                    Assistir Agora
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : (
-                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
+                <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <p className="text-muted-foreground">Você ainda não comprou nenhum vídeo avulso.</p>
+                     <Button variant="link" onClick={() => router.push('/loja')}>Visitar a loja</Button>
                 </div>
             )}
         </CardContent>
@@ -197,19 +182,15 @@ export default function DashboardPage() {
   );
 
   if (!isClient) {
-    return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-    );
+    return null;
   }
 
   return (
     <main className="flex flex-1 w-full flex-col items-center justify-start p-4 bg-background gap-8">
-       <div className="w-full max-w-4xl space-y-8">
+       <div className="w-full max-w-md space-y-8">
             <UserProfileCard />
-            <SubscriptionSection />
-            <PurchasedVideosSection />
+            <SubscriptionCard />
+            <PurchasedVideosCard />
        </div>
     </main>
   );

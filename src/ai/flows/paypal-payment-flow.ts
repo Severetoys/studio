@@ -47,11 +47,11 @@ function payPalClient() {
     const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
 
     if (!clientId || !clientSecret) {
-        throw new Error("Credenciais do PayPal (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET) não estão configuradas corretamente no ambiente do servidor.");
+        throw new Error("Credenciais do PayPal (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET) não estão configuradas no ambiente do servidor.");
     }
-    
-    // Usa LiveEnvironment para produção, pois as credenciais de produção foram fornecidas.
-    const environment = new paypal.core.LiveEnvironment(clientId, clientSecret);
+
+    // Altere para `LiveEnvironment` em produção
+    const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
     return new paypal.core.PayPalHttpClient(environment);
 }
 
@@ -156,9 +156,9 @@ export async function capturePayPalOrder(input: CapturePayPalOrderInput): Promis
  * @returns {Promise<string>} A Client ID do PayPal.
  */
 export async function getPayPalClientId(): Promise<string> {
-    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+    const clientId = process.env.PAYPAL_CLIENT_ID;
     if (!clientId) {
-        console.warn("A variável de ambiente NEXT_PUBLIC_PAYPAL_CLIENT_ID não está definida no servidor.");
+        console.error("A variável de ambiente PAYPAL_CLIENT_ID não está definida no servidor.");
         return "";
     }
     return clientId;

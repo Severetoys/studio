@@ -43,7 +43,7 @@ const VerifyUserOutputSchema = z.object({
 });
 export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 
-const VIP_URL = "/dashboard";
+const VIP_URL = "https://www.italosantos.com/dashboard";
 
 /**
  * Genkit flow to register a new user.
@@ -71,7 +71,7 @@ const registerUserFlow = ai.defineFlow(
       await saveUser(userData);
       
       console.log(`User ${userData.name} registered successfully.`);
-      return { success: true, message: 'Usuário registrado! Redirecionando...' };
+      return { success: true, message: 'Usuário registrado com sucesso!' };
     } catch (e: any) {
       console.error('Error during user registration flow:', e);
       return { success: false, message: e.message || 'An unexpected error occurred during registration.', errorCode: 'SAVE_FAILED' };
