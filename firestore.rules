@@ -3,32 +3,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Public content collections
+    // Allow public read access to products, photos, videos, and approved reviews
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null; // Allow writes only for authenticated users (admin)
+      allow write: if request.auth != null; // Only authenticated users (admin) can write
     }
     match /photos/{photoId} {
       allow read: if true;
-      allow write: if request.auth != null; // Allow writes only for authenticated users (admin)
+      allow write: if request.auth != null; // Only authenticated users (admin) can write
     }
     match /videos/{videoId} {
       allow read: if true;
-      allow write: if request.auth != null; // Allow writes only for authenticated users (admin)
+      allow write: if request.auth != null; // Only authenticated users (admin) can write
     }
-    match /paymentButtons/{buttonId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Allow writes only for authenticated users (admin)
+     match /reviews/{reviewId} {
+      allow read: if resource.data.status == 'approved';
+      allow write: if true; // Allow anyone to submit a review
+      allow update, delete: if request.auth != null; // Only admin can moderate
     }
 
-    // Chat collection
+    // Rules for the chat functionality
     match /chats/{chatId} {
-      allow read, write: if true; // Allows anyone to create/update a chat document (for lastSeen, etc)
+      allow read, write: if true; // Allow anyone to create a chat session
 
-      // Messages subcollection
+      // Messages can be read and written by anyone within that chat
       match /messages/{messageId} {
-        allow read, write: if true; // Allows anyone to read/write messages within a chat
+        allow read, write: if true;
       }
     }
     
