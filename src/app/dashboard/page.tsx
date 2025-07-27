@@ -59,8 +59,10 @@ export default function DashboardPage() {
       }
     };
 
-    fetchPurchasedVideos();
-  }, [db, toast]);
+    if (isClient) {
+      fetchPurchasedVideos();
+    }
+  }, [isClient, toast]);
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -136,7 +138,7 @@ export default function DashboardPage() {
                     Gerenciar Assinatura
                 </Button>
              ) : (
-                <Button className="w-full h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/videos/assinatura')}>
+                <Button className="w-full h-11 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => router.push('/')}>
                     <CreditCard className="mr-2" />
                     Assinar Agora
                 </Button>
@@ -159,16 +161,13 @@ export default function DashboardPage() {
             ) : purchasedVideos.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {purchasedVideos.map(video => (
-                        <div key={video.id} className="relative group overflow-hidden rounded-lg border border-primary/20">
-                            <Image src={video.thumbnailUrl} alt={video.title} width={300} height={169} className="object-cover w-full aspect-video" data-ai-hint="purchased video"/>
+                        <button key={video.id} className="relative group overflow-hidden rounded-lg border border-primary/20 text-left" onClick={() => router.push(`/dashboard/videos?id=${video.id}`)}>
+                            <Image src={video.thumbnailUrl} alt={video.title} width={300} height={169} className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105" data-ai-hint="purchased video"/>
                              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <PlayCircle className="h-12 w-12 text-white mb-2"/>
                                 <h3 className="font-bold text-white line-clamp-2">{video.title}</h3>
-                                <Button size="sm" className="mt-2" onClick={() => router.push(`/dashboard/videos?id=${video.id}`)}>
-                                    <PlayCircle className="mr-2 h-4 w-4"/>
-                                    Assistir Agora
-                                </Button>
                             </div>
-                        </div>
+                        </button>
                     ))}
                 </div>
             ) : (
@@ -182,7 +181,11 @@ export default function DashboardPage() {
   );
 
   if (!isClient) {
-    return null;
+    return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
   }
 
   return (
