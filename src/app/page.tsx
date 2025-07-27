@@ -90,19 +90,13 @@ const PayPalWrapper = ({ priceInfo, customerInfo, onPaymentSuccess }: { priceInf
         );
     }
     
-    // O botão do Google Pay via PayPal funciona melhor com moedas suportadas globalmente.
-    // Vamos renderizar o botão padrão do PayPal para BRL.
-    if (priceInfo.currencyCode !== 'BRL') {
-        return null;
-    }
-
     return (
-        <PayPalScriptProvider options={{ clientId: clientId, currency: "BRL", components: "buttons" }}>
+        <PayPalScriptProvider options={{ clientId: clientId, currency: priceInfo.currencyCode || "BRL", components: "buttons" }}>
             <PayPalButtons
                 style={{ layout: "horizontal", tagline: false, height: 55, color: 'blue' }}
                 createOrder={async (data, actions) => {
                     try {
-                        const result = await createPayPalOrder({ amount: priceInfo.amount, currencyCode: "BRL" });
+                        const result = await createPayPalOrder({ amount: priceInfo.amount, currencyCode: priceInfo.currencyCode });
                         if (result.orderID) {
                             return result.orderID;
                         }

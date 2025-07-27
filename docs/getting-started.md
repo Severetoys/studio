@@ -28,25 +28,31 @@ Siga estes passos para configurar e executar o projeto Italo Santos em seu ambie
 
 3. Configure as variáveis de ambiente:
 
-   Crie um arquivo `.env.local` ou `.env` na raiz do projeto e adicione as seguintes variáveis (substitua pelos seus valores):
+   Crie um arquivo `.env` na raiz do projeto e adicione as seguintes variáveis (substitua pelos seus valores):
 
    ```env
-   # Firebase
-   NEXT_PUBLIC_FIREBASE_API_KEY=...
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-   # ... (outras variáveis do Firebase se necessário)
+   # Firebase Environment Variables
+    NEXT_PUBLIC_FIREBASE_API_KEY="SUA_CHAVE_DE_API"
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="SEU_DOMINIO.firebaseapp.com"
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID="SEU_ID_DE_PROJETO"
 
-   # Chaves de API de Serviços
-   MERCADOPAGO_ACCESS_TOKEN=...
-   PAYPAL_CLIENT_ID=...
-   PAYPAL_CLIENT_SECRET=...
-   
-   # Tokens para Feeds de Mídia Social
-   TWITTER_BEARER_TOKEN=...
-   INSTAGRAM_FEED_ACCESS_TOKEN=...
-   INSTAGRAM_SHOP_ACCESS_TOKEN=...
-   FACEBOOK_PAGE_ACCESS_TOKEN=...
+    # PayPal Environment Variables
+    NEXT_PUBLIC_PAYPAL_CLIENT_ID="SEU_CLIENT_ID_PUBLICO_DO_PAYPAL"
+    PAYPAL_CLIENT_SECRET="SEU_SEGREDO_DO_PAYPAL"
+
+    # Mercado Pago Environment Variables
+    NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY="SUA_CHAVE_PUBLICA_DO_MERCADO_PAGO"
+    MERCADOPAGO_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_DO_MERCADO_PAGO"
+
+    # Social Media API Tokens (Server-Side)
+    TWITTER_BEARER_TOKEN="SEU_BEARER_TOKEN_DO_TWITTER"
+    INSTAGRAM_FEED_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_PARA_O_FEED"
+    INSTAGRAM_SHOP_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_PARA_A_LOJA"
+    FACEBOOK_PAGE_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_DA_PAGINA"
+
+    # Google AI (Gemini) API Key
+    GEMINI_API_KEY="SUA_API_KEY_DO_GEMINI"
+
    ```
 
    *Nota: As chaves privadas do Firebase Admin SDK estão no arquivo `serviceAccountKey.json` e devem ser manuseadas com segurança, não expostas publicamente.*
