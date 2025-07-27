@@ -2,21 +2,43 @@
 {
   "rules": {
     "facialAuth": {
-       "users": {
-          ".read": true, 
-          ".indexOn": ["email"],
-          "$userId": {
-            ".write": true
-          }
-       }
+      "users": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": ["email"]
+      }
     },
     "admin": {
       "integrations": {
-        ".read": "auth != null && auth.uid == 'YOUR_ADMIN_UID'",
-        ".write": "auth != null && auth.uid == 'YOUR_ADMIN_UID'"
+        ".read": true,
+        ".write": true
+      },
+      "profileSettings": {
+        ".read": true,
+        ".write": true
       }
     },
-    ".read": false,
-    ".write": false
+    "payments": {
+      ".read": true,
+      ".write": true
+    },
+    "chats": {
+      ".read": true,
+      ".write": true,
+      "$chatId": {
+        "messages": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "reviews": {
+       ".read": true,
+       ".write": "auth != null",
+       "$reviewId": {
+         ".read": true,
+         ".write": "auth != null"
+       }
+    }
   }
 }

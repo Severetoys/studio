@@ -14,8 +14,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dytesdk/react-ui-kit": "^1.68.0",
-    "@dytesdk/react-web-core": "^1.27.2",
     "@genkit-ai/googleai": "^1.13.0",
     "@genkit-ai/next": "^1.13.0",
     "@google-cloud/vision": "^4.3.0",
