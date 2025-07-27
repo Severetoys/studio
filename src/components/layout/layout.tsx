@@ -91,39 +91,31 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   const isAdminPanel = pathname.startsWith('/admin');
-  const noMainLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
-  const showHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && !isAdminPanel;
-  const showMainHeader = showHeader && pathname === '/';
-  const showMainFooter = pathname === '/';
-  const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/' && !isAdminPanel;
-  const showChat = !isAdminPanel;
+  const noMainLayoutRoutes = ['/dashboard', '/dashboard/videos'];
+  const hideMainLayout = isAdminPanel || noMainLayoutRoutes.some(route => pathname.startsWith(route));
 
-  if (isAdminPanel) {
+  if (hideMainLayout) {
     return <>{children}</>;
   }
 
+  const isHomePage = pathname === '/';
 
   return (
     <>
       <AdultWarningDialog isOpen={isWarningOpen} onConfirm={handleConfirmAge} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
-        { showHeader && <Header onMenuClick={toggleSidebar} /> }
+        <Header onMenuClick={toggleSidebar} />
         <Sidebar 
             isOpen={isSidebarOpen} 
             onClose={toggleSidebar} 
             onFetishSelect={handleFetishSelect} 
         />
-        {showMainHeader && <MainHeader />}
+        {isHomePage && <MainHeader />}
         <main className="flex-grow">{children}</main>
-        {showMainFooter && <MainFooter />}
-        {showSiteFooter && <SiteFooter />}
+        {isHomePage ? <MainFooter /> : <SiteFooter />}
       </div>
-      {showChat && (
-        <>
-            <SecretChatWidget isOpen={isChatOpen} />
-            <SecretChatButton onClick={toggleChat} isChatOpen={isChatOpen} />
-        </>
-      )}
+      <SecretChatWidget isOpen={isChatOpen} />
+      <SecretChatButton onClick={toggleChat} isChatOpen={isChatOpen} />
       {selectedFetish && (
         <FetishModal
           fetish={selectedFetish}

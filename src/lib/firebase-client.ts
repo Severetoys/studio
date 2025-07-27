@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
@@ -16,7 +16,7 @@ const firebaseConfig = {
   databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 if (process.env.NODE_ENV === 'development') {
   console.log("Conectando aos emuladores Firebase...");
@@ -64,9 +64,10 @@ if (process.env.NODE_ENV === 'development') {
   console.log("Conectando aos serviços Firebase em produção.");
 }
 
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const auth = getAuth(app);
-export const functions = getFunctions(app);
-export const rtdb = getDatabase(app);
-export default app;
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+const functions = getFunctions(app);
+const rtdb = getDatabase(app);
+
+export { app, db, auth, storage, functions, rtdb };

@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, MapPin, Paperclip, Video, Mic } from 'lucide-react';
+import { Send, Loader2, MapPin, Paperclip, Mic } from 'lucide-react';
 import { db, auth, storage } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, doc, setDoc, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged, signInAnonymously, type User as FirebaseUser } from "firebase/auth";
@@ -258,7 +258,6 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                 </CardContent>
                 <CardFooter className="border-t border-primary/20 p-2.5 flex flex-col items-start gap-2">
                      <div className="flex w-full items-center space-x-1">
-                        <Button variant="ghost" size="icon" className="text-primary" disabled><Video className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" onClick={() => fileInputRef.current?.click()}><Paperclip className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" onClick={sendLocation}><MapPin className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" disabled><Mic className="h-5 w-5"/></Button>

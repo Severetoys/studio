@@ -26,7 +26,7 @@ import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { collection, addDoc, getDocs, Timestamp, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { app as firebaseApp, db } from '@/lib/firebase';
+import { app, db } from '@/lib/firebase';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from 'axios';
 
@@ -40,7 +40,7 @@ interface Photo {
 
 export default function AdminPhotosPage() {
   const { toast } = useToast();
-  const storage = getStorage(firebaseApp);
+  const storage = getStorage(app);
 
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
