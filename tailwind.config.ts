@@ -1,7 +1,5 @@
 
-import type {Config} from 'tailwindcss';
-
-export default {
+const config = {
   darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -142,7 +140,7 @@ export default {
   },
   plugins: [
     require('tailwindcss-animate'),
-    function ({ addUtilities, theme }: { addUtilities: any, theme: any }) {
+    function ({ addUtilities, theme }) {
       const newUtilities = {
         '.text-shadow-neon-red-light': {
           textShadow: theme('textShadow.neon-red-light'),
@@ -154,4 +152,6 @@ export default {
       addUtilities(newUtilities, ['responsive', 'hover'])
     }
   ],
-} satisfies Config;
+};
+
+export default config;
