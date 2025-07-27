@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, MapPin, Paperclip, Video, Mic } from 'lucide-react';
+import { Send, Loader2, MapPin, Paperclip, Mic } from 'lucide-react';
 import { db, auth, storage } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, doc, setDoc, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged, signInAnonymously, type User as FirebaseUser } from "firebase/auth";
@@ -15,13 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
-
-const DyteMeetingComponent = dynamic(() => import('@/components/dyte-meeting'), {
-    ssr: false,
-    loading: () => <div className="flex items-center justify-center h-full w-full bg-black text-white"><Loader2 className="h-8 w-8 animate-spin"/></div>,
-});
-
 
 interface Message {
   id: string;
@@ -58,8 +51,6 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const chatId = useRef<string>('');
-
-    const [showVideoCall, setShowVideoCall] = useState(false);
 
     useEffect(() => {
         if (isOpen && !chatId.current) {
@@ -214,15 +205,6 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
     
     if (!isOpen) return null;
 
-    if (showVideoCall) {
-        return (
-            <div className="fixed inset-0 z-[2000] bg-black">
-                <DyteMeetingComponent show={showVideoCall} onClose={() => setShowVideoCall(false)} />
-            </div>
-        );
-    }
-
-
     return (
         <div className={cn("fixed bottom-24 left-6 z-[1000] transition-all duration-300", isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none")}>
             <Card className="w-[360px] h-[500px] max-w-md flex flex-col animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-black/90 backdrop-blur-xl md:rounded-2xl">
@@ -276,7 +258,6 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                 </CardContent>
                 <CardFooter className="border-t border-primary/20 p-2.5 flex flex-col items-start gap-2">
                      <div className="flex w-full items-center space-x-1">
-                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => setShowVideoCall(true)}><Video className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" onClick={() => fileInputRef.current?.click()}><Paperclip className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" onClick={sendLocation}><MapPin className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" disabled><Mic className="h-5 w-5"/></Button>
