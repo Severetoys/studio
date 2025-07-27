@@ -27,6 +27,12 @@ const subscriptionVideos: Video[] = [
   { id: 'sub_vid_4', title: 'Guia de Pet Play para Iniciantes', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'person collar' },
 ];
 
+// Dados de exemplo para os vídeos comprados avulsos
+const purchasedVideosExample: Video[] = [
+    { id: 'pur_vid_1', title: 'Bastidores Exclusivos #1', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'backstage exclusive' },
+    { id: 'pur_vid_2', title: 'Cena Deletada: O Encontro', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'deleted scene' },
+]
+
 export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -51,17 +57,24 @@ export default function DashboardPage() {
         const videosCollection = collection(db, "videos");
         const q = query(videosCollection, orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
-        const videosList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Video));
-        setPurchasedVideos(videosList);
+        if (querySnapshot.empty) {
+            // Se não houver vídeos reais, usa os de exemplo
+            setPurchasedVideos(purchasedVideosExample);
+        } else {
+            const videosList = querySnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            } as Video));
+            setPurchasedVideos(videosList);
+        }
       } catch (error) {
         console.error("Error fetching videos: ", error);
         toast({
           variant: "destructive",
           title: "Erro ao carregar vídeos comprados.",
         });
+        // Em caso de erro, usa os vídeos de exemplo
+        setPurchasedVideos(purchasedVideosExample);
       } finally {
         setIsLoadingVideos(false);
       }
@@ -171,7 +184,6 @@ export default function DashboardPage() {
             ) : (
                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <p className="text-muted-foreground">Você ainda não comprou nenhum vídeo avulso.</p>
-                     <Button variant="link" onClick={() => router.push('/loja')}>Visitar a loja</Button>
                 </div>
             )}
         </CardContent>
