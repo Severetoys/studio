@@ -6,16 +6,16 @@
  * but is kept for potential future use or alternative implementations.
  */
 
-import { ImageAnnotatorClient } from '@google-cloud/vision';
-import serviceAccount from '../../serviceAccountKey.json';
+// import { ImageAnnotatorClient } from '@google-cloud/vision';
+// import serviceAccount from '../../serviceAccountKey.json';
 
 // Initialize the client once, reusing it for all requests.
-const visionClient = new ImageAnnotatorClient({
-    credentials: {
-        client_email: serviceAccount.client_email,
-        private_key: serviceAccount.private_key,
-    },
-});
+// const visionClient = new ImageAnnotatorClient({
+//     credentials: {
+//         client_email: serviceAccount.client_email,
+//         private_key: serviceAccount.private_key,
+//     },
+// });
 
 type FaceDetectionResult = {
   faceDetected: boolean;
@@ -29,44 +29,46 @@ type FaceDetectionResult = {
  * @returns An object indicating if a face was detected and is of sufficient quality.
  */
 export async function detectFace(imageBase64: string): Promise<FaceDetectionResult> {
-  try {
-    if (!imageBase64 || !imageBase64.includes(',')) {
-      return { faceDetected: false, error: 'Invalid or empty image data received.', errorCode: 'POOR_IMAGE_QUALITY' };
-    }
+  // try {
+  //   if (!imageBase64 || !imageBase64.includes(',')) {
+  //     return { faceDetected: false, error: 'Invalid or empty image data received.', errorCode: 'POOR_IMAGE_QUALITY' };
+  //   }
 
-    const request = {
-      image: {
-        content: imageBase64.split(',')[1],
-      },
-      features: [{ type: 'FACE_DETECTION', maxResults: 1 }],
-    };
+  //   const request = {
+  //     image: {
+  //       content: imageBase64.split(',')[1],
+  //     },
+  //     features: [{ type: 'FACE_DETECTION', maxResults: 1 }],
+  //   };
     
-    console.log("Sending request to Vision API for face detection...");
-    const [result] = await visionClient.faceDetection(request);
-    const faces = result.faceAnnotations;
+  //   console.log("Sending request to Vision API for face detection...");
+  //   const [result] = await visionClient.faceDetection(request);
+  //   const faces = result.faceAnnotations;
 
-    if (!faces || faces.length === 0) {
-      return { faceDetected: false, error: 'No face detected in the image.', errorCode: 'NO_FACE_DETECTED' };
-    }
-    if (faces.length > 1) {
-      return { faceDetected: false, error: 'Multiple faces detected. Please ensure only one person is in the frame.', errorCode: 'POOR_IMAGE_QUALITY' };
-    }
+  //   if (!faces || faces.length === 0) {
+  //     return { faceDetected: false, error: 'No face detected in the image.', errorCode: 'NO_FACE_DETECTED' };
+  //   }
+  //   if (faces.length > 1) {
+  //     return { faceDetected: false, error: 'Multiple faces detected. Please ensure only one person is in the frame.', errorCode: 'POOR_IMAGE_QUALITY' };
+  //   }
     
-    const face = faces[0];
-    const confidence = face.detectionConfidence || 0;
+  //   const face = faces[0];
+  //   const confidence = face.detectionConfidence || 0;
 
-    if (confidence < 0.75) { 
-        return { faceDetected: false, error: `Low confidence in face detection: ${confidence.toFixed(2)}. Try better lighting.`, errorCode: 'POOR_IMAGE_QUALITY' };
-    }
-    if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
-        return { faceDetected: false, error: 'Image quality is too low (blurry or underexposed). Try a clearer, well-lit image.', errorCode: 'POOR_IMAGE_QUALITY'};
-    }
+  //   if (confidence < 0.75) { 
+  //       return { faceDetected: false, error: `Low confidence in face detection: ${confidence.toFixed(2)}. Try better lighting.`, errorCode: 'POOR_IMAGE_QUALITY' };
+  //   }
+  //   if (face.blurredLikelihood === 'VERY_LIKELY' || face.underExposedLikelihood === 'VERY_LIKELY') {
+  //       return { faceDetected: false, error: 'Image quality is too low (blurry or underexposed). Try a clearer, well-lit image.', errorCode: 'POOR_IMAGE_QUALITY'};
+  //   }
     
-    console.log("Face detected successfully.");
-    return { faceDetected: true };
+  //   console.log("Face detected successfully.");
+  //   return { faceDetected: true };
 
-  } catch (error: any) {
-    console.error('Google Vision API Error:', error);
-    return { faceDetected: false, error: 'An error occurred during facial analysis.', errorCode: 'UNKNOWN' };
-  }
+  // } catch (error: any) {
+  //   console.error('Google Vision API Error:', error);
+  //   return { faceDetected: false, error: 'An error occurred during facial analysis.', errorCode: 'UNKNOWN' };
+  // }
+  console.log("Vision API is temporarily disabled to save space. Returning mock success.");
+  return { faceDetected: true };
 }

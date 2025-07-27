@@ -125,14 +125,4 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </>
       )}
       {selectedFetish && (
-        <FetishModal
-          fetish={selectedFetish}
-          isOpen={!!selectedFetish}
-          onClose={handleCloseModal}
-        />
-      )}
-    </>
-  );
-};
-
-export default Layout;
+        <FetishMod

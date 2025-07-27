@@ -253,7 +253,7 @@ export default function LojaPage() {
   const handlePaymentSuccess = async (details: any) => {
     toast({
       title: "Pagamento bem-sucedido!",
-      description: `O pagamento ${details.id || 'mock_id'} foi concluído.`,
+      description: `O pagamento ${details.id || 'mock_id'} foi concluído. Redirecionando para sua área de vídeos.`,
     });
     
     // Webhook logic has been removed for now.
@@ -262,7 +262,7 @@ export default function LojaPage() {
     setCart([]);
     setCustomerEmail('');
     setCustomerName('');
-    router.push('/auth');
+    router.push('/dashboard');
   };
 
   return (

@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, X, VideoOff } from 'lucide-react';
+import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, X, VideoOff, KeyRound } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -40,13 +40,14 @@ const VideoPanel = ({ videoRef, isVerifying, hasCameraPermission }: {
     </div>
 );
 
-const InputField = ({ id, label, icon, type, value, onChange }: { 
+const InputField = ({ id, label, icon, type, value, onChange, placeholder }: { 
     id: string, 
     label: string, 
     icon: React.ReactNode, 
     type: string, 
     value: string, 
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void 
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    placeholder?: string
 }) => (
     <div className="space-y-2">
         <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
@@ -58,6 +59,7 @@ const InputField = ({ id, label, icon, type, value, onChange }: {
             value={value} 
             onChange={onChange} 
             required 
+            placeholder={placeholder}
             className="h-11 bg-background/50 border-primary/30 focus:shadow-neon-red-light" 
         />
     </div>
@@ -75,8 +77,12 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   
   // State for registration form
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  
+  // State for email/password login
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
   
   const stopCamera = useCallback(() => {
     if (mediaStreamRef.current) {
@@ -117,7 +123,6 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
       stopCamera();
     }
     return () => {
-        // Clean up camera on component unmount
         stopCamera();
     };
   }, [isOpen, startCamera, stopCamera]);
@@ -144,13 +149,13 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     return canvas.toDataURL('image/jpeg');
   };
   
-  const handleAuthAction = async (action: 'login' | 'register') => {
+  const handleFaceAuthAction = async (action: 'login' | 'register') => {
     if (!hasCameraPermission) {
         toast({ variant: 'destructive', title: 'Câmera Desativada', description: 'Por favor, conceda acesso à câmera.' });
         return;
     }
     
-    if (action === 'register' && (!name || !email)) {
+    if (action === 'register' && (!name || !loginEmail)) {
       toast({ variant: 'destructive', title: 'Formulário Incompleto', description: 'Por favor, preencha nome e email.' });
       return;
     }
@@ -158,7 +163,6 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     setIsVerifying(true);
     toast({ title: 'Analisando rosto...', description: 'Por favor, olhe para a câmera e aguarde.' });
 
-    // Add a small delay to ensure the video stream is stable
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const imageBase64 = captureImage();
@@ -169,7 +173,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     
     try {
         if (action === 'register') {
-            const result: RegisterUserOutput = await registerUser({ name, email, phone, imageBase64 });
+            const result: RegisterUserOutput = await registerUser({ name, email: loginEmail, phone, imageBase64 });
             if (result.success) {
                 toast({ title: 'Cadastro bem-sucedido!', description: 'Seu rosto e dados foram registrados. Redirecionando...' });
                 localStorage.setItem('isAuthenticated', 'true');
@@ -182,7 +186,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
              if (result.success && result.redirectUrl) {
                 toast({ title: 'Login bem-sucedido!', description: 'Redirecionando...' });
                 localStorage.setItem('isAuthenticated', 'true'); 
-                window.location.href = result.redirectUrl; // Full page redirect for VIP area
+                window.location.href = result.redirectUrl;
             } else {
                 toast({ variant: 'destructive', title: 'Falha na Autenticação', description: result.message || 'Rosto não reconhecido.' });
             }
@@ -199,6 +203,16 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     }
   };
 
+  const handleEmailPasswordLogin = () => {
+    if (loginEmail.toLowerCase() === 'pix@italosantos.com' && loginPassword === 'Severe123@') {
+      toast({ title: 'Login bem-sucedido!', description: 'Redirecionando...' });
+      localStorage.setItem('isAuthenticated', 'true');
+      router.push('/dashboard');
+    } else {
+      toast({ variant: 'destructive', title: 'Falha na Autenticação', description: 'Email ou senha incorretos.' });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-md shadow-neon-red-strong border-primary/50 bg-card/80 backdrop-blur-xl p-0">
@@ -210,7 +224,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
                 AuthKit
             </DialogTitle>
             <DialogDescription className="text-muted-foreground pt-2">
-                Autenticação Facial Segura
+                Autenticação Segura
             </DialogDescription>
             <DialogClose asChild>
                 <Button variant="ghost" size="icon" className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
@@ -221,26 +235,37 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
           </DialogHeader>
           <div className="px-6 pb-6">
             <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-background/50 border border-primary/20">
-                    <TabsTrigger value="signin" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Entrar</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 bg-background/50 border border-primary/20">
+                    <TabsTrigger value="signin" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Face ID</TabsTrigger>
+                    <TabsTrigger value="signin-email" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Email</TabsTrigger>
                     <TabsTrigger value="signup" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Cadastrar</TabsTrigger>
                 </TabsList>
                 <TabsContent value="signin">
                     <div className="space-y-4 pt-4">
                         <VideoPanel videoRef={videoRef} isVerifying={isVerifying} hasCameraPermission={hasCameraPermission} />
-                        <Button onClick={() => handleAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
+                        <Button onClick={() => handleFaceAuthAction('login')} disabled={!hasCameraPermission || isVerifying} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Entrar com Face ID'}
+                        </Button>
+                    </div>
+                </TabsContent>
+                 <TabsContent value="signin-email">
+                    <div className="space-y-4 pt-4">
+                        <InputField id="login-email" label="Email" icon={<Mail size={16} />} type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="seu@email.com" />
+                        <InputField id="login-password" label="Senha" icon={<KeyRound size={16} />} type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="********" />
+                        <Button onClick={handleEmailPasswordLogin} disabled={isVerifying || !loginEmail || !loginPassword} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
+                           <KeyRound className="w-5 h-5 mr-2" />
+                           Entrar
                         </Button>
                     </div>
                 </TabsContent>
                 <TabsContent value="signup">
                     <div className="space-y-4 pt-4">
                         <InputField id="name" label="Nome Completo" icon={<UserPlus size={16} />} type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                        <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <InputField id="email" label="Endereço de Email" icon={<Mail size={16} />} type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
                         <InputField id="phone" label="Número de Telefone" icon={<Phone size={16} />} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         <VideoPanel videoRef={videoRef} isVerifying={isVerifying} hasCameraPermission={hasCameraPermission} />
-                        <Button onClick={() => handleAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !email} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
+                        <Button onClick={() => handleFaceAuthAction('register')} disabled={!hasCameraPermission || isVerifying || !name || !loginEmail} className="w-full justify-center h-12 text-base bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong">
                         <Fingerprint className="w-5 h-5 mr-2" />
                         {isVerifying ? 'Verificando...' : 'Cadastrar com Face ID'}
                         </Button>
