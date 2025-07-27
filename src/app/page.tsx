@@ -1,11 +1,11 @@
-
-"use client";
-
-import { useState, useEffect } from 'react';
+og>
+    </>
+  );
+}
+ort { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, CheckCircle, Loader2, KeyRound, Copy } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import AboutSection from '@/components/about-section';
 import AuthModal from '@/components/auth-modal';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
@@ -58,7 +58,7 @@ const PayPalWrapper = ({ priceInfo, customerInfo, onPaymentSuccess }: { priceInf
             setIsLoading(true);
             try {
                 const id = await getPayPalClientId();
-                if (!id) throw new Error("Client ID do PayPal não foi recebido do servidor.");
+                if (!id || id === 'YOUR_PAYPAL_CLIENT_ID') throw new Error("Client ID do PayPal não foi recebido do servidor.");
                 setClientId(id);
             } catch (error: any) {
                 console.error("Erro ao buscar Client ID do PayPal:", error);
@@ -144,14 +144,17 @@ export default function HomePage() {
   
   // State for Pix Modal
   const [isPixModalOpen, setIsPixModalOpen] = useState(false);
-  const [pixEmail, setPixEmail] = useState('');
-  const [pixName, setPixName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [isGeneratingPix, setIsGeneratingPix] = useState(false);
   const [pixData, setPixData] = useState<CreatePixPaymentOutput | null>(null);
   
   const handlePaymentSuccess = async (details: any) => {
+      // Salva o e-mail no localStorage para ser usado pelo AuthModal
+      localStorage.setItem('customerEmail', customerEmail);
+      localStorage.setItem('customerName', customerName);
       localStorage.setItem('hasPaid', 'true');
-      localStorage.setItem('customerEmail', pixEmail);
+      
       toast({
           title: "Pagamento Aprovado!",
           description: "Você será redirecionado para a autenticação para finalizar seu acesso."
@@ -160,14 +163,14 @@ export default function HomePage() {
       try {
         await savePaymentDetails({
             paymentId: details.id || `pix_${Date.now()}`,
-            customerEmail: pixEmail,
-            customerName: pixName,
+            customerEmail: customerEmail,
+            customerName: customerName,
         });
       } catch (error) {
         console.error("Falha ao salvar detalhes do pagamento:", error);
-        // Não bloqueia o usuário, mas registra o erro.
       }
       
+      setIsPixModalOpen(false);
       setIsAuthModalOpen(true);
   };
 
@@ -187,10 +190,10 @@ export default function HomePage() {
     
     getLocalCurrency();
     
-  }, [router, toast]);
+  }, []);
   
   const handleGeneratePix = async () => {
-      if (!pixEmail || !pixName) {
+      if (!customerEmail || !customerName) {
           toast({ variant: 'destructive', title: 'Campos obrigatórios', description: 'Por favor, insira seu nome e e-mail para gerar o Pix.' });
           return;
       }
@@ -201,7 +204,7 @@ export default function HomePage() {
       try {
           const result = await createPixPayment({
               amount: priceInfo.amount,
-              email: pixEmail
+              email: customerEmail
           });
           if (result.qrCodeBase64) {
               setPixData(result);
@@ -237,7 +240,7 @@ export default function HomePage() {
             <div className="flex items-center justify-center gap-2">
                  {!isLoadingPrice && priceInfo && (
                      <div className="flex-1">
-                        <PayPalWrapper priceInfo={priceInfo} customerInfo={{name: pixName, email: pixEmail}} onPaymentSuccess={handlePaymentSuccess} />
+                        <PayPalWrapper priceInfo={priceInfo} customerInfo={{name: customerName, email: customerEmail}} onPaymentSuccess={handlePaymentSuccess} />
                     </div>
                  )}
                 
@@ -335,8 +338,8 @@ export default function HomePage() {
                             id="name" 
                             type="text" 
                             placeholder="Seu nome completo"
-                            value={pixName}
-                            onChange={(e) => setPixName(e.target.value)}
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
                         />
                     </div>
                     <div className="space-y-2">
@@ -345,8 +348,8 @@ export default function HomePage() {
                             id="email" 
                             type="email" 
                             placeholder="seu.email@exemplo.com"
-                            value={pixEmail}
-                            onChange={(e) => setPixEmail(e.target.value)}
+                            value={customerEmail}
+                            onChange={(e) => setCustomerEmail(e.target.value)}
                         />
                     </div>
                 </div>
@@ -354,7 +357,7 @@ export default function HomePage() {
 
             <DialogFooter>
                 {!pixData ? (
-                    <Button type="button" onClick={handleGeneratePix} disabled={isGeneratingPix || !pixEmail || !pixName} className="w-full">
+                    <Button type="button" onClick={handleGeneratePix} disabled={isGeneratingPix || !customerEmail || !customerName} className="w-full">
                        {isGeneratingPix ? <Loader2 className="h-4 w-4 mr-2 animate-spin"/> : null}
                        {isGeneratingPix ? 'Gerando...' : 'Gerar QR Code Pix'}
                     </Button>
@@ -365,7 +368,4 @@ export default function HomePage() {
                 )}
             </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </>
-  );
-}
+      </Dial

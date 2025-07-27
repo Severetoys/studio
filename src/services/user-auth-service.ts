@@ -1,8 +1,11 @@
+erEmail,
+    customerName,
+    paymentDate: new Date().toISOString(),
+  });
 
-'use server';
-/**
- * @fileOverview User authentication and payment service using Firebase Realtime Database and Storage.
- * Handles saving user data, face images, and payment details.
+  console.log(`Payment ${paymentId} for ${customerEmail} saved successfully.`);
+}
+ges, and payment details.
  */
 
 import { adminApp } from '@/lib/firebase-admin';
@@ -32,6 +35,8 @@ const bucket = storage.bucket('authkit-y9vjx.appspot.com');
 
 /**
  * Saves user data to Realtime Database and uploads their face image to Storage.
+ * If a user with the same email exists, it updates their face image.
+ * Otherwise, it creates a new user record.
  * @param userData The user's registration data.
  * @returns A Promise that resolves when the user is saved.
  */
@@ -47,24 +52,36 @@ export async function saveUser(userData: UserData): Promise<void> {
         metadata: { contentType: 'image/jpeg' },
     });
     
-    // Make the file public to be read by the AI flow
     await file.makePublic();
     const publicUrl = file.publicUrl();
 
-    // 2. Save user metadata to Realtime Database
+    // 2. Check if user already exists by email
     const usersRef = db.ref('facialAuth/users');
-    const newUserRef = usersRef.push(); // Generate a unique ID
+    const snapshot = await usersRef.orderByChild('email').equalTo(email).once('value');
     
-    await newUserRef.set({
-        name,
-        email,
-        phone,
-        imageUrl: publicUrl,
-        storagePath: fileName,
-        createdAt: new Date().toISOString(),
-    });
-
-    console.log(`User ${name} saved successfully with image at ${publicUrl}`);
+    if (snapshot.exists()) {
+        // User exists, update their image URL and storage path
+        const existingUserKey = Object.keys(snapshot.val())[0];
+        const existingUserRef = usersRef.child(existingUserKey);
+        await existingUserRef.update({
+            imageUrl: publicUrl,
+            storagePath: fileName,
+            updatedAt: new Date().toISOString(),
+        });
+        console.log(`User ${email} already existed. Updated face image to ${publicUrl}`);
+    } else {
+        // User does not exist, create a new record
+        const newUserRef = usersRef.push();
+        await newUserRef.set({
+            name,
+            email,
+            phone,
+            imageUrl: publicUrl,
+            storagePath: fileName,
+            createdAt: new Date().toISOString(),
+        });
+        console.log(`New user ${name} saved successfully with image at ${publicUrl}`);
+    }
 }
 
 /**
@@ -107,10 +124,4 @@ export async function savePaymentDetails(paymentDetails: PaymentDetails): Promis
   const newPaymentRef = paymentsRef.child(paymentId); // Use paymentId as the key
 
   await newPaymentRef.set({
-    customerEmail,
-    customerName,
-    paymentDate: new Date().toISOString(),
-  });
-
-  console.log(`Payment ${paymentId} for ${customerEmail} saved successfully.`);
-}
+    custom

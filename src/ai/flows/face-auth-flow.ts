@@ -71,7 +71,7 @@ const registerUserFlow = ai.defineFlow(
       await saveUser(userData);
       
       console.log(`User ${userData.name} registered successfully.`);
-      return { success: true, message: 'Usuário registrado com sucesso!' };
+      return { success: true, message: 'Usuário registrado! Redirecionando...' };
     } catch (e: any) {
       console.error('Error during user registration flow:', e);
       return { success: false, message: e.message || 'An unexpected error occurred during registration.', errorCode: 'SAVE_FAILED' };
