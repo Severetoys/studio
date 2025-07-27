@@ -2,7 +2,6 @@
 'use server';
 /**
  * @fileOverview Fluxo para criar e capturar ordens de pagamento no PayPal.
- * - getPayPalClientId: Obtém a Client ID do PayPal do ambiente do servidor.
  * - createPayPalOrder: Gera uma ordem de pagamento e retorna o ID para o frontend.
  * - capturePayPalOrder: Captura o pagamento após a aprovação do usuário.
  */
@@ -81,11 +80,6 @@ const createPayPalOrderFlow = ai.defineFlow(
                     description: 'Assinatura Mensal - Italo Santos',
                 },
             ],
-             payment_source: {
-                google_pay: {
-                    // Configurações específicas para Google Pay
-                }
-            }
         });
 
         const response = await client.execute(request);
@@ -141,12 +135,6 @@ const capturePayPalOrderFlow = ai.defineFlow(
   }
 );
 
-/**
- * Função para obter a Client ID do PayPal do ambiente do servidor.
- */
-export async function getPayPalClientId(): Promise<string | null> {
-    return process.env.PAYPAL_CLIENT_ID || null;
-}
 
 /**
  * Função exportada para ser chamada do lado do cliente.
@@ -160,4 +148,18 @@ export async function createPayPalOrder(input: CreatePayPalOrderInput): Promise<
  */
 export async function capturePayPalOrder(input: CapturePayPalOrderInput): Promise<CapturePayPalOrderOutput> {
   return capturePayPalOrderFlow(input);
+}
+
+
+/**
+ * Obtém a Client ID do PayPal do ambiente do servidor.
+ * @returns {Promise<string>} A Client ID do PayPal.
+ */
+export async function getPayPalClientId(): Promise<string> {
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    if (!clientId) {
+        console.error("A variável de ambiente PAYPAL_CLIENT_ID não está definida no servidor.");
+        return "";
+    }
+    return clientId;
 }

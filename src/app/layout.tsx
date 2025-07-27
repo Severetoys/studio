@@ -23,8 +23,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
+      <head>
+          
+      </head>
       <body className={`font-sans ${inter.variable} antialiased bg-background`}>
         <div id="fb-root"></div>
         <Script id="facebook-jssdk" strategy="afterInteractive">

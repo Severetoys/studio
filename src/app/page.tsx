@@ -16,9 +16,9 @@ import { Label } from '@/components/ui/label';
 import { createPixPayment, type CreatePixPaymentOutput } from '@/ai/flows/mercado-pago-pix-flow';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import PayPalButtonsWrapper from '@/components/paypal-buttons-wrapper';
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { getPayPalClientId, createPayPalOrder, capturePayPalOrder } from "@/ai/flows/paypal-payment-flow";
+
 
 const features = [
     "Conteúdo exclusivo e sem censura.",
@@ -47,6 +47,92 @@ const FeatureList = () => (
 );
 
 
+const PayPalWrapper = ({ priceInfo, onPaymentSuccess }: { priceInfo: any, onPaymentSuccess: (details: any) => void }) => {
+    const { toast } = useToast();
+    const [clientId, setClientId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchClientId = async () => {
+            setIsLoading(true);
+            try {
+                const id = await getPayPalClientId();
+                if (!id) throw new Error("Client ID do PayPal não foi recebido do servidor.");
+                setClientId(id);
+            } catch (error: any) {
+                console.error("Erro ao buscar Client ID do PayPal:", error);
+                toast({
+                    variant: "destructive",
+                    title: "Erro de Configuração do PayPal",
+                    description: error.message || "Não foi possível carregar as credenciais de pagamento.",
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchClientId();
+    }, [toast]);
+
+    if (isLoading) {
+        return (
+             <div className="h-20 flex justify-center items-center bg-gray-800 rounded-md">
+                <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+        );
+    }
+
+    if (!clientId) {
+        return (
+             <div className="h-20 flex justify-center items-center bg-gray-800 rounded-md">
+                <p className="text-xs text-white">Chave do cliente PayPal não encontrada.</p>
+            </div>
+        );
+    }
+    
+    // O botão do Google Pay via PayPal funciona melhor com moedas suportadas globalmente.
+    // Vamos renderizar o botão padrão do PayPal para BRL.
+    if (priceInfo.currencyCode !== 'BRL') {
+        return null;
+    }
+
+    return (
+        <PayPalScriptProvider options={{ clientId: clientId, currency: "BRL", components: "buttons" }}>
+            <PayPalButtons
+                style={{ layout: "horizontal", tagline: false, height: 55, color: 'blue' }}
+                createOrder={async (data, actions) => {
+                    try {
+                        const result = await createPayPalOrder({ amount: priceInfo.amount, currencyCode: "BRL" });
+                        if (result.orderID) {
+                            return result.orderID;
+                        }
+                        throw new Error(result.error || "Falha ao criar ordem no servidor.");
+                    } catch (error: any) {
+                        toast({ variant: 'destructive', title: 'Erro ao Criar Pedido', description: error.message });
+                        return '';
+                    }
+                }}
+                onApprove={async (data, actions) => {
+                    try {
+                        if (!actions.order) {
+                            throw new Error('A ordem de captura não está disponível.');
+                        }
+                        const details = await actions.order.capture();
+                        onPaymentSuccess(details);
+                    } catch (error: any) {
+                         toast({ variant: 'destructive', title: 'Erro na Aprovação', description: error.message });
+                    }
+                }}
+                 onError={(err) => {
+                    toast({ variant: 'destructive', title: 'Erro no Pagamento', description: 'Ocorreu um erro inesperado com o PayPal.'});
+                    console.error("Erro no PayPal Button: ", err);
+                }}
+                fundingSource="paypal"
+            />
+        </PayPalScriptProvider>
+    );
+}
+
+
 export default function HomePage() {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -60,6 +146,14 @@ export default function HomePage() {
   const [isGeneratingPix, setIsGeneratingPix] = useState(false);
   const [pixData, setPixData] = useState<CreatePixPaymentOutput | null>(null);
   
+  const handlePaymentSuccess = (details: any) => {
+      localStorage.setItem('hasPaid', 'true');
+      toast({
+          title: "Pagamento Aprovado!",
+          description: "Você será redirecionado para a autenticação para finalizar seu acesso."
+      });
+      router.push('/dashboard');
+  };
 
   useEffect(() => {
     const userLocale = navigator.language || 'pt-BR';
@@ -76,16 +170,8 @@ export default function HomePage() {
     };
     
     getLocalCurrency();
-  }, []);
-  
-  const handlePaymentSuccess = () => {
-    localStorage.setItem('hasPaid', 'true');
-    toast({
-        title: "Pagamento Aprovado!",
-        description: "Você será redirecionado para a autenticação para finalizar seu acesso."
-    });
-    router.push('/dashboard');
-  }
+    
+  }, [router, toast]);
   
   const handleGeneratePix = async () => {
       if (!pixEmail) {
@@ -133,9 +219,11 @@ export default function HomePage() {
               </Button>
             
             <div className="flex items-center justify-center gap-2">
-                <div id="google-pay-button-container" className="h-20 w-[203px]">
-                   {priceInfo && <PayPalButtonsWrapper amount={priceInfo.amount} currencyCode={priceInfo.currencyCode} onPaymentSuccess={handlePaymentSuccess} />}
-                </div>
+                 {!isLoadingPrice && priceInfo && (
+                     <div className="flex-1">
+                        <PayPalWrapper priceInfo={priceInfo} onPaymentSuccess={handlePaymentSuccess} />
+                    </div>
+                 )}
                 
                 {/* Botão Pix */}
                  {!isLoadingPrice && (
@@ -155,11 +243,6 @@ export default function HomePage() {
                         />
                     </button>
                  )}
-                
-                {/* Botão Apple Pay */}
-                <Button onClick={handlePaymentSuccess} className="h-20 flex-1 bg-black text-white hover:bg-gray-800 p-0 overflow-hidden">
-                    <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Pagar com Apple Pay" width={203} height={88} className="object-contain" data-ai-hint="payment button" />
-                </Button>
             </div>
             
              <div className="text-center py-4 space-y-4">

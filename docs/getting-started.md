@@ -1,3 +1,4 @@
+
 # Primeiros Passos para Configurar o Projeto Italo Santos
 
 Siga estes passos para configurar e executar o projeto Italo Santos em seu ambiente de desenvolvimento local.
