@@ -44,3 +44,5 @@ next-env.d.ts
 firebase-debug.log
 firestore-debug.lognode_modules
 serviceAccountKey.json
+src/components/secret-chat-button.tsx
+src/components/secret-chat-widget.tsx
