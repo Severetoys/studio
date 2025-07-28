@@ -7,7 +7,6 @@ import Sidebar from './sidebar';
 import FetishModal from '@/components/fetish-modal';
 import type { Fetish } from '@/lib/fetish-data';
 import AdultWarningDialog from '@/components/adult-warning-dialog';
-import MainHeader from './main-header';
 import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
 import { doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
@@ -143,6 +142,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onFetishSelect={handleFetishSelect} 
         />
         <main className="flex-grow">{children}</main>
+        {showMainFooter && <MainFooter />}
         {showSiteFooter && <SiteFooter />}
       </div>
       {showChat && (

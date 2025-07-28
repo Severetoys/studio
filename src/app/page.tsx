@@ -98,7 +98,7 @@ export default function Home() {
                     </Button>
 
                      <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-2">
-                        <button onClick={handlePaymentSuccess} className="flex-1 cursor-pointer bg-transparent border-none p-0">
+                        <button className="flex-1 cursor-pointer bg-transparent border-none p-0 w-[144px] h-[58px] transition-transform hover:scale-105">
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=1a720214-8238-4dfe-9aba-a820a9b883aa"
                                 alt="Payment button"
@@ -124,7 +124,7 @@ export default function Home() {
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1 text-nowrap">PIX Brasil</p>
                         </div>
-                        <button onClick={handlePaymentSuccess} className="flex-1 cursor-pointer bg-transparent border-none p-0">
+                        <button className="flex-1 cursor-pointer bg-transparent border-none p-0 w-[144px] h-[58px] transition-transform hover:scale-105">
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=7a8ad75a-e3d6-4c1f-98ea-0dd5e3ef8bbf"
                                 alt="Apple Pay"
@@ -165,7 +165,6 @@ export default function Home() {
             
             <FeatureMarquee />
             <AboutSection />
-            <MainFooter />
 
             <PixPaymentModal 
                 isOpen={isPixModalOpen}

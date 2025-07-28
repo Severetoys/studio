@@ -21,3 +21,26 @@
 2025-07-28T09:19:50Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.77
 2025/07/28 09:19:50 failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details.
 2025-07-28T09:19:51Z INF Registered tunnel connection connIndex=0 connection=2007be11-2ed9-4703-ab7e-ba81f10c3102 event=0 ip=198.41.192.77 location=gru19 protocol=quic
+2025-07-28T22:32:25Z ERR Failed to serve tunnel connection error="context canceled" connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:25Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:26Z ERR Connection terminated error="context canceled" connIndex=0
+2025-07-28T22:32:28Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:28Z ERR Failed to serve tunnel connection error="context canceled" connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:28Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:28Z ERR Connection terminated error="context canceled" connIndex=0
+2025-07-28T22:32:43Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:44Z ERR Failed to serve tunnel connection error="context canceled" connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:44Z INF Retrying connection in up to 8s connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:32:49Z ERR Connection terminated error="context canceled" connIndex=0
+2025-07-28T22:33:59Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:33:59Z ERR Failed to serve tunnel connection error="context canceled" connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:33:59Z INF Retrying connection in up to 16s connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:34:01Z ERR Connection terminated error="context canceled" connIndex=0
+2025-07-28T22:34:08Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:34:08Z ERR Failed to serve tunnel connection error="context canceled" connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:34:08Z INF Retrying connection in up to 32s connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:34:09Z ERR Connection terminated error="context canceled" connIndex=0
+2025-07-28T22:39:03Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:39:03Z ERR Failed to serve tunnel connection error="context canceled" connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:39:03Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.77
+2025-07-28T22:39:12Z ERR Connection terminated error="context canceled" connIndex=0
