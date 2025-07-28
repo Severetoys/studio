@@ -43,16 +43,26 @@ export default function Home() {
             </div>
 
             <main className="relative z-10 flex flex-col items-center justify-center flex-1 w-full max-w-4xl mx-auto pt-8">
-                <div 
-                    className="mb-8 border-4 border-red-500 p-4"
-                    style={{ boxShadow: '0 0 15px 5px rgba(255, 0, 0, 0.5)' }}
-                >
-                    <h1 
-                        className="text-8xl md:text-9xl font-bold text-white"
-                        style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                 <div className="relative w-full flex items-center justify-center mb-8">
+                    <Image
+                        src="https://placehold.co/1200x400.png"
+                        alt="Background"
+                        width={1200}
+                        height={400}
+                        className="absolute inset-0 w-full h-full object-cover opacity-80"
+                        data-ai-hint="male model"
+                    />
+                    <div 
+                        className="relative border-4 border-red-500 p-4 bg-black/50"
+                        style={{ boxShadow: '0 0 15px 5px rgba(255, 0, 0, 0.5)' }}
                     >
-                        Italo Santos
-                    </h1>
+                        <h1 
+                            className="text-8xl md:text-9xl font-bold text-white"
+                            style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                        >
+                            Italo Santos
+                        </h1>
+                    </div>
                 </div>
 
                 <Separator className="my-8 w-full bg-primary/50" />
