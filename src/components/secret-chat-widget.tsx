@@ -297,7 +297,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                                     handleSendMessage(newMessage);
                                 }
                             }}
-                            className="flex-1 bg-neutral-800 border-none focus:shadow-neon-red-light min-h-[40px] h-10 max-h-24 resize-none rounded-2xl px-4 text-white placeholder:text-neutral-400"
+                            className="flex-1 bg-primary/20 border-primary/30 focus:shadow-neon-red-light min-h-[40px] h-10 max-h-24 resize-none rounded-2xl px-4 text-white placeholder:text-neutral-400"
                             disabled={isSending || isAuthenticating}
                             rows={1}
                         />
