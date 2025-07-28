@@ -10,13 +10,11 @@ import AboutSection from '@/components/about-section';
 import { Separator } from '@/components/ui/separator';
 import GoogleScriptModal from '@/components/google-script-modal';
 import MainFooter from '@/components/layout/main-footer';
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { createPayPalOrder, capturePayPalOrder, getPayPalClientId } from '@/ai/flows/paypal-payment-flow';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
-import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
+import PaymentButtons from '@/components/payment-buttons';
 
 export default function Home() {
     const { toast } = useToast();
@@ -31,20 +29,12 @@ export default function Home() {
         title: '',
     });
     
-    const [paypalClientId, setPaypalClientId] = useState<string | null>(null);
     const [paymentAmount, setPaymentAmount] = useState({ value: '99.00', currency: 'BRL' });
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
-    const [preferenceId, setPreferenceId] = useState<string | null>(null);
-
-    initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || '');
-
 
     useEffect(() => {
-        const fetchClientIdAndCurrency = async () => {
+        const fetchCurrency = async () => {
             try {
-                const clientId = await getPayPalClientId();
-                setPaypalClientId(clientId);
-
                 const userLocale = navigator.language || 'pt-BR';
                 const result = await convertCurrency({ targetLocale: userLocale });
 
@@ -55,28 +45,11 @@ export default function Home() {
                     });
                 }
             } catch (error) {
-                console.error("Failed to fetch PayPal client ID or currency", error);
-                toast({
-                    variant: 'destructive',
-                    title: 'Erro de Configuração',
-                    description: 'Não foi possível carregar as opções de pagamento. Tente novamente mais tarde.',
-                });
+                console.error("Failed to fetch currency", error);
             }
         };
-        
-        const createPreference = async () => {
-            // No mundo real, esta chamada seria para o seu backend.
-            // O backend criaria uma preferência de pagamento no Mercado Pago e retornaria o ID.
-            // Para este exemplo, usaremos um ID de preferência de teste pré-gerado.
-            // Este ID está configurado para um item de R$99,00.
-            const testPreferenceId = "209749133-e08508e9-d7de-4f51-a20c-3687796d860d";
-            setPreferenceId(testPreferenceId);
-        };
-
-
-        fetchClientIdAndCurrency();
-        createPreference();
-    }, [toast]);
+        fetchCurrency();
+    }, []);
     
     const openModal = (url: string, title: string) => {
         setModalState({ isOpen: true, url, title });
@@ -90,6 +63,7 @@ export default function Home() {
     const loginUrl = "https://script.google.com/macros/s/AKfycbwqPvDxA6iOnyOWG8UJt2cVgLNmjAebcBca2rQeXnOd99ARugf244OEXbZXuJt4K7P-/exec?page=login";
 
     const handlePaymentSuccess = () => {
+        toast({ title: 'Pagamento bem-sucedido!', description: 'Seja bem-vindo(a) ao conteúdo exclusivo!' });
         localStorage.setItem('hasPaid', 'true');
         localStorage.setItem('hasSubscription', 'true');
         router.push('/dashboard');
@@ -135,82 +109,18 @@ export default function Home() {
                     </Button>
 
                     <div className="flex justify-center items-center w-full max-w-full mt-4">
-                        {preferenceId && (
-                           <>
-                             <div className="flex-1" style={{ flexBasis: '42.5%' }}>
-                                <Wallet
-                                    initialization={{ preferenceId: preferenceId }}
-                                    customization={{
-                                        texts: { valueProp: 'payment_methods_logos' }
-                                    }}
-                                    onSubmit={handlePaymentSuccess}
-                                />
-                             </div>
-                             <div className="flex-shrink-0 mx-4 flex flex-col items-center px-[15%]">
-                                <button className="transition-transform hover:scale-105" onClick={() => setIsPixModalOpen(true)}>
-                                     <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.2)' }}/>
-                                </button>
-                                <p className="text-xs font-semibold mt-1">PIX</p>
-                                <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
-                             </div>
-                             <div className="flex-1" style={{ flexBasis: '42.5%' }}>
-                                <Wallet
-                                     initialization={{ preferenceId: preferenceId }}
-                                     customization={{
-                                         texts: { valueProp: 'payment_methods_logos' }
-                                     }}
-                                     onSubmit={handlePaymentSuccess}
-                                 />
-                             </div>
-                           </>
-                        )}
+                        <PaymentButtons 
+                            onPaymentSuccess={handlePaymentSuccess} 
+                            amount={parseFloat(paymentAmount.value)} 
+                            currency={paymentAmount.currency}
+                        />
                     </div>
 
                     <div className="text-center">
                         <p className="text-lg">Assinatura Mensal</p>
                         <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>
-                           {paymentAmount.currency === 'BRL' ? `R$ ${paymentAmount.value}` : `${paymentAmount.value} ${paymentAmount.currency}`}
+                           {paymentAmount.currency === 'BRL' ? `R$${paymentAmount.value.replace('.', ',')}` : `${paymentAmount.value} ${paymentAmount.currency}`}
                         </p>
-                    </div>
-                     
-                     <div className="w-full">
-                         {paypalClientId && (
-                            <PayPalScriptProvider options={{ "client-id": paypalClientId, currency: paymentAmount.currency }}>
-                                <PayPalButtons
-                                    style={{ layout: "horizontal", color: "gold", shape: "rect", label: "paypal", tagline: false, height: 44 }}
-                                    createOrder={async (data, actions) => {
-                                        toast({ title: 'Criando sua ordem de pagamento...' });
-                                        const res = await createPayPalOrder({ 
-                                            amount: parseFloat(paymentAmount.value), 
-                                            currencyCode: paymentAmount.currency 
-                                        });
-                                        if (res.orderID) {
-                                            return res.orderID;
-                                        } else {
-                                            toast({ variant: 'destructive', title: 'Erro', description: res.error });
-                                            throw new Error(res.error);
-                                        }
-                                    }}
-                                    onApprove={async (data, actions) => {
-                                        toast({ title: 'Processando pagamento...' });
-                                        if (actions.order) {
-                                            const res = await capturePayPalOrder({ orderID: data.orderID });
-                                            if (res.success) {
-                                                toast({ title: 'Pagamento Aprovado!', description: 'Seja bem-vindo(a) ao conteúdo exclusivo!' });
-                                                handlePaymentSuccess();
-                                            } else {
-                                                 toast({ variant: 'destructive', title: 'Falha na Captura', description: res.error });
-                                            }
-                                        }
-                                    }}
-                                    onError={(err: any) => {
-                                        console.error("Erro no PayPal:", err);
-                                        toast({ variant: 'destructive', title: 'Erro no Pagamento', description: 'Ocorreu um erro. Verifique os detalhes e tente novamente.' });
-                                    }}
-                                    key={paymentAmount.currency} // Re-render buttons if currency changes
-                                />
-                            </PayPalScriptProvider>
-                        )}
                     </div>
 
                     <Button 
@@ -222,7 +132,7 @@ export default function Home() {
                     </Button>
                 </div>
             </main>
-
+            
             <FeatureMarquee />
             <AboutSection />
             <MainFooter />
