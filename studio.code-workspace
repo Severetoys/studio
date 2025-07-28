@@ -8,7 +8,7 @@
 		"IDX.aI.enableInlineCompletion": true,
 		"IDX.aI.enableCodebaseIndexing": true,
 		"terminal.integrated.sendKeybindingsToShell": true,
-		"github.copilot.nextEditSuggestions.enabled": true
+		"github.copilot.nextEditSuggestions.enabled": false
 	},
 	"launch": {
 		"version": "0.2.0",

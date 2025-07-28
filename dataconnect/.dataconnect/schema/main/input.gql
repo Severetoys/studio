@@ -1,0 +1,2235 @@
+"""
+✨ `MediaAsset_KeyOutput` returns the primary key fields of table type `MediaAsset`.
+
+It has the same format as `MediaAsset_Key`, but is only used as mutation return value.
+"""
+scalar MediaAsset_KeyOutput
+"""
+✨ `PlatformPost_KeyOutput` returns the primary key fields of table type `PlatformPost`.
+
+It has the same format as `PlatformPost_Key`, but is only used as mutation return value.
+"""
+scalar PlatformPost_KeyOutput
+"""
+✨ `Post_KeyOutput` returns the primary key fields of table type `Post`.
+
+It has the same format as `Post_Key`, but is only used as mutation return value.
+"""
+scalar Post_KeyOutput
+"""
+✨ `ProductService_KeyOutput` returns the primary key fields of table type `ProductService`.
+
+It has the same format as `ProductService_Key`, but is only used as mutation return value.
+"""
+scalar ProductService_KeyOutput
+"""
+✨ `SocialAccount_KeyOutput` returns the primary key fields of table type `SocialAccount`.
+
+It has the same format as `SocialAccount_Key`, but is only used as mutation return value.
+"""
+scalar SocialAccount_KeyOutput
+"""
+✨ `Transaction_KeyOutput` returns the primary key fields of table type `Transaction`.
+
+It has the same format as `Transaction_Key`, but is only used as mutation return value.
+"""
+scalar Transaction_KeyOutput
+"""
+✨ `User_KeyOutput` returns the primary key fields of table type `User`.
+
+It has the same format as `User_Key`, but is only used as mutation return value.
+"""
+scalar User_KeyOutput
+"""
+✨ Generated data input type for table 'MediaAsset'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input MediaAsset_Data {
+  """
+  ✨ Generated from Field `MediaAsset`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `MediaAsset`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `MediaAsset`.`userId` of type `UUID!`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `MediaAsset`.`userId` of type `UUID!`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `MediaAsset`.`user` of type `User!`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `MediaAsset`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `MediaAsset`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `MediaAsset`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `MediaAsset`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `MediaAsset`.`duration` of type `Int`
+  """
+  duration: Int
+  """
+  ✨ `_expr` server value variant of `duration` (✨ Generated from Field `MediaAsset`.`duration` of type `Int`)
+  """
+  duration_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `duration` (✨ Generated from Field `MediaAsset`.`duration` of type `Int`)
+  """
+  duration_update: [Int_Update!]
+  """
+  ✨ Generated from Field `MediaAsset`.`fileName` of type `String!`
+  """
+  fileName: String
+  """
+  ✨ `_expr` server value variant of `fileName` (✨ Generated from Field `MediaAsset`.`fileName` of type `String!`)
+  """
+  fileName_expr: String_Expr
+  """
+  ✨ Generated from Field `MediaAsset`.`height` of type `Int`
+  """
+  height: Int
+  """
+  ✨ `_expr` server value variant of `height` (✨ Generated from Field `MediaAsset`.`height` of type `Int`)
+  """
+  height_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `height` (✨ Generated from Field `MediaAsset`.`height` of type `Int`)
+  """
+  height_update: [Int_Update!]
+  """
+  ✨ Generated from Field `MediaAsset`.`mediaType` of type `String!`
+  """
+  mediaType: String
+  """
+  ✨ `_expr` server value variant of `mediaType` (✨ Generated from Field `MediaAsset`.`mediaType` of type `String!`)
+  """
+  mediaType_expr: String_Expr
+  """
+  ✨ Generated from Field `MediaAsset`.`url` of type `String!`
+  """
+  url: String
+  """
+  ✨ `_expr` server value variant of `url` (✨ Generated from Field `MediaAsset`.`url` of type `String!`)
+  """
+  url_expr: String_Expr
+  """
+  ✨ Generated from Field `MediaAsset`.`width` of type `Int`
+  """
+  width: Int
+  """
+  ✨ `_expr` server value variant of `width` (✨ Generated from Field `MediaAsset`.`width` of type `Int`)
+  """
+  width_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `width` (✨ Generated from Field `MediaAsset`.`width` of type `Int`)
+  """
+  width_update: [Int_Update!]
+}
+"""
+✨ Generated filter input type for table 'MediaAsset'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input MediaAsset_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [MediaAsset_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: MediaAsset_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [MediaAsset_Filter!]
+  """
+  ✨ Generated from Field `MediaAsset`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`userId` of type `UUID!`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`user` of type `User!`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`duration` of type `Int`
+  """
+  duration: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`fileName` of type `String!`
+  """
+  fileName: String_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`height` of type `Int`
+  """
+  height: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`mediaType` of type `String!`
+  """
+  mediaType: String_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`url` of type `String!`
+  """
+  url: String_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`width` of type `Int`
+  """
+  width: Int_Filter
+}
+"""
+✨ Generated first-row input type for table 'MediaAsset'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input MediaAsset_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [MediaAsset_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: MediaAsset_Filter
+}
+"""
+✨ Generated having input type for table 'MediaAsset'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input MediaAsset_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [MediaAsset_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: MediaAsset_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [MediaAsset_Having!]
+  """
+  ✨ Generated from Field `MediaAsset`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`duration_count` of type `Int!`
+  """
+  duration_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`fileName_count` of type `Int!`
+  """
+  fileName_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`height_count` of type `Int!`
+  """
+  height_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`mediaType_count` of type `Int!`
+  """
+  mediaType_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`url_count` of type `Int!`
+  """
+  url_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`width_count` of type `Int!`
+  """
+  width_count: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`duration_sum` of type `Int`
+  """
+  duration_sum: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`height_sum` of type `Int`
+  """
+  height_sum: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`width_sum` of type `Int`
+  """
+  width_sum: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`duration_avg` of type `Float`
+  """
+  duration_avg: Float_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`height_avg` of type `Float`
+  """
+  height_avg: Float_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`width_avg` of type `Float`
+  """
+  width_avg: Float_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`duration_min` of type `Int`
+  """
+  duration_min: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`height_min` of type `Int`
+  """
+  height_min: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`width_min` of type `Int`
+  """
+  width_min: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`duration_max` of type `Int`
+  """
+  duration_max: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`height_max` of type `Int`
+  """
+  height_max: Int_Filter
+  """
+  ✨ Generated from Field `MediaAsset`.`width_max` of type `Int`
+  """
+  width_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'MediaAsset'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input MediaAsset_Key {
+  """
+  ✨ Generated from Field `MediaAsset`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `MediaAsset`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'MediaAsset'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input MediaAsset_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: MediaAsset_Filter
+}
+"""
+✨ Generated order input type for table 'MediaAsset'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input MediaAsset_Order {
+  """
+  ✨ Generated from Field `MediaAsset`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`userId` of type `UUID!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`user` of type `User!`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `MediaAsset`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`duration` of type `Int`
+  """
+  duration: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`fileName` of type `String!`
+  """
+  fileName: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`height` of type `Int`
+  """
+  height: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`mediaType` of type `String!`
+  """
+  mediaType: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`url` of type `String!`
+  """
+  url: OrderDirection
+  """
+  ✨ Generated from Field `MediaAsset`.`width` of type `Int`
+  """
+  width: OrderDirection
+}
+"""
+✨ Generated data input type for table 'PlatformPost'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input PlatformPost_Data {
+  """
+  ✨ Generated from Field `PlatformPost`.`postId` of type `UUID!`
+  """
+  postId: UUID
+  """
+  ✨ `_expr` server value variant of `postId` (✨ Generated from Field `PlatformPost`.`postId` of type `UUID!`)
+  """
+  postId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccountId` of type `UUID!`
+  """
+  socialAccountId: UUID
+  """
+  ✨ `_expr` server value variant of `socialAccountId` (✨ Generated from Field `PlatformPost`.`socialAccountId` of type `UUID!`)
+  """
+  socialAccountId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `PlatformPost`.`post` of type `Post!`
+  """
+  post: Post_Key
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccount` of type `SocialAccount!`
+  """
+  socialAccount: SocialAccount_Key
+  """
+  ✨ Generated from Field `PlatformPost`.`errorDetails` of type `String`
+  """
+  errorDetails: String
+  """
+  ✨ `_expr` server value variant of `errorDetails` (✨ Generated from Field `PlatformPost`.`errorDetails` of type `String`)
+  """
+  errorDetails_expr: String_Expr
+  """
+  ✨ Generated from Field `PlatformPost`.`platformPostId` of type `String`
+  """
+  platformPostId: String
+  """
+  ✨ `_expr` server value variant of `platformPostId` (✨ Generated from Field `PlatformPost`.`platformPostId` of type `String`)
+  """
+  platformPostId_expr: String_Expr
+  """
+  ✨ Generated from Field `PlatformPost`.`publishedUrl` of type `String`
+  """
+  publishedUrl: String
+  """
+  ✨ `_expr` server value variant of `publishedUrl` (✨ Generated from Field `PlatformPost`.`publishedUrl` of type `String`)
+  """
+  publishedUrl_expr: String_Expr
+  """
+  ✨ Generated from Field `PlatformPost`.`status` of type `String!`
+  """
+  status: String
+  """
+  ✨ `_expr` server value variant of `status` (✨ Generated from Field `PlatformPost`.`status` of type `String!`)
+  """
+  status_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'PlatformPost'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input PlatformPost_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [PlatformPost_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: PlatformPost_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [PlatformPost_Filter!]
+  """
+  ✨ Generated from Field `PlatformPost`.`postId` of type `UUID!`
+  """
+  postId: UUID_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccountId` of type `UUID!`
+  """
+  socialAccountId: UUID_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`post` of type `Post!`
+  """
+  post: Post_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccount` of type `SocialAccount!`
+  """
+  socialAccount: SocialAccount_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`errorDetails` of type `String`
+  """
+  errorDetails: String_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`platformPostId` of type `String`
+  """
+  platformPostId: String_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`publishedUrl` of type `String`
+  """
+  publishedUrl: String_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`status` of type `String!`
+  """
+  status: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'PlatformPost'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input PlatformPost_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [PlatformPost_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: PlatformPost_Filter
+}
+"""
+✨ Generated having input type for table 'PlatformPost'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input PlatformPost_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [PlatformPost_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: PlatformPost_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [PlatformPost_Having!]
+  """
+  ✨ Generated from Field `PlatformPost`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`errorDetails_count` of type `Int!`
+  """
+  errorDetails_count: Int_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`platformPostId_count` of type `Int!`
+  """
+  platformPostId_count: Int_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`postId_count` of type `Int!`
+  """
+  postId_count: Int_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`publishedUrl_count` of type `Int!`
+  """
+  publishedUrl_count: Int_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccountId_count` of type `Int!`
+  """
+  socialAccountId_count: Int_Filter
+  """
+  ✨ Generated from Field `PlatformPost`.`status_count` of type `Int!`
+  """
+  status_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'PlatformPost'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input PlatformPost_Key {
+  """
+  ✨ Generated from Field `PlatformPost`.`postId` of type `UUID!`
+  """
+  postId: UUID
+  """
+  ✨ `_expr` server value variant of `postId` (✨ Generated from Field `PlatformPost`.`postId` of type `UUID!`)
+  """
+  postId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccountId` of type `UUID!`
+  """
+  socialAccountId: UUID
+  """
+  ✨ `_expr` server value variant of `socialAccountId` (✨ Generated from Field `PlatformPost`.`socialAccountId` of type `UUID!`)
+  """
+  socialAccountId_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'PlatformPost'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input PlatformPost_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: PlatformPost_Filter
+}
+"""
+✨ Generated order input type for table 'PlatformPost'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input PlatformPost_Order {
+  """
+  ✨ Generated from Field `PlatformPost`.`postId` of type `UUID!`
+  """
+  postId: OrderDirection
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccountId` of type `UUID!`
+  """
+  socialAccountId: OrderDirection
+  """
+  ✨ Generated from Field `PlatformPost`.`post` of type `Post!`
+  """
+  post: Post_Order
+  """
+  ✨ Generated from Field `PlatformPost`.`socialAccount` of type `SocialAccount!`
+  """
+  socialAccount: SocialAccount_Order
+  """
+  ✨ Generated from Field `PlatformPost`.`errorDetails` of type `String`
+  """
+  errorDetails: OrderDirection
+  """
+  ✨ Generated from Field `PlatformPost`.`platformPostId` of type `String`
+  """
+  platformPostId: OrderDirection
+  """
+  ✨ Generated from Field `PlatformPost`.`publishedUrl` of type `String`
+  """
+  publishedUrl: OrderDirection
+  """
+  ✨ Generated from Field `PlatformPost`.`status` of type `String!`
+  """
+  status: OrderDirection
+}
+"""
+✨ Generated data input type for table 'Post'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Post_Data {
+  """
+  ✨ Generated from Field `Post`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Post`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Post`.`userId` of type `UUID!`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Post`.`userId` of type `UUID!`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Post`.`user` of type `User!`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `Post`.`caption` of type `String`
+  """
+  caption: String
+  """
+  ✨ `_expr` server value variant of `caption` (✨ Generated from Field `Post`.`caption` of type `String`)
+  """
+  caption_expr: String_Expr
+  """
+  ✨ Generated from Field `Post`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `Post`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `Post`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `Post`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `Post`.`mediaAssetIds` of type `[UUID]`
+  """
+  mediaAssetIds: [UUID!]
+  """
+  ✨ `_update` server value variant of `mediaAssetIds` (✨ Generated from Field `Post`.`mediaAssetIds` of type `[UUID]`)
+  """
+  mediaAssetIds_update: [UUID_ListUpdate!]
+  """
+  ✨ Generated from Field `Post`.`publishedAt` of type `Timestamp`
+  """
+  publishedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `publishedAt` (✨ Generated from Field `Post`.`publishedAt` of type `Timestamp`)
+  """
+  publishedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `publishedAt` (✨ Generated from Field `Post`.`publishedAt` of type `Timestamp`)
+  """
+  publishedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `publishedAt` (✨ Generated from Field `Post`.`publishedAt` of type `Timestamp`)
+  """
+  publishedAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `Post`.`scheduledAt` of type `Timestamp`
+  """
+  scheduledAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `scheduledAt` (✨ Generated from Field `Post`.`scheduledAt` of type `Timestamp`)
+  """
+  scheduledAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `scheduledAt` (✨ Generated from Field `Post`.`scheduledAt` of type `Timestamp`)
+  """
+  scheduledAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `scheduledAt` (✨ Generated from Field `Post`.`scheduledAt` of type `Timestamp`)
+  """
+  scheduledAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `Post`.`status` of type `String!`
+  """
+  status: String
+  """
+  ✨ `_expr` server value variant of `status` (✨ Generated from Field `Post`.`status` of type `String!`)
+  """
+  status_expr: String_Expr
+  """
+  ✨ Generated from Field `Post`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `updatedAt` (✨ Generated from Field `Post`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `updatedAt` (✨ Generated from Field `Post`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `updatedAt` (✨ Generated from Field `Post`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_update: [Timestamp_Update!]
+}
+"""
+✨ Generated filter input type for table 'Post'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Post_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Post_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Post_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Post_Filter!]
+  """
+  ✨ Generated from Field `Post`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Post`.`userId` of type `UUID!`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `Post`.`user` of type `User!`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `Post`.`caption` of type `String`
+  """
+  caption: String_Filter
+  """
+  ✨ Generated from Field `Post`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`mediaAssetIds` of type `[UUID]`
+  """
+  mediaAssetIds: UUID_ListFilter
+  """
+  ✨ Generated from Field `Post`.`publishedAt` of type `Timestamp`
+  """
+  publishedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`scheduledAt` of type `Timestamp`
+  """
+  scheduledAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`status` of type `String!`
+  """
+  status: String_Filter
+  """
+  ✨ Generated from Field `Post`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`platformPosts_on_post` of type `[PlatformPost!]!`
+  """
+  platformPosts_on_post: PlatformPost_ListFilter
+  """
+  ✨ Generated from Field `Post`.`socialAccounts_via_PlatformPost` of type `[SocialAccount!]!`
+  """
+  socialAccounts_via_PlatformPost: SocialAccount_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'Post'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Post_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Post_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Post_Filter
+}
+"""
+✨ Generated having input type for table 'Post'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Post_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Post_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Post_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Post_Having!]
+  """
+  ✨ Generated from Field `Post`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`caption_count` of type `Int!`
+  """
+  caption_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`publishedAt_count` of type `Int!`
+  """
+  publishedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`scheduledAt_count` of type `Int!`
+  """
+  scheduledAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`status_count` of type `Int!`
+  """
+  status_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `Post`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`publishedAt_min` of type `Timestamp`
+  """
+  publishedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`scheduledAt_min` of type `Timestamp`
+  """
+  scheduledAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`publishedAt_max` of type `Timestamp`
+  """
+  publishedAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`scheduledAt_max` of type `Timestamp`
+  """
+  scheduledAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `Post`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'Post'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Post_Key {
+  """
+  ✨ Generated from Field `Post`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Post`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'Post'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Post_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Post_Filter
+}
+"""
+✨ Generated order input type for table 'Post'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Post_Order {
+  """
+  ✨ Generated from Field `Post`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`userId` of type `UUID!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`user` of type `User!`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `Post`.`caption` of type `String`
+  """
+  caption: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`publishedAt` of type `Timestamp`
+  """
+  publishedAt: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`scheduledAt` of type `Timestamp`
+  """
+  scheduledAt: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`status` of type `String!`
+  """
+  status: OrderDirection
+  """
+  ✨ Generated from Field `Post`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: OrderDirection
+}
+"""
+✨ Generated data input type for table 'ProductService'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input ProductService_Data {
+  """
+  ✨ Generated from Field `ProductService`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ProductService`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ProductService`.`userId` of type `UUID!`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `ProductService`.`userId` of type `UUID!`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ProductService`.`user` of type `User!`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `ProductService`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `ProductService`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `ProductService`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `ProductService`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `ProductService`.`currency` of type `String!`
+  """
+  currency: String
+  """
+  ✨ `_expr` server value variant of `currency` (✨ Generated from Field `ProductService`.`currency` of type `String!`)
+  """
+  currency_expr: String_Expr
+  """
+  ✨ Generated from Field `ProductService`.`description` of type `String`
+  """
+  description: String
+  """
+  ✨ `_expr` server value variant of `description` (✨ Generated from Field `ProductService`.`description` of type `String`)
+  """
+  description_expr: String_Expr
+  """
+  ✨ Generated from Field `ProductService`.`imageUrl` of type `String`
+  """
+  imageUrl: String
+  """
+  ✨ `_expr` server value variant of `imageUrl` (✨ Generated from Field `ProductService`.`imageUrl` of type `String`)
+  """
+  imageUrl_expr: String_Expr
+  """
+  ✨ Generated from Field `ProductService`.`isActive` of type `Boolean!`
+  """
+  isActive: Boolean
+  """
+  ✨ `_expr` server value variant of `isActive` (✨ Generated from Field `ProductService`.`isActive` of type `Boolean!`)
+  """
+  isActive_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `ProductService`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `ProductService`.`name` of type `String!`)
+  """
+  name_expr: String_Expr
+  """
+  ✨ Generated from Field `ProductService`.`price` of type `Float!`
+  """
+  price: Float
+  """
+  ✨ `_expr` server value variant of `price` (✨ Generated from Field `ProductService`.`price` of type `Float!`)
+  """
+  price_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `price` (✨ Generated from Field `ProductService`.`price` of type `Float!`)
+  """
+  price_update: [Float_Update!]
+  """
+  ✨ Generated from Field `ProductService`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `updatedAt` (✨ Generated from Field `ProductService`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `updatedAt` (✨ Generated from Field `ProductService`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `updatedAt` (✨ Generated from Field `ProductService`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_update: [Timestamp_Update!]
+}
+"""
+✨ Generated filter input type for table 'ProductService'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ProductService_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [ProductService_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: ProductService_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [ProductService_Filter!]
+  """
+  ✨ Generated from Field `ProductService`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `ProductService`.`userId` of type `UUID!`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `ProductService`.`user` of type `User!`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `ProductService`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `ProductService`.`currency` of type `String!`
+  """
+  currency: String_Filter
+  """
+  ✨ Generated from Field `ProductService`.`description` of type `String`
+  """
+  description: String_Filter
+  """
+  ✨ Generated from Field `ProductService`.`imageUrl` of type `String`
+  """
+  imageUrl: String_Filter
+  """
+  ✨ Generated from Field `ProductService`.`isActive` of type `Boolean!`
+  """
+  isActive: Boolean_Filter
+  """
+  ✨ Generated from Field `ProductService`.`name` of type `String!`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `ProductService`.`price` of type `Float!`
+  """
+  price: Float_Filter
+  """
+  ✨ Generated from Field `ProductService`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `ProductService`.`transactions_on_productService` of type `[Transaction!]!`
+  """
+  transactions_on_productService: Transaction_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'ProductService'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input ProductService_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [ProductService_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: ProductService_Filter
+}
+"""
+✨ Generated having input type for table 'ProductService'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ProductService_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [ProductService_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: ProductService_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [ProductService_Having!]
+  """
+  ✨ Generated from Field `ProductService`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`currency_count` of type `Int!`
+  """
+  currency_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`description_count` of type `Int!`
+  """
+  description_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`imageUrl_count` of type `Int!`
+  """
+  imageUrl_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`isActive_count` of type `Int!`
+  """
+  isActive_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`price_count` of type `Int!`
+  """
+  price_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `ProductService`.`price_sum` of type `Float`
+  """
+  price_sum: Float_Filter
+  """
+  ✨ Generated from Field `ProductService`.`price_avg` of type `Float`
+  """
+  price_avg: Float_Filter
+  """
+  ✨ Generated from Field `ProductService`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `ProductService`.`price_min` of type `Float`
+  """
+  price_min: Float_Filter
+  """
+  ✨ Generated from Field `ProductService`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `ProductService`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `ProductService`.`price_max` of type `Float`
+  """
+  price_max: Float_Filter
+  """
+  ✨ Generated from Field `ProductService`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'ProductService'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input ProductService_Key {
+  """
+  ✨ Generated from Field `ProductService`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ProductService`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'ProductService'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input ProductService_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: ProductService_Filter
+}
+"""
+✨ Generated order input type for table 'ProductService'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input ProductService_Order {
+  """
+  ✨ Generated from Field `ProductService`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`userId` of type `UUID!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`user` of type `User!`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `ProductService`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`currency` of type `String!`
+  """
+  currency: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`description` of type `String`
+  """
+  description: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`imageUrl` of type `String`
+  """
+  imageUrl: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`isActive` of type `Boolean!`
+  """
+  isActive: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`price` of type `Float!`
+  """
+  price: OrderDirection
+  """
+  ✨ Generated from Field `ProductService`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: OrderDirection
+}
+"""
+✨ Generated data input type for table 'SocialAccount'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input SocialAccount_Data {
+  """
+  ✨ Generated from Field `SocialAccount`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `SocialAccount`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `SocialAccount`.`userId` of type `UUID!`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `SocialAccount`.`userId` of type `UUID!`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `SocialAccount`.`user` of type `User!`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `SocialAccount`.`accessToken` of type `String!`
+  """
+  accessToken: String
+  """
+  ✨ `_expr` server value variant of `accessToken` (✨ Generated from Field `SocialAccount`.`accessToken` of type `String!`)
+  """
+  accessToken_expr: String_Expr
+  """
+  ✨ Generated from Field `SocialAccount`.`accountIdentifier` of type `String!`
+  """
+  accountIdentifier: String
+  """
+  ✨ `_expr` server value variant of `accountIdentifier` (✨ Generated from Field `SocialAccount`.`accountIdentifier` of type `String!`)
+  """
+  accountIdentifier_expr: String_Expr
+  """
+  ✨ Generated from Field `SocialAccount`.`lastSyncedAt` of type `Timestamp`
+  """
+  lastSyncedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `lastSyncedAt` (✨ Generated from Field `SocialAccount`.`lastSyncedAt` of type `Timestamp`)
+  """
+  lastSyncedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `lastSyncedAt` (✨ Generated from Field `SocialAccount`.`lastSyncedAt` of type `Timestamp`)
+  """
+  lastSyncedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `lastSyncedAt` (✨ Generated from Field `SocialAccount`.`lastSyncedAt` of type `Timestamp`)
+  """
+  lastSyncedAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `SocialAccount`.`platform` of type `String!`
+  """
+  platform: String
+  """
+  ✨ `_expr` server value variant of `platform` (✨ Generated from Field `SocialAccount`.`platform` of type `String!`)
+  """
+  platform_expr: String_Expr
+  """
+  ✨ Generated from Field `SocialAccount`.`refreshToken` of type `String`
+  """
+  refreshToken: String
+  """
+  ✨ `_expr` server value variant of `refreshToken` (✨ Generated from Field `SocialAccount`.`refreshToken` of type `String`)
+  """
+  refreshToken_expr: String_Expr
+  """
+  ✨ Generated from Field `SocialAccount`.`status` of type `String`
+  """
+  status: String
+  """
+  ✨ `_expr` server value variant of `status` (✨ Generated from Field `SocialAccount`.`status` of type `String`)
+  """
+  status_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'SocialAccount'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input SocialAccount_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [SocialAccount_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: SocialAccount_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [SocialAccount_Filter!]
+  """
+  ✨ Generated from Field `SocialAccount`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`userId` of type `UUID!`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`user` of type `User!`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`accessToken` of type `String!`
+  """
+  accessToken: String_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`accountIdentifier` of type `String!`
+  """
+  accountIdentifier: String_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`lastSyncedAt` of type `Timestamp`
+  """
+  lastSyncedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`platform` of type `String!`
+  """
+  platform: String_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`refreshToken` of type `String`
+  """
+  refreshToken: String_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`status` of type `String`
+  """
+  status: String_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`platformPosts_on_socialAccount` of type `[PlatformPost!]!`
+  """
+  platformPosts_on_socialAccount: PlatformPost_ListFilter
+  """
+  ✨ Generated from Field `SocialAccount`.`posts_via_PlatformPost` of type `[Post!]!`
+  """
+  posts_via_PlatformPost: Post_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'SocialAccount'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input SocialAccount_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [SocialAccount_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: SocialAccount_Filter
+}
+"""
+✨ Generated having input type for table 'SocialAccount'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input SocialAccount_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [SocialAccount_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: SocialAccount_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [SocialAccount_Having!]
+  """
+  ✨ Generated from Field `SocialAccount`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`accessToken_count` of type `Int!`
+  """
+  accessToken_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`accountIdentifier_count` of type `Int!`
+  """
+  accountIdentifier_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`lastSyncedAt_count` of type `Int!`
+  """
+  lastSyncedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`platform_count` of type `Int!`
+  """
+  platform_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`refreshToken_count` of type `Int!`
+  """
+  refreshToken_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`status_count` of type `Int!`
+  """
+  status_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`lastSyncedAt_min` of type `Timestamp`
+  """
+  lastSyncedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `SocialAccount`.`lastSyncedAt_max` of type `Timestamp`
+  """
+  lastSyncedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'SocialAccount'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input SocialAccount_Key {
+  """
+  ✨ Generated from Field `SocialAccount`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `SocialAccount`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'SocialAccount'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input SocialAccount_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: SocialAccount_Filter
+}
+"""
+✨ Generated order input type for table 'SocialAccount'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input SocialAccount_Order {
+  """
+  ✨ Generated from Field `SocialAccount`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`userId` of type `UUID!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`user` of type `User!`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `SocialAccount`.`accessToken` of type `String!`
+  """
+  accessToken: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`accountIdentifier` of type `String!`
+  """
+  accountIdentifier: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`lastSyncedAt` of type `Timestamp`
+  """
+  lastSyncedAt: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`platform` of type `String!`
+  """
+  platform: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`refreshToken` of type `String`
+  """
+  refreshToken: OrderDirection
+  """
+  ✨ Generated from Field `SocialAccount`.`status` of type `String`
+  """
+  status: OrderDirection
+}
+"""
+✨ Generated data input type for table 'Transaction'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Transaction_Data {
+  """
+  ✨ Generated from Field `Transaction`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Transaction`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Transaction`.`productServiceId` of type `UUID`
+  """
+  productServiceId: UUID
+  """
+  ✨ `_expr` server value variant of `productServiceId` (✨ Generated from Field `Transaction`.`productServiceId` of type `UUID`)
+  """
+  productServiceId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Transaction`.`userId` of type `UUID!`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Transaction`.`productService` of type `ProductService`
+  """
+  productService: ProductService_Key
+  """
+  ✨ Generated from Field `Transaction`.`user` of type `User!`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `Transaction`.`amount` of type `Float!`
+  """
+  amount: Float
+  """
+  ✨ `_expr` server value variant of `amount` (✨ Generated from Field `Transaction`.`amount` of type `Float!`)
+  """
+  amount_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `amount` (✨ Generated from Field `Transaction`.`amount` of type `Float!`)
+  """
+  amount_update: [Float_Update!]
+  """
+  ✨ Generated from Field `Transaction`.`currency` of type `String!`
+  """
+  currency: String
+  """
+  ✨ `_expr` server value variant of `currency` (✨ Generated from Field `Transaction`.`currency` of type `String!`)
+  """
+  currency_expr: String_Expr
+  """
+  ✨ Generated from Field `Transaction`.`payerEmail` of type `String`
+  """
+  payerEmail: String
+  """
+  ✨ `_expr` server value variant of `payerEmail` (✨ Generated from Field `Transaction`.`payerEmail` of type `String`)
+  """
+  payerEmail_expr: String_Expr
+  """
+  ✨ Generated from Field `Transaction`.`paypalTransactionId` of type `String!`
+  """
+  paypalTransactionId: String
+  """
+  ✨ `_expr` server value variant of `paypalTransactionId` (✨ Generated from Field `Transaction`.`paypalTransactionId` of type `String!`)
+  """
+  paypalTransactionId_expr: String_Expr
+  """
+  ✨ Generated from Field `Transaction`.`receivedAt` of type `Timestamp!`
+  """
+  receivedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `receivedAt` (✨ Generated from Field `Transaction`.`receivedAt` of type `Timestamp!`)
+  """
+  receivedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `receivedAt` (✨ Generated from Field `Transaction`.`receivedAt` of type `Timestamp!`)
+  """
+  receivedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `receivedAt` (✨ Generated from Field `Transaction`.`receivedAt` of type `Timestamp!`)
+  """
+  receivedAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `Transaction`.`status` of type `String!`
+  """
+  status: String
+  """
+  ✨ `_expr` server value variant of `status` (✨ Generated from Field `Transaction`.`status` of type `String!`)
+  """
+  status_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Transaction'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Transaction_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Transaction_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Transaction_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Transaction_Filter!]
+  """
+  ✨ Generated from Field `Transaction`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Transaction`.`productServiceId` of type `UUID`
+  """
+  productServiceId: UUID_Filter
+  """
+  ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `Transaction`.`productService` of type `ProductService`
+  """
+  productService: ProductService_Filter
+  """
+  ✨ Generated from Field `Transaction`.`user` of type `User!`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `Transaction`.`amount` of type `Float!`
+  """
+  amount: Float_Filter
+  """
+  ✨ Generated from Field `Transaction`.`currency` of type `String!`
+  """
+  currency: String_Filter
+  """
+  ✨ Generated from Field `Transaction`.`payerEmail` of type `String`
+  """
+  payerEmail: String_Filter
+  """
+  ✨ Generated from Field `Transaction`.`paypalTransactionId` of type `String!`
+  """
+  paypalTransactionId: String_Filter
+  """
+  ✨ Generated from Field `Transaction`.`receivedAt` of type `Timestamp!`
+  """
+  receivedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Transaction`.`status` of type `String!`
+  """
+  status: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'Transaction'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Transaction_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Transaction_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Transaction_Filter
+}
+"""
+✨ Generated having input type for table 'Transaction'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Transaction_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Transaction_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Transaction_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Transaction_Having!]
+  """
+  ✨ Generated from Field `Transaction`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`amount_count` of type `Int!`
+  """
+  amount_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`currency_count` of type `Int!`
+  """
+  currency_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`payerEmail_count` of type `Int!`
+  """
+  payerEmail_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`paypalTransactionId_count` of type `Int!`
+  """
+  paypalTransactionId_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`productServiceId_count` of type `Int!`
+  """
+  productServiceId_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`receivedAt_count` of type `Int!`
+  """
+  receivedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`status_count` of type `Int!`
+  """
+  status_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `Transaction`.`amount_sum` of type `Float`
+  """
+  amount_sum: Float_Filter
+  """
+  ✨ Generated from Field `Transaction`.`amount_avg` of type `Float`
+  """
+  amount_avg: Float_Filter
+  """
+  ✨ Generated from Field `Transaction`.`amount_min` of type `Float`
+  """
+  amount_min: Float_Filter
+  """
+  ✨ Generated from Field `Transaction`.`receivedAt_min` of type `Timestamp`
+  """
+  receivedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Transaction`.`amount_max` of type `Float`
+  """
+  amount_max: Float_Filter
+  """
+  ✨ Generated from Field `Transaction`.`receivedAt_max` of type `Timestamp`
+  """
+  receivedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'Transaction'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Transaction_Key {
+  """
+  ✨ Generated from Field `Transaction`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Transaction`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'Transaction'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Transaction_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Transaction_Filter
+}
+"""
+✨ Generated order input type for table 'Transaction'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Transaction_Order {
+  """
+  ✨ Generated from Field `Transaction`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`productServiceId` of type `UUID`
+  """
+  productServiceId: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`productService` of type `ProductService`
+  """
+  productService: ProductService_Order
+  """
+  ✨ Generated from Field `Transaction`.`user` of type `User!`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `Transaction`.`amount` of type `Float!`
+  """
+  amount: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`currency` of type `String!`
+  """
+  currency: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`payerEmail` of type `String`
+  """
+  payerEmail: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`paypalTransactionId` of type `String!`
+  """
+  paypalTransactionId: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`receivedAt` of type `Timestamp!`
+  """
+  receivedAt: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`status` of type `String!`
+  """
+  status: OrderDirection
+}
+"""
+✨ Generated data input type for table 'User'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input User_Data {
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `User`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `User`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `User`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `User`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `User`.`displayName` of type `String!`
+  """
+  displayName: String
+  """
+  ✨ `_expr` server value variant of `displayName` (✨ Generated from Field `User`.`displayName` of type `String!`)
+  """
+  displayName_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`email` of type `String!`
+  """
+  email: String
+  """
+  ✨ `_expr` server value variant of `email` (✨ Generated from Field `User`.`email` of type `String!`)
+  """
+  email_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`paypalEmail` of type `String`
+  """
+  paypalEmail: String
+  """
+  ✨ `_expr` server value variant of `paypalEmail` (✨ Generated from Field `User`.`paypalEmail` of type `String`)
+  """
+  paypalEmail_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`photoUrl` of type `String`
+  """
+  photoUrl: String
+  """
+  ✨ `_expr` server value variant of `photoUrl` (✨ Generated from Field `User`.`photoUrl` of type `String`)
+  """
+  photoUrl_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`publicProfileSlug` of type `String`
+  """
+  publicProfileSlug: String
+  """
+  ✨ `_expr` server value variant of `publicProfileSlug` (✨ Generated from Field `User`.`publicProfileSlug` of type `String`)
+  """
+  publicProfileSlug_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'User'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input User_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [User_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: User_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [User_Filter!]
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `User`.`displayName` of type `String!`
+  """
+  displayName: String_Filter
+  """
+  ✨ Generated from Field `User`.`email` of type `String!`
+  """
+  email: String_Filter
+  """
+  ✨ Generated from Field `User`.`paypalEmail` of type `String`
+  """
+  paypalEmail: String_Filter
+  """
+  ✨ Generated from Field `User`.`photoUrl` of type `String`
+  """
+  photoUrl: String_Filter
+  """
+  ✨ Generated from Field `User`.`publicProfileSlug` of type `String`
+  """
+  publicProfileSlug: String_Filter
+  """
+  ✨ Generated from Field `User`.`mediaAssets_on_user` of type `[MediaAsset!]!`
+  """
+  mediaAssets_on_user: MediaAsset_ListFilter
+  """
+  ✨ Generated from Field `User`.`posts_on_user` of type `[Post!]!`
+  """
+  posts_on_user: Post_ListFilter
+  """
+  ✨ Generated from Field `User`.`productServices_on_user` of type `[ProductService!]!`
+  """
+  productServices_on_user: ProductService_ListFilter
+  """
+  ✨ Generated from Field `User`.`socialAccounts_on_user` of type `[SocialAccount!]!`
+  """
+  socialAccounts_on_user: SocialAccount_ListFilter
+  """
+  ✨ Generated from Field `User`.`transactions_on_user` of type `[Transaction!]!`
+  """
+  transactions_on_user: Transaction_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'User'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input User_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [User_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: User_Filter
+}
+"""
+✨ Generated having input type for table 'User'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input User_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [User_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: User_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [User_Having!]
+  """
+  ✨ Generated from Field `User`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`displayName_count` of type `Int!`
+  """
+  displayName_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`email_count` of type `Int!`
+  """
+  email_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`paypalEmail_count` of type `Int!`
+  """
+  paypalEmail_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`photoUrl_count` of type `Int!`
+  """
+  photoUrl_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`publicProfileSlug_count` of type `Int!`
+  """
+  publicProfileSlug_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'User'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input User_Key {
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `User`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'User'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input User_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: User_Filter
+}
+"""
+✨ Generated order input type for table 'User'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input User_Order {
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `User`.`displayName` of type `String!`
+  """
+  displayName: OrderDirection
+  """
+  ✨ Generated from Field `User`.`email` of type `String!`
+  """
+  email: OrderDirection
+  """
+  ✨ Generated from Field `User`.`paypalEmail` of type `String`
+  """
+  paypalEmail: OrderDirection
+  """
+  ✨ Generated from Field `User`.`photoUrl` of type `String`
+  """
+  photoUrl: OrderDirection
+  """
+  ✨ Generated from Field `User`.`publicProfileSlug` of type `String`
+  """
+  publicProfileSlug: OrderDirection
+}

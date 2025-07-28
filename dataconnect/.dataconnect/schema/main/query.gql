@@ -1,0 +1,368 @@
+extend type Query {
+  """
+  ✨ Look up a single `MediaAsset` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  mediaAsset(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: MediaAsset_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: MediaAsset_FirstRow
+  ): MediaAsset @fdc_generated(from: "MediaAsset", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `PlatformPost` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  platformPost(
+    """
+    The key used to identify the object.
+    """
+    key: PlatformPost_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PlatformPost_FirstRow
+  ): PlatformPost @fdc_generated(from: "PlatformPost", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Post` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  post(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Post_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Post_FirstRow
+  ): Post @fdc_generated(from: "Post", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `ProductService` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  productService(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ProductService_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ProductService_FirstRow
+  ): ProductService @fdc_generated(from: "ProductService", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `SocialAccount` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  socialAccount(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: SocialAccount_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: SocialAccount_FirstRow
+  ): SocialAccount @fdc_generated(from: "SocialAccount", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Transaction` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  transaction(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Transaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Transaction_FirstRow
+  ): Transaction @fdc_generated(from: "Transaction", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `User` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  user(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `MediaAsset` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  mediaAssets(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: MediaAsset_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [MediaAsset_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: MediaAsset_Having
+  ): [MediaAsset!]! @fdc_generated(from: "MediaAsset", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `PlatformPost` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  platformPosts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: PlatformPost_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [PlatformPost_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: PlatformPost_Having
+  ): [PlatformPost!]! @fdc_generated(from: "PlatformPost", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Post` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  posts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Post_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Post_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Post_Having
+  ): [Post!]! @fdc_generated(from: "Post", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ProductService` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  productServices(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ProductService_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ProductService_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ProductService_Having
+  ): [ProductService!]! @fdc_generated(from: "ProductService", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `SocialAccount` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  socialAccounts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: SocialAccount_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [SocialAccount_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: SocialAccount_Having
+  ): [SocialAccount!]! @fdc_generated(from: "SocialAccount", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Transaction` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  transactions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Transaction_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Transaction_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Transaction_Having
+  ): [Transaction!]! @fdc_generated(from: "Transaction", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `User` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  users(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User", purpose: QUERY_MULTIPLE)
+}
