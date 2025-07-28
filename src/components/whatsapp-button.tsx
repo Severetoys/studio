@@ -25,7 +25,7 @@ export default function WhatsAppButton() {
         )}
         aria-label="Fale conosco no WhatsApp"
     >
-         <div className="bg-card/90 backdrop-blur-sm border border-green-500/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
+         <div className="bg-card border border-green-500/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
             WhatsApp
         </div>
         <div
