@@ -1,10 +1,7 @@
 {
   "rules": {
     ".read": false,
-    ".write": false
-  }
-}
-  ,
+    ".write": false,
     "admin": {
       "integrations": {
         ".read": true,
@@ -14,18 +11,18 @@
         ".read": true,
         ".write": true
       }
-    },
+    },  
     "payments": {
       ".read": true,
       ".write": true
-    },
+    },  
     "chats": {
       ".read": "auth != null",
       ".write": "auth != null",
       "$chatId": {
         "messages": {
           ".read": "auth != null",
-          ".write": "auth != null"
+          ".write": "auth != null" 
         }
       }
     },
@@ -36,6 +33,6 @@
          ".read": true,
          ".write": "auth != null"
        }
-    }
-  }
+    }  
+  }  
 }
