@@ -9,6 +9,7 @@ import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
 import AboutSection from '@/components/about-section';
+import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -34,6 +35,8 @@ export default function Home() {
                         Italo Santos
                     </h1>
                 </div>
+
+                <Separator className="my-8 w-full max-w-xs bg-primary/50" />
 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-6">
                     <Button 
