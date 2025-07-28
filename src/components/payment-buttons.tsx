@@ -52,12 +52,12 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
 
     return (
         <div className="flex justify-around items-center w-full max-w-sm mt-2">
-             <div className="flex-1 scale-[2.43] flex justify-center">
+             <div className="flex-1 flex justify-center">
                 <Image 
-                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290" 
+                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c"
                     alt="Google Pay" 
-                    width={70} 
-                    height={45} 
+                    width={100} 
+                    height={40} 
                     className="object-contain"
                 />
             </div>
@@ -78,31 +78,14 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
                 </button>
             </div>
 
-            <div className="flex-1 scale-[2.43] flex justify-center">
+            <div className="flex-1 flex justify-center">
                  <Image 
-                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/apple_pay.png?alt=media&token=e1c03484-5f56-4c42-839b-890251390f7f" 
+                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2"
                     alt="Apple Pay" 
-                    width={70} 
-                    height={45} 
+                    width={100} 
+                    height={40} 
                     className="object-contain"
                 />
-            </div>
-            
-            <div className="flex-shrink-0 mx-2 flex flex-col items-center">
-                 <Button
-                    variant="ghost"
-                    className="p-0 h-auto transition-transform hover:scale-105"
-                    onClick={() => toast({ title: 'PayPal em breve!', description: 'Esta opção de pagamento será ativada em breve.' })}
-                >
-                    <Image 
-                        src="https://w7.pngwing.com/pngs/398/990/png-transparent-paypal-logo-shopping-ecommerce-client-area-payment-gateway-service-paypal-text-payment-logo.png"
-                        alt="PayPal"
-                        width={28}
-                        height={28}
-                        className="object-contain"
-                        data-ai-hint="paypal logo"
-                    />
-                </Button>
             </div>
 
             <PixPaymentModal
