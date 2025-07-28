@@ -1,53 +1,56 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check for admin privileges
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true;
+    }
 
-    // Regra para a coleção de produtos
+    // Product rules
     match /products/{productId} {
-      // Qualquer um pode ler os produtos
       allow read: if true;
-      // Apenas administradores autenticados podem escrever/modificar produtos
-      allow write: if request.auth != null; // Simplificado - idealmente checar um 'claim' de admin
+      allow write: if isAdmin();
     }
 
-    // Regra para a coleção de vídeos
+    // Video rules
     match /videos/{videoId} {
-      // Qualquer um pode ler os metadados dos vídeos (exceto a URL)
       allow read: if true;
-      // Apenas administradores podem escrever
-      allow write: if request.auth != null; 
+      allow write: if isAdmin();
     }
 
-    // Regra para a coleção de fotos da galeria
+    // Photo gallery rules
     match /photos/{photoId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
-    // Regra para avaliações
+    // Review rules
     match /reviews/{reviewId} {
-        // Permitir que qualquer pessoa crie uma nova avaliação (status será 'pending' por padrão)
-        allow create: if request.resource.data.status == 'pending';
-        // Permitir que qualquer pessoa leia apenas as avaliações aprovadas
-        allow read: if resource.data.status == 'approved';
-        // Apenas admins podem aprovar/rejeitar (atualizar) ou deletar avaliações
-        allow update, delete: if request.auth != null;
+      allow create: if request.resource.data.status == 'pending';
+      allow read: if resource.data.status == 'approved';
+      allow update, delete: if isAdmin();
     }
 
-    // Regras para a coleção de chats
+    // Chat rules
     match /chats/{chatId} {
-      // O criador do chat (usuário anônimo) e o admin podem ler e escrever
-      allow read, write: if request.auth != null && (request.auth.uid == chatId.split('secret-chat-')[1] || get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true);
+      function isOwner() {
+        return request.auth != null && request.auth.uid == chatId.split('secret-chat-')[1];
+      }
 
-      // Regras para as subcoleções de mensagens
+      allow read, write: if isOwner() || isAdmin();
+
       match /messages/{messageId} {
-        allow read, write: if request.auth != null && (request.auth.uid == chatId.split('secret-chat-')[1] || get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true);
+        allow read, write: if isOwner() || isAdmin();
       }
     }
 
-    // Bloquear todo o resto por padrão
+    // Visitor tracking rules
+    match /visitors/{visitorId} {
+      allow read, create, update: if true;
+    }
+
+    // Default deny rule
     match /{document=**} {
       allow read, write: if false;
     }

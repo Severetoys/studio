@@ -9,6 +9,8 @@ import { adminApp } from '@/lib/firebase-admin';
 import { getDatabase } from 'firebase-admin/database';
 import { getStorage } from 'firebase-admin/storage';
 import { z } from 'zod';
+import { auth } from '@/lib/firebase';
+import { signInAnonymously } from 'firebase/auth';
 
 // Schema for user data to be saved.
 const UserDataSchema = z.object({
@@ -113,4 +115,19 @@ export async function savePaymentDetails(paymentDetails: PaymentDetails): Promis
   });
 
   console.log(`Payment ${paymentId} for ${customerEmail} saved successfully.`);
+}
+
+/**
+ * Signs in the user anonymously using Firebase Authentication.
+ * @returns A Promise that resolves with the user's credentials.
+ */
+export async function signInAnonymouslyAndGetId() {
+  try {
+    const userCredential = await signInAnonymously(auth);
+    console.log('User signed in anonymously:', userCredential.user.uid);
+    return userCredential.user.uid;
+  } catch (error) {
+    console.error('Error signing in anonymously:', error);
+    throw new Error('Failed to sign in anonymously. Please try again.');
+  }
 }

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Send, Loader2, MapPin, Paperclip, Video, Mic } from 'lucide-react';
 import { db, auth, storage } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, doc, setDoc, Timestamp } from "firebase/firestore";
-import { onAuthStateChanged, signInAnonymously, type User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { translateText, detectLanguage } from '@/ai/flows/translation-flow';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { signInAnonymouslyAndGetId } from '@/services/user-auth-service';
 
 const DyteMeetingComponent = dynamic(() => import('@/components/dyte-meeting'), {
     ssr: false,
@@ -54,6 +55,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+    const [isAuthenticating, setIsAuthenticating] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,15 +73,18 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
         if (!isOpen) return;
 
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+            setIsAuthenticating(true);
             if (user) {
                 setCurrentUser(user);
+                setIsAuthenticating(false);
             } else {
                 try {
-                    const userCredential = await signInAnonymously(auth);
-                    setCurrentUser(userCredential.user);
+                    await signInAnonymouslyAndGetId();
+                    // onAuthStateChanged will handle setting the user
                 } catch (error) {
                     console.error("Erro no login anônimo:", error);
                     toast({ variant: 'destructive', title: 'Falha na Autenticação do Chat' });
+                    setIsAuthenticating(false);
                 }
             }
         });
@@ -232,7 +237,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
-                     {isLoading ? (
+                     {(isLoading || isAuthenticating) ? (
                         <div className="flex items-center justify-center h-full">
                             <Loader2 className="h-10 w-10 animate-spin text-primary"/>
                         </div>
@@ -276,14 +281,14 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                 </CardContent>
                 <CardFooter className="border-t border-primary/20 p-2.5 flex flex-col items-start gap-2">
                      <div className="flex w-full items-center space-x-1">
-                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => setShowVideoCall(true)}><Video className="h-5 w-5"/></Button>
-                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => fileInputRef.current?.click()}><Paperclip className="h-5 w-5"/></Button>
-                        <Button variant="ghost" size="icon" className="text-primary" onClick={sendLocation}><MapPin className="h-5 w-5"/></Button>
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => setShowVideoCall(true)} disabled={!currentUser}><Video className="h-5 w-5"/></Button>
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={() => fileInputRef.current?.click()} disabled={!currentUser}><Paperclip className="h-5 w-5"/></Button>
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={sendLocation} disabled={!currentUser}><MapPin className="h-5 w-5"/></Button>
                         <Button variant="ghost" size="icon" className="text-primary" disabled><Mic className="h-5 w-5"/></Button>
                      </div>
                     <div className="flex w-full items-center space-x-2">
                         <Textarea
-                            placeholder="Mensagem..." 
+                            placeholder={isAuthenticating ? "Autenticando..." : "Mensagem..."}
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             onKeyPress={(e) => {
@@ -293,18 +298,18 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                                 }
                             }}
                             className="flex-1 bg-neutral-800 border-none focus:shadow-neon-red-light min-h-[40px] h-10 max-h-24 resize-none rounded-2xl px-4 text-white placeholder:text-neutral-400"
-                            disabled={isSending}
+                            disabled={isSending || !currentUser}
                             rows={1}
                         />
                         <Button 
                             type="submit" 
                             size="icon" 
                             onClick={() => handleSendMessage(newMessage)} 
-                            disabled={isSending || newMessage.trim() === ''}
+                            disabled={isSending || newMessage.trim() === '' || !currentUser}
                             className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full w-10 h-10 flex-shrink-0"
                             aria-label="Enviar Mensagem"
                         >
-                            <Send className="h-5 w-5" />
+                            {isAuthenticating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                         </Button>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                     </div>
