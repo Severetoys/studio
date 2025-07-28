@@ -19,8 +19,8 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
                 "fixed bottom-6 left-6 z-[1001] flex flex-col items-center gap-2"
             )}
        >
-            <div className="bg-card border border-primary/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
-                Chat Secreto
+            <div className="order-1 text-lg font-bold text-yellow-300 animate-pulse-gold-glow">
+                CHAT SECRETO
             </div>
             <button
                 onClick={onClick}

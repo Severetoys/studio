@@ -77,6 +77,7 @@ module.exports = {
       textShadow: {
         'neon-red-light': '0 0 5px hsl(var(--primary) / 0.8)',
         'neon-red': '0 0 8px hsl(var(--primary))',
+        'neon-gold': '0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffd700',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -126,6 +127,18 @@ module.exports = {
               boxShadow: '0 0 25px hsl(var(--primary)), 0 0 40px hsl(var(--primary))'
             }
         },
+        'pulse-gold-glow': {
+          '0%, 100%': {
+            textShadow: '0 0 7px #fde047, 0 0 15px #fde047, 0 0 20px #fde047',
+            color: '#fef08a',
+            opacity: '1',
+          },
+          '50%': {
+            textShadow: '0 0 10px #fde047, 0 0 20px #fde047, 0 0 30px #fde047',
+            color: '#fef9c3',
+            opacity: '0.9',
+          },
+        },
         'marquee': {
           '0%': { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(-100%)' },
@@ -137,6 +150,7 @@ module.exports = {
         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'pulse-green-glow': 'pulse-green-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'pulse-red-glow': 'pulse-red-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-gold-glow': 'pulse-gold-glow 2.5s ease-in-out infinite',
         'marquee': 'marquee 25s linear infinite',
       },
     },
@@ -150,6 +164,9 @@ module.exports = {
         },
         '.text-shadow-neon-red': {
           textShadow: theme('textShadow.neon-red'),
+        },
+         '.text-shadow-neon-gold': {
+          textShadow: theme('textShadow.neon-gold'),
         },
       }
       addUtilities(newUtilities, ['responsive', 'hover'])
