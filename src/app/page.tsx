@@ -14,7 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
-import PaymentButtons from '@/components/payment-buttons';
 
 export default function Home() {
     const { toast } = useToast();
@@ -108,12 +107,59 @@ export default function Home() {
                         Face ID
                     </Button>
 
-                    <div className="flex justify-center items-center w-full max-w-full mt-4">
-                        <PaymentButtons 
-                            onPaymentSuccess={handlePaymentSuccess} 
-                            amount={parseFloat(paymentAmount.value)} 
-                            currency={paymentAmount.currency}
-                        />
+                     <div className="flex justify-around items-center w-full max-w-sm mt-8">
+                        <div className="flex-1 scale-[2.43] flex justify-center">
+                             <Image 
+                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290" 
+                                alt="Google Pay" 
+                                width={70} 
+                                height={45} 
+                                className="object-contain"
+                            />
+                        </div>
+                        
+                        <div className="flex-shrink-0 mx-2 flex flex-col items-center">
+                            <button 
+                                className="transition-transform hover:scale-105" 
+                                onClick={() => setIsPixModalOpen(true)}
+                                aria-label="Pagar com PIX"
+                            >
+                                <Image 
+                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" 
+                                    alt="PIX" 
+                                    width={28} 
+                                    height={28} 
+                                    className="object-contain"
+                                />
+                            </button>
+                        </div>
+        
+                        <div className="flex-1 scale-[2.43] flex justify-center">
+                             <Image 
+                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/apple_pay.png?alt=media&token=e1c03484-5f56-4c42-839b-890251390f7f" 
+                                alt="Apple Pay" 
+                                width={70} 
+                                height={45} 
+                                className="object-contain"
+                            />
+                        </div>
+                        
+                        <div className="flex-shrink-0 mx-2 flex flex-col items-center">
+                             <Button
+                                variant="ghost"
+                                className="p-0 h-auto transition-transform hover:scale-105"
+                                onClick={() => toast({ title: 'PayPal em breve!', description: 'Esta opção de pagamento será ativada em breve.' })}
+                            >
+                                <Image 
+                                    src="https://w7.pngwing.com/pngs/398/990/png-transparent-paypal-logo-shopping-ecommerce-client-area-payment-gateway-service-paypal-text-payment-logo.png"
+                                    alt="PayPal"
+                                    width={28}
+                                    height={28}
+                                    className="object-contain"
+                                    data-ai-hint="paypal logo"
+                                />
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="text-center">

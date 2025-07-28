@@ -52,21 +52,13 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
 
     return (
         <div className="flex justify-around items-center w-full max-w-sm mt-2">
-            <div className="flex-1 scale-[2.43] flex justify-center">
-                <Wallet
-                    initialization={{ preferenceId }}
-                    customization={{
-                        texts: { valueProp: 'payment_methods_logos' },
-                        enableAzulLogo: false, // Oculta o logo 'Azul' do Mercado Pago
-                    }}
-                    onSubmit={() => {
-                        toast({ title: 'Processando seu pagamento...' });
-                    }}
-                    onReady={() => { /* SDK pronto */ }}
-                    onError={(error) => {
-                        console.error('Erro no Mercado Pago:', error);
-                        toast({ variant: 'destructive', title: 'Erro no Pagamento', description: 'Por favor, tente novamente.' });
-                    }}
+             <div className="flex-1 scale-[2.43] flex justify-center">
+                <Image 
+                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290" 
+                    alt="Google Pay" 
+                    width={70} 
+                    height={45} 
+                    className="object-contain"
                 />
             </div>
             
@@ -84,9 +76,18 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
                         className="object-contain"
                     />
                 </button>
-                <p className="text-xs font-semibold mt-1">PIX</p>
             </div>
 
+            <div className="flex-1 scale-[2.43] flex justify-center">
+                 <Image 
+                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/apple_pay.png?alt=media&token=e1c03484-5f56-4c42-839b-890251390f7f" 
+                    alt="Apple Pay" 
+                    width={70} 
+                    height={45} 
+                    className="object-contain"
+                />
+            </div>
+            
             <div className="flex-shrink-0 mx-2 flex flex-col items-center">
                  <Button
                     variant="ghost"
@@ -102,7 +103,6 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
                         data-ai-hint="paypal logo"
                     />
                 </Button>
-                 <p className="text-xs font-semibold mt-1">PayPal</p>
             </div>
 
             <PixPaymentModal
