@@ -21,24 +21,24 @@ export default function WhatsAppButton() {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-            "fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2",
+            "fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2 group",
         )}
         aria-label="Fale conosco no WhatsApp"
     >
-         <div className="bg-card border border-green-500/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
+         <div className="bg-green-500 text-white font-semibold px-4 py-2 rounded-full shadow-lg order-1">
             WhatsApp
         </div>
         <div
             className={cn(
-                "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 order-2",
-                "bg-green-500 hover:bg-green-600 animate-pulse-green-glow"
+                "relative h-16 w-16 transition-all duration-300 order-2"
             )}
         >
             <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/unnamed%20(1).jpg?alt=media&token=2b5f0129-6ac5-4f9e-b4f2-7fbbb90e6d49" 
+                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/Assunto%204.png?alt=media&token=ea0eded0-3335-4a34-8a58-1247ad7c8e65" 
                 alt="WhatsApp"
-                width={40}
-                height={40}
+                width={64}
+                height={64}
+                className="object-contain transition-transform duration-300 group-hover:scale-110"
             />
         </div>
     </a>
