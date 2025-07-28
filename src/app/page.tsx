@@ -9,6 +9,7 @@ import Image from 'next/image';
 import AboutSection from '@/components/about-section';
 import { Separator } from '@/components/ui/separator';
 import GoogleScriptModal from '@/components/google-script-modal';
+import MainFooter from '@/components/layout/main-footer';
 
 export default function Home() {
     const [modalState, setModalState] = useState<{
@@ -63,7 +64,7 @@ export default function Home() {
 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-6 pt-8">
                     <Button 
-                        onClick={() => openModal(signupUrl, 'Cadastre-se')}
+                        onClick={() => openModal(signupUrl, 'Cadastre-se com Face ID')}
                         className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow"
                     >
                         <Fingerprint className="mr-2 h-6 w-6" />
@@ -72,7 +73,7 @@ export default function Home() {
 
                     <div className="flex justify-center items-center w-full max-w-full">
                         <div className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.1)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.87)' }}/>
                         </div>
                         <div className="flex-shrink-0 mx-2 flex flex-col items-center px-[15%]">
                             <button className="transition-transform hover:scale-105">
@@ -82,7 +83,7 @@ export default function Home() {
                             <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
                         </div>
                         <div className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.1)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.87)' }}/>
                         </div>
                     </div>
 
@@ -107,6 +108,7 @@ export default function Home() {
 
             <FeatureMarquee />
             <AboutSection />
+            <MainFooter />
 
             <GoogleScriptModal 
                 isOpen={modalState.isOpen} 
