@@ -26,22 +26,22 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
     return (
        <div
             className={cn(
-                "fixed bottom-6 left-6 z-[1001] flex items-center gap-2"
+                "fixed bottom-6 left-6 z-[1001] flex flex-col items-center gap-2"
             )}
        >
+            <div className="bg-card/90 backdrop-blur-sm border border-primary/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
+                Chat Secreto
+            </div>
             <Button
                 onClick={onClick}
                 aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
                 className={cn(
-                    "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                    "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 order-2",
                     "bg-primary hover:bg-primary/90 animate-pulse-red-glow"
                 )}
             >
                 {isChatOpen ? <X className="h-9 w-9" /> : <TelegramIcon className="h-9 w-9" />}
             </Button>
-            <div className="bg-card/90 backdrop-blur-sm border border-primary/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg">
-                Chat Secreto
-            </div>
        </div>
     );
 }

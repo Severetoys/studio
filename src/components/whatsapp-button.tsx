@@ -32,16 +32,16 @@ export default function WhatsAppButton() {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-            "fixed bottom-6 right-6 z-50 flex items-center gap-2",
+            "fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2",
         )}
         aria-label="Fale conosco no WhatsApp"
     >
-        <div className="bg-card/90 backdrop-blur-sm border border-green-500/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg">
+         <div className="bg-card/90 backdrop-blur-sm border border-green-500/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
             WhatsApp
         </div>
         <div
             className={cn(
-                "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 order-2",
                 "bg-green-500 hover:bg-green-600 animate-pulse-green-glow"
             )}
         >
