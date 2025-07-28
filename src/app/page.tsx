@@ -118,7 +118,7 @@ export default function Home() {
 
                     <div className="flex justify-center items-center w-full max-w-full">
                         <div className="flex-1 transition-transform hover:scale-105" style={{ flexBasis: '42.5%'}}>
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(2.7)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(2.24)' }}/>
                         </div>
                         <div className="flex-shrink-0 mx-2 flex flex-col items-center px-[15%]">
                             <button className="transition-transform hover:scale-105">
@@ -128,7 +128,7 @@ export default function Home() {
                             <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
                         </div>
                         <div className="flex-1 transition-transform hover:scale-105" style={{ flexBasis: '42.5%'}}>
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(2.7)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(2.24)' }}/>
                         </div>
                     </div>
 
