@@ -30,6 +30,9 @@ export default function RootLayout({
           
       </head>
       <body className={`font-sans ${inter.variable} antialiased bg-background`}>
+        <div className="bg-primary text-primary-foreground text-center text-xs font-bold p-2 uppercase tracking-wider">
+            +18 ADULT WORK
+        </div>
         <div id="fb-root"></div>
         <Script id="facebook-jssdk" strategy="afterInteractive">
           {`
