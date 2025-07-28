@@ -102,8 +102,8 @@ export default function Home() {
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=1a720214-8238-4dfe-9aba-a820a9b883aa"
                                 alt="Payment button"
-                                width={120}
-                                height={48}
+                                width={144}
+                                height={58}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
@@ -128,8 +128,8 @@ export default function Home() {
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=7a8ad75a-e3d6-4c1f-98ea-0dd5e3ef8bbf"
                                 alt="Apple Pay"
-                                width={120}
-                                height={48}
+                                width={144}
+                                height={58}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
