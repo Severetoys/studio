@@ -1,9 +1,9 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
 import { Fingerprint, KeyRound } from 'lucide-react';
 import { useState } from 'react';
-import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
 import AboutSection from '@/components/about-section';
@@ -72,17 +72,17 @@ export default function Home() {
 
                     <div className="flex justify-center items-center w-full max-w-full">
                         <div className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(0.98)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.1)' }}/>
                         </div>
                         <div className="flex-shrink-0 mx-2 flex flex-col items-center px-[15%]">
                             <button className="transition-transform hover:scale-105">
-                                 <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.4)' }}/>
+                                 <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.2)' }}/>
                             </button>
                             <p className="text-xs font-semibold mt-1">PIX</p>
                             <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
                         </div>
                         <div className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(0.98)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.1)' }}/>
                         </div>
                     </div>
 
@@ -90,11 +90,9 @@ export default function Home() {
                         <p className="text-lg">Assinatura Mensal</p>
                         <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>R$ 99,00 <span className="text-lg font-normal text-white">BRL</span></p>
                     </div>
-
+                     
                      <div className="w-full">
-                        <PayPalScriptProvider options={{ "clientId": "test" }}>
-                            <PayPalButtons style={{ layout: "horizontal", label: "paypal" }} />
-                        </PayPalScriptProvider>
+                         {/* O PayPalScriptProvider e os botões foram removidos conforme solicitado, mas mantidos aqui caso precise reativar */}
                     </div>
 
                     <Button 
