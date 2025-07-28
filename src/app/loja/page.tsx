@@ -4,16 +4,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
-import { ShoppingCart, Trash2, Loader2, Instagram, Facebook, AlertCircle } from 'lucide-react';
+import { ShoppingCart, Loader2, Instagram, Facebook, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { useToast } from '@/hooks/use-toast';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import MercadoPagoButton from '@/components/mercadopago-button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagram-shop-flow';
 import { fetchFacebookProducts, type FacebookProduct } from '@/ai/flows/facebook-products-flow';
 import { Separator } from '@/components/ui/separator';
@@ -27,10 +23,6 @@ interface Video {
   thumbnailUrl: string;
   videoUrl: string;
   aiHint?: string;
-}
-
-interface CartItem extends Video {
-  quantity: number;
 }
 
 const InstagramShopFeed = () => {
@@ -185,18 +177,12 @@ const FacebookProductsStore = () => {
 export default function LojaPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerName, setCustomerName] = useState('');
-  const [isBrazil, setIsBrazil] = useState(true); // Assume Brasil como padrão
-  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchVideosAndLocale = async () => {
+    const fetchVideos = async () => {
       setIsLoading(true);
       try {
-        // Busca os vídeos
         const videosCollection = collection(db, "videos");
         const q = query(videosCollection, orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
@@ -206,10 +192,6 @@ export default function LojaPage() {
         } as Video));
         setVideos(videosList);
         
-        // Verifica a localidade do usuário
-        const userLocale = navigator.language || 'pt-BR';
-        setIsBrazil(userLocale.toLowerCase().includes('pt'));
-
       } catch (error) {
         console.error("Error fetching videos: ", error);
         toast({
@@ -222,131 +204,22 @@ export default function LojaPage() {
       }
     };
 
-    fetchVideosAndLocale();
+    fetchVideos();
   }, [toast]);
-
-  const addToCart = (video: Video) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === video.id);
-      if (existingItem) {
-        toast({
-            title: "Item já está no carrinho",
-            description: "A compra de vídeos é limitada a uma unidade por item.",
-        });
-        return prevCart;
-      }
-      return [...prevCart, { ...video, quantity: 1 }];
-    });
-    toast({
-        title: `${video.title} adicionado!`,
-        description: "O item está no seu carrinho.",
-    });
-  };
-
-  const removeFromCart = (videoId: string) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== videoId));
-  };
-
-  const totalItems = cart.length;
-  const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-
-  const handlePaymentSuccess = async (details: any) => {
-    toast({
-      title: "Pagamento bem-sucedido!",
-      description: `O pagamento ${details.id || 'mock_id'} foi concluído. Redirecionando para sua área de vídeos.`,
-    });
-    
-    // Webhook logic has been removed for now.
-    // We can re-implement it later if needed.
-
-    setCart([]);
-    setCustomerEmail('');
-    setCustomerName('');
-    router.push('/assinante');
-  };
 
   return (
     <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
+      <Script src="https://www.paypal.com/sdk/js?client-id=AZ6S85gBFj5k6V8_pUx1R-nUoJqL-3w4l9n5Z6G8y7o9W7a2Jm-B0E3uV6KsoJAg4fImv_iJqB1t4p_Q&components=cart-buttons" />
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader className="flex-row items-center justify-between border-b border-primary/20 pb-4">
           <CardTitle className="text-3xl text-primary text-shadow-neon-red-light text-center flex-1">
             Adult Store
           </CardTitle>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="relative h-12 px-6 border-primary/30 hover:border-primary hover:shadow-neon-red-light transition-all duration-300">
-                <ShoppingCart className="mr-2" />
-                <div className="flex flex-col items-start">
-                  <span className="text-sm font-semibold">{totalItems} Itens</span>
-                   <span className="text-xs text-muted-foreground">
-                    {totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                  </span>
-                </div>
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="bg-card border-primary/50 text-card-foreground">
-              <SheetHeader>
-                <SheetTitle className="text-2xl text-primary text-shadow-neon-red-light">Checkout</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col h-full">
-                {cart.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center">
-                    <p className="text-muted-foreground">Seu carrinho está vazio.</p>
-                  </div>
-                ) : (
-                  <div className="flex-1 overflow-y-auto pr-4 -mr-4 mt-4">
-                    <SheetDescription>Confira seus itens e dados antes de finalizar a compra.</SheetDescription>
-                    <div className="space-y-4 mt-4">
-                      {cart.map(item => (
-                        <div key={item.id} className="flex items-start gap-4">
-                           <div className="w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                                <Image src={item.thumbnailUrl} alt={item.title} width={80} height={80} className="object-cover w-full h-full" data-ai-hint={item.aiHint || 'video thumbnail'}/>
-                           </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold">{item.title}</h4>
-                            <p className="text-sm text-primary">{item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-                          </div>
-                          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <SheetFooter className="mt-auto pt-6 border-t border-primary/20">
-                    <div className="w-full space-y-4">
-                        <div className="flex justify-between font-bold text-lg mb-4">
-                            <span>Total:</span>
-                            <span>{totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Nome Completo</Label>
-                            <Input id="name" placeholder="Seu nome" value={customerName} onChange={(e) => setCustomerName(e.target.value)} disabled={cart.length === 0}/>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} disabled={cart.length === 0}/>
-                        </div>
-                        <div className="pt-4">
-                            <MercadoPagoButton
-                                amount={totalPrice}
-                                onSuccess={handlePaymentSuccess}
-                                disabled={cart.length === 0 || !customerEmail || !customerName}
-                                customerInfo={{name: customerName, email: customerEmail}}
-                                isBrazil={isBrazil}
-                            />
-                        </div>
-                    </div>
-                </SheetFooter>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <div id="paypal-view-cart-button-container">
+            <div className="paypal-cart-button-container">
+                <div id="paypal-view-cart" className="paypal-button" data-paypal-style="color-yellow,size-large,shape-rect,label-cart,layout-horizontal"></div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-6 space-y-12">
             <div>
@@ -375,10 +248,14 @@ export default function LojaPage() {
                         </p>
                       </CardContent>
                       <CardFooter className="p-4 mt-auto">
-                        <Button className="w-full h-11 bg-primary/90 hover:bg-primary text-primary-foreground shadow-neon-red-light hover:shadow-neon-red-strong" onClick={() => addToCart(video)}>
-                          <ShoppingCart className="mr-2 h-5 w-5" />
-                          Adicionar ao Carrinho
-                        </Button>
+                        <div id={`paypal-add-to-cart-button-container-${video.id}`}>
+                           <div
+                             id={`paypal-add-to-cart-${video.id}`}
+                             className="paypal-button"
+                             data-paypal-style="color-gold,size-large,shape-rect,label-cart,layout-horizontal"
+                             data-paypal-product="name={{video.title}},price={{video.price.toFixed(2)}},currency=BRL"
+                           ></div>
+                        </div>
                       </CardFooter>
                     </Card>
                   ))}
@@ -414,5 +291,3 @@ export default function LojaPage() {
     </main>
   );
 }
-
-    
