@@ -102,8 +102,8 @@ export default function Home() {
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c"
                                 alt="Google Pay"
-                                width={416}
-                                height={166}
+                                width={340}
+                                height={136}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
@@ -128,8 +128,8 @@ export default function Home() {
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2"
                                 alt="Apple Pay"
-                                width={416}
-                                height={166}
+                                width={340}
+                                height={136}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
@@ -146,7 +146,7 @@ export default function Home() {
                                 <span className="text-2xl font-normal align-top ml-1">{paymentInfo.symbol}</span>
                             </p>
                          )}
-                        <div className="mt-4">
+                        <div className="w-full h-14 mt-4">
                            <PayPalHostedButton
                                 hostedButtonId="2J4J3Z2Y5X2D8"
                                 onPaymentSuccess={handlePaymentSuccess}
