@@ -23,29 +23,17 @@ function initializeFirebaseAdmin(): App {
   }
 
   try {
-    // Cast the imported JSON to the ServiceAccount type
-    const serviceAccountCredential = require('../../serviceAccountKey.json') as ServiceAccount;
-
-    // Initialize the app with the service account credentials and database URL.
+    // A inicialização padrão sem argumentos usará as credenciais do ambiente
+    // (GOOGLE_APPLICATION_CREDENTIALS) que são gerenciadas pela hospedagem.
+    // Isso é mais seguro e robusto do que incluir um arquivo de chave de serviço.
     const app = initializeApp({
-      credential: cert(serviceAccountCredential),
       databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com/"
     });
-    console.log(`[Admin SDK] Firebase Admin SDK initialized successfully for project: ${app.options.projectId}`);
+    console.log(`[Admin SDK] Firebase Admin SDK initialized successfully using default credentials.`);
     return app;
 
   } catch (error: any) {
     console.error('[Admin SDK] CRITICAL ERROR during Firebase Admin initialization:', error);
-    // Fallback for environments where require might not work as expected or file is missing
-    if (process.env.GCLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-        console.log('[Admin SDK] Attempting to initialize with application default credentials...');
-        const app = initializeApp({
-            databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com/"
-        });
-        console.log(`[Admin SDK] Initialized with default credentials for project: ${app.options.projectId}`);
-        return app;
-    }
-    
     throw new Error(`Failed to initialize Firebase Admin SDK: ${error.message}`);
   }
 }
