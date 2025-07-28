@@ -1,58 +1,54 @@
 
 {
   "rules": {
-    // Regra padrão: Nega leitura e escrita para todos por padrão.
-    // O acesso via Admin SDK (usado no painel de administração) ignora estas regras.
+    // Default rule: Deny read and write for all paths by default.
+    // Access via the Admin SDK (used in your admin panel) bypasses these rules.
     ".read": false,
     ".write": false,
 
     "facialAuth": {
        "users": {
-          // Permite leitura pública dos dados dos usuários, necessário para o processo de verificação da IA.
+          // Allow public read of user data, necessary for the AI verification process.
           ".read": true,
-           // A escrita aqui também será feita pelo servidor, que já tem acesso de admin.
+           // Writing here will also be done by the server, which already has admin access.
           ".write": false
        }
     },
+
+    // All other top-level collections are read-only for the public.
+    // Writing is blocked from the client.
     "admin": {
-      // Apenas o servidor (Admin SDK) pode ler/escrever as configurações.
       ".read": false,
       ".write": false
     },
     "payments": {
-       // Apenas o servidor (Admin SDK) pode ler/escrever os pagamentos.
       ".read": false,
       ".write": false
     },
     "reviews": {
-      // Qualquer um pode ler as avaliações.
       ".read": true,
-      // Apenas o servidor (Admin SDK) pode escrever/moderar as avaliações.
       ".write": false
     },
     "products": {
-      // Qualquer um pode ler os produtos.
       ".read": true,
-      // Apenas o servidor (Admin SDK) pode escrever os produtos.
       ".write": false
     },
     "photos": {
-      // Qualquer um pode ler as fotos.
       ".read": true,
-      // Apenas o servidor (Admin SDK) pode escrever as fotos.
       ".write": false
     },
     "videos": {
-      // Qualquer um pode ler os vídeos.
       ".read": true,
-      // Apenas o servidor (Admin SDK) pode escrever os vídeos.
       ".write": false
     },
+
+    // Rules for the secret chat feature
     "chats": {
-      // Permite que usuários anônimos autenticados leiam e escrevam em seus próprios chats
+      // An authenticated user (including anonymous ones) can access a specific chat.
       "$chatId": {
         ".read": "auth != null",
         ".write": "auth != null",
+        // Index messages by timestamp for ordering.
         "messages": {
           ".indexOn": ["timestamp"]
         }

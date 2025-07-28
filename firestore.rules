@@ -1,53 +1,36 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Regra padrão: Nega todo o acesso
+
+    // Default deny all reads and writes
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Permite leitura pública de produtos, fotos e vídeos para o site
+    // Allow public read for products, photos, and videos.
+    // Writes are only allowed from the admin panel (server-side).
     match /products/{productId} {
       allow read: if true;
-      allow write: if false; // Apenas o admin (via servidor) pode escrever
+      allow write: if false;
     }
-    
+
     match /photos/{photoId} {
       allow read: if true;
       allow write: if false;
     }
-    
+
     match /videos/{videoId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Regras para Avaliações (Reviews)
+    // Anyone can submit a review (create), but they are only publicly readable
+    // after being approved by an admin. Users cannot update or delete reviews.
     match /reviews/{reviewId} {
-      // Qualquer pessoa pode enviar uma avaliação (status 'pending')
-      allow create: if request.resource.data.status == 'pending';
-      
-      // Apenas avaliações aprovadas são publicamente visíveis
+      allow create: if true;
       allow read: if resource.data.status == 'approved';
-
-      // Ninguém pode atualizar ou deletar do lado do cliente
       allow update, delete: if false;
-    }
-
-    // Regras para Chat
-    match /chats/{chatId} {
-        // Permite que qualquer usuário autenticado (incluindo anônimo) crie o documento do chat
-        allow create: if request.auth != null;
-
-        // Permite que usuários autenticados leiam as mensagens do chat
-        match /messages/{messageId} {
-            allow read: if request.auth != null;
-            // Permite que o usuário autenticado escreva mensagens se ele for o remetente
-            allow create: if request.auth != null && request.resource.data.senderId == request.auth.uid;
-        }
     }
   }
 }

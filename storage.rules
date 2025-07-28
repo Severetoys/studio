@@ -1,25 +1,19 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Regra padrão: Nega todo o acesso
+    // Allow public read access to all files. This is necessary for images
+    // and videos to be displayed on your website to all visitors.
     match /{allPaths=**} {
-      allow read, write: if false;
-    }
-
-    // Permite leitura pública de todas as imagens e vídeos,
-    // pois as URLs são usadas no site.
-    match /italosantos.com/{allPaths=**} {
       allow read: if true;
     }
 
-    // Permite escrita (upload) apenas para usuários autenticados.
-    // Isso evita que usuários anônimos sobrecarreguem o storage.
-    // As páginas de admin (upload, fotos, etc.) e o chat já usam autenticação.
-    match /{path}/{fileName} {
-        allow write: if request.auth != null;
+    // Restrict write access (uploads, updates, deletes) to only authenticated users.
+    // This prevents unauthorized uploads while allowing your admin panel's
+    // server-side logic to upload files securely.
+    match /{allPaths=**} {
+      allow write: if request.auth != null;
     }
   }
 }
