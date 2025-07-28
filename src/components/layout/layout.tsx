@@ -15,6 +15,14 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import SecretChatWidget from '@/components/secret-chat-widget';
 import SecretChatButton from '@/components/secret-chat-button';
+import { Loader2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const DyteMeetingComponent = dynamic(() => import('@/components/dyte-meeting'), {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-full w-full bg-black text-white"><Loader2 className="h-8 w-8 animate-spin"/></div>,
+});
+
 
 const getOrCreateChatId = (): string => {
     if (typeof window === 'undefined') {

@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { getPayPalClientId, createPayPalOrder, capturePayPalOrder } from "@/ai/flows/paypal-payment-flow";
 import { savePaymentDetails } from '@/services/user-auth-service';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const features = [
@@ -342,10 +343,13 @@ export default function Home() {
                              </div>
                         </div>
                         
-                          <CheckCircle className="h-4 w-4" />
-                          
-                            Após a confirmação, seu acesso será liberado automaticamente. Você pode fechar esta janela.
-                          
+                          <Alert>
+                            <CheckCircle className="h-4 w-4" />
+                            <AlertTitle>Aguardando Pagamento</AlertTitle>
+                            <AlertDescription>
+                              Após a confirmação, seu acesso será liberado automaticamente. Você pode fechar esta janela.
+                            </AlertDescription>
+                          </Alert>
                         
                     </div>
                 </DialogContent>
