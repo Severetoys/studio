@@ -50,29 +50,45 @@ export default function AdminIntegrationsPage() {
     paypal: false,
     mercadopago: false,
   });
-  const [isLoading, setIsLoading] = useState<Record<Integration, boolean> | null>(null);
+  const [isLoading, setIsLoading] = useState<Record<Integration, boolean>>({
+    twitter: false,
+    instagram: false,
+    facebook: false,
+    paypal: false,
+    mercadopago: false,
+  });
 
   useEffect(() => {
     async function fetchAllStatus() {
         const services: Integration[] = ['twitter', 'instagram', 'facebook', 'paypal', 'mercadopago'];
+        const initialLoadingState = services.reduce((acc, service) => ({...acc, [service]: true }), {} as Record<Integration, boolean>);
+        setIsLoading(initialLoadingState);
+
         const statuses = await Promise.all(services.map(service => getIntegrationStatus(service)));
-        const newIntegrationsState: Record<Integration, boolean> = {
-            twitter: false,
-            instagram: false,
-            facebook: false,
-            paypal: false,
-            mercadopago: false,
-        };
+        
+        const newIntegrationsState = { ...initialIntegrations };
         services.forEach((service, index) => {
             newIntegrationsState[service] = statuses[index];
         });
         setIntegrations(newIntegrationsState);
+
+        const finalLoadingState = services.reduce((acc, service) => ({...acc, [service]: false }), {} as Record<Integration, boolean>);
+        setIsLoading(finalLoadingState);
     }
     fetchAllStatus();
   }, []);
 
+  const initialIntegrations: Record<Integration, boolean> = {
+    twitter: false,
+    instagram: false,
+    facebook: false,
+    paypal: false,
+    mercadopago: false,
+  };
+
+
   const handleToggleIntegration = async (integration: Integration) => {
-    setIsLoading(prev => ({...(prev || {}), [integration]: true }));
+    setIsLoading(prev => ({...(prev || initialIntegrations), [integration]: true }));
     const isConnected = integrations[integration];
 
     try {
@@ -104,7 +120,7 @@ export default function AdminIntegrationsPage() {
             description: error.message,
         });
     } finally {
-        setIsLoading(prev => ({...(prev || {}), [integration]: false }));
+        setIsLoading(prev => ({...(prev || initialIntegrations), [integration]: false }));
     }
   };
 
