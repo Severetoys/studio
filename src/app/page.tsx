@@ -105,8 +105,8 @@ export default function Home() {
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c"
                                 alt="Google Pay"
-                                width={442}
-                                height={177}
+                                width={530}
+                                height={212}
                                 className="w-full h-auto object-contain cursor-pointer"
                             />
                         </PayPalHostedButton>
@@ -134,8 +134,8 @@ export default function Home() {
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2"
                                 alt="Apple Pay"
-                                width={442}
-                                height={177}
+                                width={530}
+                                height={212}
                                 className="w-full h-auto object-contain cursor-pointer"
                             />
                         </PayPalHostedButton>
@@ -146,10 +146,11 @@ export default function Home() {
                          {isLoadingCurrency ? (
                              <Loader2 className="h-10 w-10 mx-auto animate-spin text-primary" />
                          ) : (
-                             <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>
-                                {paymentInfo.value.replace('.', ',')}
+                            <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>
+                                {paymentInfo.value.split('.')[0]}
+                                <span className="text-2xl align-top">.{paymentInfo.value.split('.')[1]}</span>
                                 <span className="text-lg font-normal align-top ml-1">{paymentInfo.symbol}</span>
-                             </p>
+                            </p>
                          )}
                         <div className="mt-4">
                            <PayPalHostedButton
@@ -171,6 +172,14 @@ export default function Home() {
             <FeatureMarquee />
             <AboutSection />
             <MainFooter />
+
+            <PixPaymentModal 
+                isOpen={isPixModalOpen}
+                onOpenChange={setIsPixModalOpen}
+                amount={parseFloat(paymentInfo.value)}
+                onPaymentSuccess={handlePaymentSuccess}
+            />
         </div>
     );
-}
+
+    
