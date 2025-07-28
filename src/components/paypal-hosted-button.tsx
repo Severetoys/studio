@@ -1,7 +1,14 @@
 
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+
+declare global {
+    interface Window {
+        paypal?: any;
+    }
+}
 
 interface PayPalHostedButtonProps {
     onPaymentSuccess: () => void;
@@ -10,80 +17,91 @@ interface PayPalHostedButtonProps {
 }
 
 const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount }: PayPalHostedButtonProps) => {
+    const [isSdkReady, setIsSdkReady] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const scriptId = 'paypal-sdk';
-        if (document.getElementById(scriptId)) {
-            // Se o script já existe, remove para recarregar com a moeda certa
-             const existingScript = document.getElementById(scriptId);
-             if(existingScript) {
-                existingScript.remove();
-             }
+        setIsLoading(true);
+        const scriptId = 'paypal-sdk-script';
+
+        // Clean up previous instances if any
+        const existingScript = document.getElementById(scriptId);
+        if (existingScript) {
+            existingScript.remove();
+        }
+        const buttonContainer = document.getElementById('paypal-button-container');
+        if (buttonContainer) {
+            buttonContainer.innerHTML = '';
         }
 
         const script = document.createElement('script');
         script.id = scriptId;
-        // Client ID de produção fornecido anteriormente
-        script.src = `https://www.paypal.com/sdk/js?client-id=AZ6S85gBFj5k6V8_pUx1R-nUoJqL-3w4l9n5Z6G8y7o9W7a2Jm-B0E3uV6KsoJAg4fImv_iJqB1t4p_Q&components=buttons&currency=${currencyCode}`;
+        // Use your Production Client ID here
+        script.src = `https://www.paypal.com/sdk/js?client-id=AZ6S85gBFj5k6V8_pUx1R-nUoJqL-3w4l9n5Z6G8y7o9W7a2Jm-B0E3uV6KsoJAg4fImv_iJqB1t4p_Q&components=buttons&currency=${currencyCode}&intent=capture`;
+        script.async = true;
         
         script.onload = () => {
-            // Verifica se o objeto paypal existe no window
-            if (window.paypal) {
-                // Limpa o container antes de renderizar para evitar botões duplicados
-                const buttonContainer = document.getElementById('paypal-button-container');
-                if (buttonContainer) {
-                    buttonContainer.innerHTML = '';
-                }
-
-                window.paypal.Buttons({
-                    // Função para criar a ordem no PayPal
-                    createOrder: function(data: any, actions: any) {
-                        return actions.order.create({
-                            purchase_units: [{
-                                description: "Assinatura Mensal - Italo Santos",
-                                amount: {
-                                    value: amount, // Usa o valor dinâmico
-                                    currency_code: currencyCode, // Usa a moeda dinâmica
-                                }
-                            }]
-                        });
-                    },
-                    // Função para ser chamada após o usuário aprovar o pagamento
-                    onApprove: function(data: any, actions:any) {
-                         if (actions.order) {
-                            return actions.order.capture().then(function(details: any) {
-                                // Chama a função de sucesso que foi passada como prop
-                                onPaymentSuccess();
-                            });
-                        } else {
-                            // Fallback caso 'actions.order' não esteja disponível
-                            onPaymentSuccess();
-                            return Promise.resolve();
-                        }
-                    },
-                    onError: function (err: any) {
-                        // Log de erro para depuração
-                        console.error('Erro no checkout do PayPal:', err);
-                    }
-                }).render('#paypal-button-container');
-            }
+            setIsSdkReady(true);
+            setIsLoading(false);
+        };
+        
+        script.onerror = () => {
+            console.error("Failed to load PayPal SDK script.");
+            setIsLoading(false);
         };
 
         document.body.appendChild(script);
 
         return () => {
-            // Limpeza ao desmontar o componente
-            const buttonContainer = document.getElementById('paypal-button-container');
-            if(buttonContainer) {
-                buttonContainer.innerHTML = '';
+            const scriptInDom = document.getElementById(scriptId);
+            if (scriptInDom) {
+                scriptInDom.remove();
             }
         };
+    }, [currencyCode]); // Rerun when currency changes
 
-    }, [amount, currencyCode, onPaymentSuccess]);
+    useEffect(() => {
+        if (isSdkReady && window.paypal) {
+            const buttonContainer = document.getElementById('paypal-button-container');
+            if (buttonContainer) {
+                buttonContainer.innerHTML = ''; // Clear previous button
+                try {
+                    window.paypal.Buttons({
+                        createOrder: (data: any, actions: any) => {
+                            return actions.order.create({
+                                purchase_units: [{
+                                    description: "Assinatura Mensal - Italo Santos",
+                                    amount: {
+                                        value: amount,
+                                        currency_code: currencyCode,
+                                    }
+                                }]
+                            });
+                        },
+                        onApprove: async (data: any, actions: any) => {
+                            const order = await actions.order.capture();
+                            console.log("Pagamento aprovado:", order);
+                            onPaymentSuccess();
+                        },
+                        onError: (err: any) => {
+                            console.error('Erro no checkout do PayPal:', err);
+                        }
+                    }).render('#paypal-button-container');
+                } catch (error) {
+                    console.error("Error rendering PayPal button", error);
+                }
+            }
+        }
+    }, [isSdkReady, amount, currencyCode, onPaymentSuccess]);
 
     return (
-        <div id="paypal-button-container" className="w-full max-w-xs mx-auto min-h-[50px]">
-           {/* O botão do PayPal será renderizado aqui pelo script */}
+        <div className="w-full max-w-xs mx-auto min-h-[50px]">
+            {isLoading && (
+                 <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                 </div>
+            )}
+            <div id="paypal-button-container" className={isLoading ? 'hidden' : ''} />
         </div>
     );
 }
