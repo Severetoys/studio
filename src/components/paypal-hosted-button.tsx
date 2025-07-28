@@ -15,10 +15,9 @@ declare global {
 interface PayPalHostedButtonProps {
     onPaymentSuccess: () => void;
     hostedButtonId: string;
-    children?: React.ReactNode;
 }
 
-const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayPalHostedButtonProps) => {
+const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId }: PayPalHostedButtonProps) => {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const buttonContainerRef = useRef<HTMLDivElement>(null);
@@ -34,6 +33,7 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
 
         const script = document.createElement('script');
         script.id = scriptId;
+        // Use a generic client-id for the SDK, as the hosted button has its own auth.
         script.src = `https://www.paypal.com/sdk/js?client-id=test&components=buttons&disable-funding=venmo&currency=BRL`;
         script.async = true;
 
@@ -53,16 +53,10 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
 
         document.body.appendChild(script);
 
-        return () => {
-            const existingScript = document.getElementById(scriptId);
-            if (existingScript) {
-                // Não remover para evitar recarregamentos desnecessários em navegações
-            }
-        };
     }, [toast]);
     
     useEffect(() => {
-        if(isSdkReady && window.paypal && buttonContainerRef.current) {
+        if (isSdkReady && window.paypal?.Buttons && buttonContainerRef.current) {
             buttonContainerRef.current.innerHTML = "";
             try {
                 window.paypal.Buttons({
@@ -93,28 +87,6 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
         }
 
     }, [isSdkReady, hostedButtonId, onPaymentSuccess, toast])
-
-
-    if (children) {
-        return (
-            <div onClick={() => {
-                const paypalButton = buttonContainerRef.current?.querySelector('div[role="button"]');
-                if (paypalButton instanceof HTMLElement) {
-                    paypalButton.click();
-                } else {
-                    toast({ variant: 'destructive', title: 'Erro', description: 'Botão de pagamento não está pronto.' });
-                }
-            }} className="cursor-pointer relative">
-                {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-background/50">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    </div>
-                )}
-                <div style={{ visibility: isLoading ? 'hidden' : 'visible' }}>{children}</div>
-                <div ref={buttonContainerRef} style={{ display: 'none' }}></div>
-            </div>
-        );
-    }
     
     return (
         <div className="w-full max-w-xs mx-auto min-h-[40px]">

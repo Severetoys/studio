@@ -98,18 +98,15 @@ export default function Home() {
                     </Button>
 
                      <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-8">
-                        <PayPalHostedButton
-                            hostedButtonId="YOUR_GOOGLE_PAY_BUTTON_ID"
-                            onPaymentSuccess={handlePaymentSuccess}
-                        >
+                        <button onClick={handlePaymentSuccess} className="cursor-pointer">
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c"
                                 alt="Google Pay"
                                 width={408}
                                 height={163}
-                                className="w-full h-auto object-contain cursor-pointer"
+                                className="w-full h-auto object-contain"
                             />
-                        </PayPalHostedButton>
+                        </button>
                          <div className="flex flex-col items-center justify-center">
                             <button
                                 className="transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -127,18 +124,15 @@ export default function Home() {
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
                         </div>
-                        <PayPalHostedButton
-                           hostedButtonId="YOUR_APPLE_PAY_BUTTON_ID"
-                           onPaymentSuccess={handlePaymentSuccess}
-                        >
+                        <button onClick={handlePaymentSuccess} className="cursor-pointer">
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2"
                                 alt="Apple Pay"
                                 width={408}
                                 height={163}
-                                className="w-full h-auto object-contain cursor-pointer"
+                                className="w-full h-auto object-contain"
                             />
-                        </PayPalHostedButton>
+                        </button>
                     </div>
 
                     <div className="text-center py-4 min-h-[100px] flex flex-col items-center justify-center">
@@ -154,7 +148,7 @@ export default function Home() {
                          )}
                         <div className="mt-4">
                            <PayPalHostedButton
-                                hostedButtonId="YOUR_MAIN_PAYPAL_BUTTON_ID"
+                                hostedButtonId="2J4J3Z2Y5X2D8"
                                 onPaymentSuccess={handlePaymentSuccess}
                            />
                         </div>
