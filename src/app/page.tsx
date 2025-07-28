@@ -77,7 +77,7 @@ export default function Home() {
                         </div>
                         <div className="flex-shrink-0 mx-2 flex flex-col items-center">
                             <button className="transition-transform hover:scale-105">
-                                 <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.4)' }}/>
+                                 <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(0.92)' }}/>
                             </button>
                             <p className="text-xs font-semibold mt-1">PIX</p>
                             <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
