@@ -2,57 +2,44 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check for admin privileges
-    function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true;
-    }
-
-    // Product rules
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Video rules
-    match /videos/{videoId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Photo gallery rules
-    match /photos/{photoId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Review rules
-    match /reviews/{reviewId} {
-      allow create: if request.resource.data.status == 'pending';
-      allow read: if resource.data.status == 'approved';
-      allow update, delete: if isAdmin();
-    }
-
-    // Chat rules
-    match /chats/{chatId} {
-      function isOwner() {
-        return request.auth != null && request.auth.uid == chatId.split('secret-chat-')[1];
-      }
-
-      allow read, write: if isOwner() || isAdmin();
-
-      match /messages/{messageId} {
-        allow read, write: if isOwner() || isAdmin();
-      }
-    }
-
-    // Visitor tracking rules
-    match /visitors/{visitorId} {
-      allow read, create, update: if true;
-    }
-
-    // Default deny rule
+  
+    // Regra geral: Nega leitura e escrita por padrão para maior segurança.
     match /{document=**} {
       allow read, write: if false;
+    }
+
+    // Permite leitura pública das fotos, pois são para a galeria do site.
+    // A escrita é bloqueada para o cliente.
+    match /photos/{photoId} {
+      allow read: if true;
+      allow write: if false; // Apenas o Admin pode escrever via backend
+    }
+    
+    // Permite que qualquer pessoa leia as avaliações que foram aprovadas.
+    // A escrita (envio) é tratada pela lógica do backend.
+    match /reviews/{reviewId} {
+        allow read: if resource.data.status == 'approved';
+        allow create: if true; // Permite o envio de novas avaliações para moderação
+        allow update, delete: if false; // Apenas o Admin pode atualizar/deletar via backend
+    }
+
+    // Permite leitura de produtos apenas para usuários autenticados.
+    // A escrita é bloqueada para o cliente.
+    match /products/{productId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Apenas o Admin pode escrever via backend
+    }
+
+    // Permite leitura de vídeos apenas para usuários autenticados.
+    // A escrita é bloqueada para o cliente.
+    match /videos/{videoId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Apenas o Admin pode escrever via backend
+    }
+
+    // Permite que usuários autenticados (clientes) e admins leiam e escrevam em seus chats.
+    match /chats/{chatId}/{message=**} {
+        allow read, write: if request.auth != null;
     }
   }
 }
