@@ -14,7 +14,6 @@ import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
 import Link from 'next/link';
 import PayPalHostedButton from '@/components/paypal-hosted-button';
-import MainFooter from '@/components/layout/main-footer';
 
 export default function Home() {
     const { toast } = useToast();
@@ -60,7 +59,7 @@ export default function Home() {
     
 
     return (
-        <div className="flex flex-col items-center min-h-screen text-center bg-black text-white p-4 overflow-x-hidden">
+        <>
              <div 
                 className="relative w-full h-[50vh] flex items-center justify-center -mx-4"
             >
@@ -87,7 +86,7 @@ export default function Home() {
 
             <Separator className="my-0 w-full bg-primary/50" />
 
-            <main className="relative z-10 flex flex-col items-center justify-center flex-1 w-full max-w-4xl mx-auto">
+            <div className="relative z-10 flex flex-col items-center justify-center flex-1 w-full max-w-4xl mx-auto">
                 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-4 pt-4">
                      <Button asChild className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow">
@@ -97,13 +96,13 @@ export default function Home() {
                         </Link>
                     </Button>
 
-                     <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-2">
+                     <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-4">
                         <button className="flex-1 cursor-pointer bg-transparent border-none p-0 w-[144px] h-[58px] transition-transform hover:scale-105">
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=1a720214-8238-4dfe-9aba-a820a9b883aa"
                                 alt="Payment button"
-                                width={144}
-                                height={58}
+                                width={173} 
+                                height={70}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
@@ -128,8 +127,8 @@ export default function Home() {
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=7a8ad75a-e3d6-4c1f-98ea-0dd5e3ef8bbf"
                                 alt="Apple Pay"
-                                width={144}
-                                height={58}
+                                width={173} 
+                                height={70}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
@@ -161,7 +160,7 @@ export default function Home() {
                         </Link>
                     </Button>
                 </div>
-            </main>
+            </div>
             
             <FeatureMarquee />
             <AboutSection />
@@ -172,7 +171,7 @@ export default function Home() {
                 amount={parseFloat(paymentInfo.value)}
                 onPaymentSuccess={handlePaymentSuccess}
             />
-        </div>
+        </>
     );
 
 }

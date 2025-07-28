@@ -123,7 +123,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const showHeader = !noHeaderLayoutRoutes.some(route => pathname.startsWith(route)) && !isAdminPanel;
   
   const showMainFooter = pathname === '/';
-  const showSiteFooter = !noHeaderLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/' && !isAdminPanel;
+  const showSiteFooter = !noHeaderLayoutRoutes.some(route => pathname.startsWith(route)) && !showMainFooter && !isAdminPanel;
   const showChat = !isAdminPanel;
 
   if (isAdminPanel) {
@@ -141,7 +141,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onClose={toggleSidebar} 
             onFetishSelect={handleFetishSelect} 
         />
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow flex flex-col items-center">{children}</main>
         {showMainFooter && <MainFooter />}
         {showSiteFooter && <SiteFooter />}
       </div>
