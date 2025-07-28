@@ -100,7 +100,7 @@ export default function Home() {
                      <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-8">
                         <button onClick={handlePaymentSuccess} className="cursor-pointer">
                             <Image
-                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c"
+                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/570bd898-e2ac-4508-8c45-1bc82390a8b3.jpeg?alt=media&token=e595ec34-eb62-4686-9d23-98ea8d3cdfac"
                                 alt="Google Pay"
                                 width={476}
                                 height={190}
