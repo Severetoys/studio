@@ -12,7 +12,6 @@
     "node": "22"
   },
   "dependencies": {
-    "@google-cloud/vision": "^4.3.0",
     "@genkit-ai/googleai": "^1.15.5",
     "@mercadopago/sdk-react": "^0.0.19",
     "@paypal/checkout-server-sdk": "^1.0.3",

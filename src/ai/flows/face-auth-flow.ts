@@ -9,7 +9,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { saveUser, getAllUsers } from '@/services/user-auth-service';
-import { detectFace } from '@/services/vision';
 
 // Input schema for user registration
 const RegisterUserInputSchema = z.object({
@@ -47,7 +46,7 @@ const VIP_URL = "/dashboard";
 
 /**
  * Genkit flow to register a new user.
- * It validates the face using Google Vision API, then saves the user data.
+ * It saves the user data without prior face validation.
  */
 const registerUserFlow = ai.defineFlow(
   {
@@ -57,17 +56,7 @@ const registerUserFlow = ai.defineFlow(
   },
   async (userData) => {
     try {
-      // 1. Validate face using Google Vision API
-      const faceValidation = await detectFace(userData.imageBase64);
-      if (!faceValidation.faceDetected) {
-        return { 
-          success: false, 
-          message: faceValidation.error || 'Nenhuma face válida detectada.',
-          errorCode: faceValidation.errorCode,
-        };
-      }
-
-      // 2. Save user data to Realtime DB and image to Storage
+      // User data is saved directly without face validation step.
       await saveUser(userData);
       
       console.log(`User ${userData.name} registered successfully.`);
@@ -93,17 +82,7 @@ const verifyUserFlow = ai.defineFlow(
     try {
       console.log('Starting user verification flow...');
       
-      // 1. Validate the new face image first
-      const faceValidation = await detectFace(imageBase64);
-      if (!faceValidation.faceDetected) {
-        return { 
-          success: false, 
-          message: faceValidation.error || 'Nenhuma face válida detectada na sua imagem.',
-          errorCode: 'NO_FACE_DETECTED',
-        };
-      }
-
-      // 2. Get all registered users
+      // Get all registered users
       const allUsers = await getAllUsers();
 
       if (allUsers.length === 0) {
@@ -113,7 +92,7 @@ const verifyUserFlow = ai.defineFlow(
       
       console.log(`Found ${allUsers.length} users to check. Comparing against the provided image.`);
       
-      // 3. Iterate through each registered user and compare their face.
+      // Iterate through each registered user and compare their face.
       for (const user of allUsers) {
         if (!user.imageUrl) {
             console.log(`Skipping user ${user.email} as they have no imageUrl.`);
