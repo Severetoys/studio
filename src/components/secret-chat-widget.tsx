@@ -217,7 +217,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
     if (showVideoCall) {
         return (
             <div className="fixed inset-0 z-[2000] bg-black">
-                <DyteMeetingComponent show={showVideoCall} onClose={() => setShowVideoCall(false)} />
+                <DyteMeetingComponent />
             </div>
         );
     }
