@@ -48,4 +48,5 @@ const nextConfig = {
   },
 };
 
+// Rebuild trigger
 module.exports = nextConfig;
