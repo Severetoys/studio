@@ -14,80 +14,6 @@ import { useRouter } from 'next/navigation';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
 import Link from 'next/link';
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { createPayPalOrder, capturePayPalOrder, getPayPalClientId } from '@/ai/flows/paypal-payment-flow';
-
-
-const PayPalDynamicButton = ({ amount, currency, onPaymentSuccess }: {
-    amount: string;
-    currency: string;
-    onPaymentSuccess: () => void;
-}) => {
-    const { toast } = useToast();
-    const [clientId, setClientId] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchClientId = async () => {
-            const id = await getPayPalClientId();
-            setClientId(id);
-        };
-        fetchClientId();
-    }, []);
-
-    const createOrder = async () => {
-        try {
-            const response = await createPayPalOrder({ amount, currencyCode: currency });
-            if (response.error || !response.orderID) {
-                throw new Error(response.error || 'Não foi possível criar a ordem de pagamento.');
-            }
-            return response.orderID;
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: 'Erro ao criar pedido', description: error.message });
-            return '';
-        }
-    };
-
-    const onApprove = async (data: any) => {
-        try {
-            const response = await capturePayPalOrder({ orderID: data.orderID });
-            if (response.success) {
-                onPaymentSuccess();
-            } else {
-                throw new Error(response.error || 'Falha na captura do pagamento.');
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: 'Erro ao processar pagamento', description: error.message });
-        }
-    };
-    
-    if (!clientId) {
-      return (
-        <div className="flex justify-center items-center h-12 w-full bg-muted rounded-md">
-            <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
-      );
-    }
-    
-    // Se a moeda for BRL, não renderizamos o botão do PayPal, pois o PIX e outros são priorizados.
-    if (currency === 'BRL') {
-        return (
-            <div className="text-center text-xs text-muted-foreground p-2">
-                Use PIX ou outras opções de pagamento para BRL.
-            </div>
-        );
-    }
-
-    return (
-        <PayPalScriptProvider options={{ "client-id": clientId, currency: currency }}>
-            <PayPalButtons
-                style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay" }}
-                createOrder={createOrder}
-                onApprove={onApprove}
-            />
-        </PayPalScriptProvider>
-    );
-};
-
 
 export default function Home() {
     const { toast } = useToast();
@@ -221,13 +147,7 @@ export default function Home() {
                          )}
                     </div>
                     
-                    <PayPalDynamicButton 
-                        amount={paymentInfo.value}
-                        currency={paymentInfo.currency}
-                        onPaymentSuccess={handlePaymentSuccess}
-                    />
-
-                    <Button asChild className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow">
+                     <Button asChild className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow">
                         <Link href="https://login.italosantos.com" target="_blank">
                             <KeyRound className="mr-2 h-6 w-6" />
                             ENTRAR
