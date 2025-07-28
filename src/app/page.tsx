@@ -8,7 +8,7 @@ import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
 import AboutSection from '@/components/about-section';
 import { Separator } from '@/components/ui/separator';
-import GoogleScriptModal from '@/components/google-script-modal';
+import AuthModal from '@/components/auth-modal';
 import MainFooter from '@/components/layout/main-footer';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -18,15 +18,7 @@ import PixPaymentModal from '@/components/pix-payment-modal';
 export default function Home() {
     const { toast } = useToast();
     const router = useRouter();
-    const [modalState, setModalState] = useState<{
-        isOpen: boolean;
-        url: string;
-        title: string;
-    }>({
-        isOpen: false,
-        url: '',
-        title: '',
-    });
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     
     const [paymentAmount, setPaymentAmount] = useState({ value: '99.00', currency: 'BRL' });
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
@@ -49,17 +41,6 @@ export default function Home() {
         };
         fetchCurrency();
     }, []);
-    
-    const openModal = (url: string, title: string) => {
-        setModalState({ isOpen: true, url, title });
-    };
-
-    const closeModal = () => {
-        setModalState({ isOpen: false, url: '', title: '' });
-    };
-
-    const signupUrl = "https://script.google.com/macros/s/AKfycbwqPvDxA6iOnyOWG8UJt2cVgLNmjAebcBca2rQeXnOd99ARugf244OEXbZXuJt4K7P-/exec";
-    const loginUrl = "https://script.google.com/macros/s/AKfycbwqPvDxA6iOnyOWG8UJt2cVgLNmjAebcBca2rQeXnOd99ARugf244OEXbZXuJt4K7P-/exec?page=login";
 
     const handlePaymentSuccess = () => {
         toast({ title: 'Pagamento bem-sucedido!', description: 'Seja bem-vindo(a) ao conteúdo exclusivo!' });
@@ -127,7 +108,7 @@ export default function Home() {
                 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-4 pt-4">
                     <Button 
-                        onClick={() => openModal(signupUrl, 'Cadastro com Face ID')}
+                        onClick={() => setIsAuthModalOpen(true)}
                         className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow"
                     >
                         <Fingerprint className="mr-2 h-6 w-6" />
@@ -187,7 +168,7 @@ export default function Home() {
                     <PayPalButton />
 
                     <Button 
-                        onClick={() => openModal(loginUrl, 'Login')}
+                        onClick={() => setIsAuthModalOpen(true)}
                         className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow"
                     >
                         <KeyRound className="mr-2 h-6 w-6" />
@@ -200,11 +181,9 @@ export default function Home() {
             <AboutSection />
             <MainFooter />
 
-            <GoogleScriptModal 
-                isOpen={modalState.isOpen} 
-                onOpenChange={closeModal} 
-                title={modalState.title}
-                url={modalState.url}
+            <AuthModal 
+                isOpen={isAuthModalOpen} 
+                onOpenChange={setIsAuthModalOpen} 
             />
             <PixPaymentModal
                 isOpen={isPixModalOpen}
