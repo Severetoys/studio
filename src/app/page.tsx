@@ -118,7 +118,7 @@ export default function Home() {
                             />
                         </div>
                         
-                        <div className="flex-shrink-0 flex flex-col items-center">
+                        <div className="flex-1 flex justify-center">
                             <button 
                                 className="transition-transform hover:scale-105" 
                                 onClick={() => setIsPixModalOpen(true)}
