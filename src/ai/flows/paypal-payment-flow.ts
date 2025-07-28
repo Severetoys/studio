@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Fluxo para criar e capturar ordens de pagamento no PayPal.
@@ -12,7 +11,7 @@ import paypal from '@paypal/checkout-server-sdk';
 
 // Schema de entrada para criar ordem
 const CreatePayPalOrderInputSchema = z.object({
-  amount: z.number().describe('O valor do pagamento em BRL.'),
+  amount: z.string().describe('O valor do pagamento como uma string (ex: "99.90").'),
   currencyCode: z.string().default('BRL').describe('O código da moeda (ex: "BRL", "USD").'),
 });
 export type CreatePayPalOrderInput = z.infer<typeof CreatePayPalOrderInputSchema>;
@@ -75,7 +74,7 @@ const createPayPalOrderFlow = ai.defineFlow(
                 {
                     amount: {
                         currency_code: currencyCode,
-                        value: amount.toFixed(2),
+                        value: amount,
                     },
                     description: 'Assinatura Mensal - Italo Santos',
                 },
@@ -157,7 +156,7 @@ export async function capturePayPalOrder(input: CapturePayPalOrderInput): Promis
  */
 export async function getPayPalClientId(): Promise<string> {
     const clientId = process.env.PAYPAL_CLIENT_ID;
-    if (!clientId) {
+    if (!clientId || clientId === "YOUR_PAYPAL_CLIENT_ID") {
         console.warn("A variável de ambiente PAYPAL_CLIENT_ID não está definida no servidor.");
         return "";
     }

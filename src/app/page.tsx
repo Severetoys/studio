@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Fingerprint, KeyRound } from 'lucide-react';
+import { Fingerprint, KeyRound, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
@@ -14,28 +14,108 @@ import { useRouter } from 'next/navigation';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
 import Link from 'next/link';
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { createPayPalOrder, capturePayPalOrder, getPayPalClientId } from '@/ai/flows/paypal-payment-flow';
+
+
+const PayPalDynamicButton = ({ amount, currency, onPaymentSuccess }: {
+    amount: string;
+    currency: string;
+    onPaymentSuccess: () => void;
+}) => {
+    const { toast } = useToast();
+    const [clientId, setClientId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchClientId = async () => {
+            const id = await getPayPalClientId();
+            setClientId(id);
+        };
+        fetchClientId();
+    }, []);
+
+    const createOrder = async () => {
+        try {
+            const response = await createPayPalOrder({ amount, currencyCode: currency });
+            if (response.error || !response.orderID) {
+                throw new Error(response.error || 'Não foi possível criar a ordem de pagamento.');
+            }
+            return response.orderID;
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Erro ao criar pedido', description: error.message });
+            return '';
+        }
+    };
+
+    const onApprove = async (data: any) => {
+        try {
+            const response = await capturePayPalOrder({ orderID: data.orderID });
+            if (response.success) {
+                onPaymentSuccess();
+            } else {
+                throw new Error(response.error || 'Falha na captura do pagamento.');
+            }
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Erro ao processar pagamento', description: error.message });
+        }
+    };
+    
+    if (!clientId) {
+      return (
+        <div className="flex justify-center items-center h-12 w-full bg-muted rounded-md">
+            <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      );
+    }
+    
+    // Se a moeda for BRL, não renderizamos o botão do PayPal, pois o PIX e outros são priorizados.
+    if (currency === 'BRL') {
+        return (
+            <div className="text-center text-xs text-muted-foreground p-2">
+                Use PIX ou outras opções de pagamento para BRL.
+            </div>
+        );
+    }
+
+    return (
+        <PayPalScriptProvider options={{ "client-id": clientId, currency: currency }}>
+            <PayPalButtons
+                style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay" }}
+                createOrder={createOrder}
+                onApprove={onApprove}
+            />
+        </PayPalScriptProvider>
+    );
+};
+
 
 export default function Home() {
     const { toast } = useToast();
     const router = useRouter();
     
-    const [paymentAmount, setPaymentAmount] = useState({ value: '99.00', currency: 'BRL' });
+    const [paymentInfo, setPaymentInfo] = useState({ value: '99.00', currency: 'BRL', symbol: 'R$' });
+    const [isLoadingCurrency, setIsLoadingCurrency] = useState(true);
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchCurrency = async () => {
+            setIsLoadingCurrency(true);
             try {
                 const userLocale = navigator.language || 'pt-BR';
                 const result = await convertCurrency({ targetLocale: userLocale });
 
                 if (result.amount && result.currencyCode) {
-                    setPaymentAmount({
+                    setPaymentInfo({
                         value: result.amount.toFixed(2),
-                        currency: result.currencyCode
+                        currency: result.currencyCode,
+                        symbol: result.currencySymbol
                     });
                 }
             } catch (error) {
                 console.error("Failed to fetch currency", error);
+                // Mantém o valor padrão em BRL em caso de erro
+            } finally {
+                setIsLoadingCurrency(false);
             }
         };
         fetchCurrency();
@@ -48,32 +128,6 @@ export default function Home() {
         router.push('/assinante');
     };
     
-    const PayPalButton = () => (
-        <div className="flex flex-col items-center gap-2">
-            <style jsx>{`
-                .pp-QH7F9FWD9SR8G {
-                    text-align: center;
-                    border: none;
-                    border-radius: 1.5rem;
-                    min-width: 11.625rem;
-                    padding: 0 2rem;
-                    height: 3.125rem;
-                    font-weight: bold;
-                    background-color: #FFD140;
-                    color: #000000;
-                    font-family: "Helvetica Neue", Arial, sans-serif;
-                    font-size: 1.125rem;
-                    line-height: 1.5rem;
-                    cursor: pointer;
-                }
-            `}</style>
-            <form action="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" method="post" target="_blank" style={{ display: 'inline-grid', justifyItems: 'center', alignContent: 'start', gap: '0.5rem' }}>
-                <input className="pp-QH7F9FWD9SR8G" type="submit" value="Comprar agora" />
-                <img src="https://www.paypalobjects.com/images/Debit_Credit.svg" alt="cards" />
-                <section style={{ fontSize: '0.75rem' }}> Com tecnologia <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style={{ height: '0.875rem', verticalAlign: 'middle' }} /></section>
-            </form>
-        </div>
-    );
 
     return (
         <div className="flex flex-col items-center min-h-screen text-center bg-black text-white p-4 overflow-x-hidden">
@@ -156,14 +210,22 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <div className="text-center py-4">
+                    <div className="text-center py-4 min-h-[100px]">
                         <p className="text-lg">Assinatura Mensal</p>
-                        <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>
-                           {paymentAmount.currency === 'BRL' ? `R$${paymentAmount.value.replace('.', ',')}` : `${paymentAmount.value} ${paymentAmount.currency}`}
-                        </p>
+                         {isLoadingCurrency ? (
+                             <Loader2 className="h-10 w-10 mx-auto animate-spin text-primary" />
+                         ) : (
+                             <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>
+                                {paymentInfo.symbol}{paymentInfo.value.replace('.', ',')}
+                             </p>
+                         )}
                     </div>
-
-                    <PayPalButton />
+                    
+                    <PayPalDynamicButton 
+                        amount={paymentInfo.value}
+                        currency={paymentInfo.currency}
+                        onPaymentSuccess={handlePaymentSuccess}
+                    />
 
                     <Button asChild className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow">
                         <Link href="https://login.italosantos.com" target="_blank">
@@ -181,7 +243,7 @@ export default function Home() {
             <PixPaymentModal
                 isOpen={isPixModalOpen}
                 onOpenChange={setIsPixModalOpen}
-                amount={parseFloat(paymentAmount.value)}
+                amount={99.00} // PIX é sempre em BRL
                 onPaymentSuccess={handlePaymentSuccess}
             />
         </div>
