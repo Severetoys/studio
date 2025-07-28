@@ -164,7 +164,7 @@ export default function FaceAuthPage() {
             if (result.success) {
                 toast({ title: 'Cadastro bem-sucedido!', description: 'Seu rosto e dados foram registrados. Redirecionando...' });
                 localStorage.setItem('isAuthenticated', 'true');
-                router.push('/dashboard'); 
+                router.push('/assinante'); 
             } else {
                  toast({ variant: 'destructive', title: 'Falha no Cadastro', description: result.message || 'Não foi possível completar seu registro.' });
             }
@@ -195,7 +195,7 @@ export default function FaceAuthPage() {
     if (loginEmail.toLowerCase() === 'pix@italosantos.com' && loginPassword === 'Severe123@') {
       toast({ title: 'Login bem-sucedido!', description: 'Redirecionando...' });
       localStorage.setItem('isAuthenticated', 'true'); // Define o estado de autenticado
-      router.push('/dashboard');
+      router.push('/assinante');
     } else {
       toast({ variant: 'destructive', title: 'Falha na Autenticação', description: 'Email ou senha incorretos.' });
     }

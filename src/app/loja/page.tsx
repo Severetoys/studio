@@ -262,7 +262,7 @@ export default function LojaPage() {
     setCart([]);
     setCustomerEmail('');
     setCustomerName('');
-    router.push('/dashboard');
+    router.push('/assinante');
   };
 
   return (

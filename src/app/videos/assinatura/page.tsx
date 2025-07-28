@@ -20,7 +20,7 @@ export default function AssinaturaPage() {
     if (subscriptionStatus === 'true') {
       setHasSubscription(true);
       // Se o usuário já é assinante e acessa esta página, redireciona para o painel.
-      router.replace('/dashboard');
+      router.replace('/assinante');
     }
   }, [router]);
 

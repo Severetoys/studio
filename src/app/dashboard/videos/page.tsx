@@ -101,7 +101,7 @@ function VideoPlayer() {
           </>
         ) : null}
         <CardFooter className="flex justify-start">
-          <Button variant="outline" onClick={() => router.push('/dashboard')}>
+          <Button variant="outline" onClick={() => router.push('/assinante')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para o Painel
           </Button>
@@ -112,7 +112,7 @@ function VideoPlayer() {
 }
 
 
-export default function DashboardVideosPage() {
+export default function AssinanteVideosPage() {
     return (
         <Suspense fallback={<div className="flex items-center justify-center h-screen"><Loader2 className="h-16 w-16 animate-spin text-primary"/></div>}>
             <VideoPlayer />

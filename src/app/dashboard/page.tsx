@@ -33,7 +33,7 @@ const purchasedVideosExample: Video[] = [
     { id: 'pur_vid_2', title: 'Cena Deletada: O Encontro', thumbnailUrl: 'https://placehold.co/600x400.png', aiHint: 'deleted scene' },
 ]
 
-export default function DashboardPage() {
+export default function AssinantePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [purchasedVideos, setPurchasedVideos] = useState<Video[]>([]);
@@ -113,7 +113,7 @@ export default function DashboardPage() {
            <CardTitle className="text-3xl text-shadow-neon-red-light">
                 Bem-vindo(a)!
             </CardTitle>
-          <CardDescription>Painel do Cliente</CardDescription>
+          <CardDescription>Painel do Assinante</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
             <div className="flex items-center gap-4">
@@ -156,7 +156,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
              {hasSubscription ? (
-                <VideoGrid videos={subscriptionVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
+                <VideoGrid videos={subscriptionVideos} onVideoClick={(id) => router.push(`/assinante/videos?id=${id}`)} />
             ) : (
                 <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <Lock className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -186,7 +186,7 @@ export default function DashboardPage() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : purchasedVideos.length > 0 ? (
-                <VideoGrid videos={purchasedVideos} onVideoClick={(id) => router.push(`/dashboard/videos?id=${id}`)} />
+                <VideoGrid videos={purchasedVideos} onVideoClick={(id) => router.push(`/assinante/videos?id=${id}`)} />
             ) : (
                  <div className="text-center p-6 bg-muted/30 rounded-lg border border-dashed border-border">
                     <p className="text-muted-foreground">Você ainda não comprou nenhum vídeo avulso.</p>

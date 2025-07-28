@@ -45,7 +45,7 @@ export default function Home() {
         toast({ title: 'Pagamento bem-sucedido!', description: 'Seja bem-vindo(a) ao conteúdo exclusivo!' });
         localStorage.setItem('hasPaid', 'true');
         localStorage.setItem('hasSubscription', 'true');
-        router.push('/dashboard');
+        router.push('/assinante');
     };
     
     const PayPalButton = () => (

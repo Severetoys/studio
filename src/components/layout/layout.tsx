@@ -99,7 +99,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   const isAdminPanel = pathname.startsWith('/admin');
-  const noHeaderLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
+  const noHeaderLayoutRoutes = ['/auth', '/old-auth-page', '/assinante', '/assinante/videos', '/chat-secreto'];
   const showHeader = !noHeaderLayoutRoutes.some(route => pathname.startsWith(route)) && !isAdminPanel;
   
   const showMainFooter = pathname === '/';
