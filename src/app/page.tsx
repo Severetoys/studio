@@ -107,7 +107,7 @@ export default function Home() {
                         Face ID
                     </Button>
 
-                     <div className="flex justify-between items-center w-full max-w-sm mt-6">
+                     <div className="flex justify-between items-center w-full max-w-sm mt-6 gap-x-4">
                         <div className="flex-1 flex justify-center">
                              <Image 
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" 
