@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": "22"
+  },
   "dependencies": {
     "@genkit-ai/googleai": "^1.15.5",
     "@mercadopago/sdk-react": "^0.0.19",
