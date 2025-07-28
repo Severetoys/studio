@@ -191,10 +191,10 @@ export default function FaceAuthPage() {
   };
 
   const handleEmailPasswordLogin = () => {
-    // Esta é uma lógica de login de fallback/demonstração. Substitua por sua lógica de autenticação real.
+    // Lógica de login com email e senha para o administrador ver a área do cliente.
     if (loginEmail.toLowerCase() === 'pix@italosantos.com' && loginPassword === 'Severe123@') {
-      toast({ title: 'Login bem-sucedido!', description: 'Redirecionando...' });
-      localStorage.setItem('isAuthenticated', 'true'); // Define o estado de autenticado
+      toast({ title: 'Login de administrador bem-sucedido!', description: 'Redirecionando para a área do assinante...' });
+      localStorage.setItem('isAuthenticated', 'true');
       router.push('/assinante');
     } else {
       toast({ variant: 'destructive', title: 'Falha na Autenticação', description: 'Email ou senha incorretos.' });
