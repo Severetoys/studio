@@ -34,6 +34,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'scontent-scl2-1.cdninstagram.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'pbs.twimg.com'
       }
     ],
