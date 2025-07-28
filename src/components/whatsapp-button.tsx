@@ -22,7 +22,7 @@ export default function WhatsAppButton() {
   const pathname = usePathname();
   const whatsappUrl = `https://wa.me/italosantos`;
   
-  if (pathname.startsWith('/admin') || pathname.startsWith('/chat-secreto')) {
+  if (pathname.startsWith('/admin')) {
     return null;
   }
 
@@ -32,12 +32,21 @@ export default function WhatsAppButton() {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-            "fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
-            "bg-green-500 hover:bg-green-600 animate-pulse-green-glow"
+            "fixed bottom-6 right-6 z-50 flex items-center gap-2",
         )}
         aria-label="Fale conosco no WhatsApp"
     >
-        <WhatsAppIcon className="h-9 w-9" />
+        <div className="bg-card/90 backdrop-blur-sm border border-green-500/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg">
+            WhatsApp
+        </div>
+        <div
+            className={cn(
+                "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                "bg-green-500 hover:bg-green-600 animate-pulse-green-glow"
+            )}
+        >
+            <WhatsAppIcon className="h-9 w-9" />
+        </div>
     </a>
   );
 }

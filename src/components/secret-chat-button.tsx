@@ -24,15 +24,24 @@ interface SecretChatButtonProps {
 
 export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButtonProps) {
     return (
-       <Button
-            onClick={onClick}
-            aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
+       <div
             className={cn(
-                "fixed bottom-6 left-6 z-[1001] flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
-                "bg-primary hover:bg-primary/90 animate-pulse-red-glow"
+                "fixed bottom-6 left-6 z-[1001] flex items-center gap-2"
             )}
        >
-            {isChatOpen ? <X className="h-9 w-9" /> : <TelegramIcon className="h-9 w-9" />}
-       </Button>
+            <Button
+                onClick={onClick}
+                aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
+                className={cn(
+                    "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300",
+                    "bg-primary hover:bg-primary/90 animate-pulse-red-glow"
+                )}
+            >
+                {isChatOpen ? <X className="h-9 w-9" /> : <TelegramIcon className="h-9 w-9" />}
+            </Button>
+            <div className="bg-card/90 backdrop-blur-sm border border-primary/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg">
+                Chat Secreto
+            </div>
+       </div>
     );
 }
