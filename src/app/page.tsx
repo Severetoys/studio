@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { createPayPalOrder, capturePayPalOrder, getPayPalClientId } from '@/ai/flows/paypal-payment-flow';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
 export default function Home() {
     const { toast } = useToast();
@@ -32,6 +34,9 @@ export default function Home() {
     const [paypalClientId, setPaypalClientId] = useState<string | null>(null);
     const [paymentAmount, setPaymentAmount] = useState({ value: '99.00', currency: 'BRL' });
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
+    const [preferenceId, setPreferenceId] = useState<string | null>(null);
+
+    initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || '');
 
 
     useEffect(() => {
@@ -58,8 +63,19 @@ export default function Home() {
                 });
             }
         };
+        
+        const createPreference = async () => {
+            // No mundo real, esta chamada seria para o seu backend.
+            // O backend criaria uma preferência de pagamento no Mercado Pago e retornaria o ID.
+            // Para este exemplo, usaremos um ID de preferência de teste pré-gerado.
+            // Este ID está configurado para um item de R$99,00.
+            const testPreferenceId = "209749133-e08508e9-d7de-4f51-a20c-3687796d860d";
+            setPreferenceId(testPreferenceId);
+        };
+
 
         fetchClientIdAndCurrency();
+        createPreference();
     }, [toast]);
     
     const openModal = (url: string, title: string) => {
@@ -109,7 +125,7 @@ export default function Home() {
 
             <main className="relative z-10 flex flex-col items-center justify-center flex-1 w-full max-w-4xl mx-auto">
                 
-                <div className="w-full max-w-xs flex flex-col items-center gap-y-6 pt-4">
+                <div className="w-full max-w-xs flex flex-col items-center gap-y-4 pt-4">
                     <Button 
                         onClick={() => openModal(signupUrl, 'Cadastro com Face ID')}
                         className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow"
@@ -118,20 +134,36 @@ export default function Home() {
                         Face ID
                     </Button>
 
-                    <div className="flex justify-center items-center w-full max-w-full mt-2">
-                        <div className="flex-1 transition-transform hover:scale-105" style={{ flexBasis: '42.5%'}}>
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(2.43)' }}/>
-                        </div>
-                        <div className="flex-shrink-0 mx-4 flex flex-col items-center px-[15%]">
-                            <button className="transition-transform hover:scale-105" onClick={() => setIsPixModalOpen(true)}>
-                                 <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.2)' }}/>
-                            </button>
-                            <p className="text-xs font-semibold mt-1">PIX</p>
-                            <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
-                        </div>
-                        <div className="flex-1 transition-transform hover:scale-105" style={{ flexBasis: '42.5%'}}>
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(2.43)' }}/>
-                        </div>
+                    <div className="flex justify-center items-center w-full max-w-full mt-4">
+                        {preferenceId && (
+                           <>
+                             <div className="flex-1" style={{ flexBasis: '42.5%' }}>
+                                <Wallet
+                                    initialization={{ preferenceId: preferenceId }}
+                                    customization={{
+                                        texts: { valueProp: 'payment_methods_logos' }
+                                    }}
+                                    onSubmit={handlePaymentSuccess}
+                                />
+                             </div>
+                             <div className="flex-shrink-0 mx-4 flex flex-col items-center px-[15%]">
+                                <button className="transition-transform hover:scale-105" onClick={() => setIsPixModalOpen(true)}>
+                                     <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.2)' }}/>
+                                </button>
+                                <p className="text-xs font-semibold mt-1">PIX</p>
+                                <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
+                             </div>
+                             <div className="flex-1" style={{ flexBasis: '42.5%' }}>
+                                <Wallet
+                                     initialization={{ preferenceId: preferenceId }}
+                                     customization={{
+                                         texts: { valueProp: 'payment_methods_logos' }
+                                     }}
+                                     onSubmit={handlePaymentSuccess}
+                                 />
+                             </div>
+                           </>
+                        )}
                     </div>
 
                     <div className="text-center">
