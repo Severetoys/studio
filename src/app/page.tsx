@@ -98,12 +98,12 @@ export default function Home() {
                     </Button>
 
                      <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-8">
-                        <button onClick={handlePaymentSuccess} className="cursor-pointer">
+                        <button onClick={handlePaymentSuccess} className="cursor-pointer bg-transparent border-none p-0">
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/570bd898-e2ac-4508-8c45-1bc82390a8b3.jpeg?alt=media&token=e595ec34-eb62-4686-9d23-98ea8d3cdfac"
                                 alt="Google Pay"
-                                width={476}
-                                height={190}
+                                width={571}
+                                height={228}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
@@ -124,12 +124,12 @@ export default function Home() {
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
                         </div>
-                        <button onClick={handlePaymentSuccess} className="cursor-pointer">
+                        <button onClick={handlePaymentSuccess} className="cursor-pointer bg-transparent border-none p-0">
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/570bd898-e2ac-4508-8c45-1bc82390a8b3.jpeg?alt=media&token=e595ec34-eb62-4686-9d23-98ea8d3cdfac"
                                 alt="Apple Pay"
-                                width={476}
-                                height={190}
+                                width={571}
+                                height={228}
                                 className="w-full h-auto object-contain"
                             />
                         </button>

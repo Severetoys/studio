@@ -26,7 +26,7 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
                 onClick={onClick}
                 aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
                 className={cn(
-                    "relative h-16 w-16 transition-all duration-300 order-2 group animate-pulse-red-glow"
+                    "relative h-16 w-16 transition-all duration-300 order-2 group animate-pulse-red-glow rounded-full"
                 )}
             >
                 {isChatOpen ? (
@@ -39,7 +39,7 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
                         alt="Chat Secreto"
                         width={64}
                         height={64}
-                        className="object-contain transition-transform duration-300 group-hover:scale-110"
+                        className="object-contain transition-transform duration-300 group-hover:scale-110 rounded-full"
                     />
                 )}
             </button>
