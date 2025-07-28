@@ -4,7 +4,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createPayPalOrder, capturePayPalOrder } from '@/ai/flows/paypal-payment-flow';
+import { createPayPalOrder, capturePayPalOrder, getPayPalClientId } from '@/ai/flows/paypal-payment-flow';
 
 declare global {
     interface Window {
@@ -23,12 +23,32 @@ interface PayPalHostedButtonProps {
 const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomButton = false, children }: PayPalHostedButtonProps) => {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
+    const [clientId, setClientId] = useState<string | null>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        const fetchClientId = async () => {
+            try {
+                const id = await getPayPalClientId();
+                if (id) {
+                    setClientId(id);
+                } else {
+                    throw new Error("Client ID do PayPal não foi encontrado.");
+                }
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Erro de Configuração do PayPal', description: error.message });
+                setIsLoading(false);
+            }
+        };
+        fetchClientId();
+    }, [toast]);
+    
     const renderPayPalButton = useCallback(() => {
-        if (!window.paypal || !buttonRef.current) return;
+        if (!window.paypal || !buttonRef.current || !clientId) {
+            console.warn("PayPal SDK or button container or Client ID not ready.");
+            return;
+        }
         
-        // Clear any existing button
         buttonRef.current.innerHTML = '';
         
         try {
@@ -44,10 +64,7 @@ const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomBu
                 createOrder: async () => {
                     try {
                         const { orderID, error } = await createPayPalOrder({ amount, currencyCode });
-                        if (error) {
-                            toast({ variant: 'destructive', title: 'Erro ao criar ordem', description: error });
-                            throw new Error(error);
-                        }
+                        if (error) throw new Error(error);
                         if (!orderID) throw new Error("ID da ordem não recebido.");
                         return orderID;
                     } catch (err: any) {
@@ -57,7 +74,7 @@ const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomBu
                 },
                 onApprove: async (data: { orderID: string }) => {
                     try {
-                         const result = await capturePayPalOrder({ orderID: data.orderID });
+                        const result = await capturePayPalOrder({ orderID: data.orderID });
                         if (result.success) {
                             onPaymentSuccess();
                         } else {
@@ -75,22 +92,25 @@ const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomBu
         } catch (error) {
             console.error("Error rendering PayPal button", error);
         }
-    }, [amount, currencyCode, onPaymentSuccess, toast]);
+    }, [amount, currencyCode, onPaymentSuccess, toast, clientId]);
 
     useEffect(() => {
+        if (!clientId) return;
+
         setIsLoading(true);
         const scriptId = 'paypal-sdk-script';
+        
         if (document.getElementById(scriptId)) {
             if (window.paypal) {
-                 setIsLoading(false);
-                 renderPayPalButton();
+                setIsLoading(false);
+                renderPayPalButton();
             }
             return;
         }
 
         const script = document.createElement('script');
         script.id = scriptId;
-        script.src = `https://www.paypal.com/sdk/js?client-id=AZ6S85gBFj5k6V8_pUx1R-nUoJqL-3w4l9n5Z6G8y7o9W7a2Jm-B0E3uV6KsoJAg4fImv_iJqB1t4p_Q&components=buttons&currency=${currencyCode}&intent=capture`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&components=buttons&currency=${currencyCode}&intent=capture`;
         script.async = true;
         
         script.onload = () => {
@@ -106,14 +126,17 @@ const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomBu
 
         document.body.appendChild(script);
 
-    }, [currencyCode, renderPayPalButton, toast]);
-
+    }, [clientId, currencyCode, renderPayPalButton, toast]);
+    
+    // Custom button logic: hides the PayPal button but uses its click event
     if (isCustomButton) {
         return (
             <div onClick={() => {
                 const paypalButton = buttonRef.current?.querySelector('div[role="button"]');
                 if (paypalButton instanceof HTMLElement) {
                     paypalButton.click();
+                } else {
+                    console.warn("Could not find the PayPal button to click.");
                 }
             }} className="cursor-pointer">
                 {children}
@@ -122,6 +145,7 @@ const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomBu
         );
     }
     
+    // Default visible button
     return (
         <div className="w-full max-w-xs mx-auto min-h-[40px]">
             {isLoading && (
@@ -135,5 +159,3 @@ const PayPalHostedButton = ({ onPaymentSuccess, currencyCode, amount, isCustomBu
 }
 
 export default PayPalHostedButton;
-
-    

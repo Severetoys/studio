@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Fluxo para criar e capturar ordens de pagamento no PayPal.
@@ -48,9 +49,12 @@ function payPalClient() {
     if (!clientId || !clientSecret || clientId === "YOUR_PAYPAL_CLIENT_ID" || clientSecret === "YOUR_PAYPAL_CLIENT_SECRET") {
         throw new Error("Credenciais do PayPal (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET) não estão configuradas corretamente no ambiente do servidor.");
     }
-
+    
     // Usar LiveEnvironment para produção
-    const environment = new paypal.core.LiveEnvironment(clientId, clientSecret);
+    const environment = process.env.NODE_ENV === 'production'
+        ? new paypal.core.LiveEnvironment(clientId, clientSecret)
+        : new paypal.core.SandboxEnvironment(clientId, clientSecret);
+        
     return new paypal.core.PayPalHttpClient(environment);
 }
 
@@ -120,6 +124,10 @@ const capturePayPalOrderFlow = ai.defineFlow(
         if (response.statusCode !== 201) {
              throw new Error(`Falha ao capturar a ordem no PayPal. Status: ${response.statusCode}`);
         }
+        
+        // Simulação de salvar detalhes do pagamento.
+        // Em um app real, você salvaria os detalhes no seu banco de dados aqui.
+        console.log('Pagamento capturado com sucesso:', response.result);
         
         return {
             success: true,
