@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -96,31 +95,17 @@ export default function Home() {
                         </Link>
                     </Button>
 
-                     <div className="flex flex-col items-center justify-center w-full max-w-sm mt-6 gap-y-3">
-                        <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer" className="w-full">
-                            <Button className="w-full h-12 bg-black text-white border border-white/50 hover:bg-gray-800">
-                                <Image
-                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290"
-                                    alt="Google Pay"
-                                    width={48}
-                                    height={20}
-                                    className="object-contain"
-                                />
-                            </Button>
+                     <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-8">
+                        <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer">
+                            <Image
+                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290"
+                                alt="Google Pay"
+                                width={60}
+                                height={24}
+                                className="object-contain"
+                            />
                         </a>
-                        <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer" className="w-full">
-                            <Button className="w-full h-12 bg-white text-black border border-black/50 hover:bg-gray-200">
-                                <Image
-                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/apple_pay.png?alt=media&token=e1c03484-5f56-4c42-839b-890251390f7f"
-                                    alt="Apple Pay"
-                                    width={48}
-                                    height={20}
-                                    className="object-contain"
-                                />
-                             </Button>
-                        </a>
-                        
-                        <div className="flex flex-col items-center justify-center pt-2">
+                         <div className="flex flex-col items-center justify-center">
                             <button
                                 className="transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={() => setIsPixModalOpen(true)}
@@ -132,11 +117,20 @@ export default function Home() {
                                     alt="PIX"
                                     width={32}
                                     height={32}
-                                    className="object-contain scale-150"
+                                    className="object-contain"
                                 />
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
                         </div>
+                        <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer">
+                            <Image
+                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/apple_pay.png?alt=media&token=e1c03484-5f56-4c42-839b-890251390f7f"
+                                alt="Apple Pay"
+                                width={60}
+                                height={24}
+                                className="object-contain"
+                            />
+                        </a>
                     </div>
 
                     <div className="text-center py-4 min-h-[100px]">
