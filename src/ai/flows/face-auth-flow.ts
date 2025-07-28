@@ -125,7 +125,7 @@ const verifyUserFlow = ai.defineFlow(
 
         if (resultText.includes('SIM')) {
             console.log(`User verification successful for ${user.email}.`);
-            return { success: true, message: 'Autenticado! Redirecionando...', redirectUrl: VIP_URL };
+            return { success: true, message: `Autenticado com sucesso! Redirecionando para a área do assinante...`, redirectUrl: VIP_URL };
         }
       }
 
