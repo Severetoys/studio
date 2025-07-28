@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -37,17 +36,6 @@ export default function Home() {
                 </div>
 
                 <Separator className="my-8 w-full bg-primary/50" />
-
-                <div className="my-8">
-                    <Image 
-                        src="https://placehold.co/600x400.png"
-                        alt="Placeholder Image"
-                        width={600}
-                        height={400}
-                        className="rounded-lg shadow-lg shadow-neon-red-strong"
-                        data-ai-hint="male model profile"
-                    />
-                </div>
 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-6">
                     <Button 
