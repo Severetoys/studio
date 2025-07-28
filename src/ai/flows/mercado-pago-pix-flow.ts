@@ -13,6 +13,8 @@ import { MercadoPagoConfig, Payment } from 'mercadopago';
 const CreatePixPaymentInputSchema = z.object({
   amount: z.number().describe('O valor do pagamento em BRL.'),
   email: z.string().email().describe('O e-mail do pagador.'),
+  name: z.string().describe('O nome completo do pagador.'),
+  phone: z.string().optional().describe('O telefone do pagador.'),
 });
 export type CreatePixPaymentInput = z.infer<typeof CreatePixPaymentInputSchema>;
 
@@ -33,7 +35,7 @@ const createPixPaymentFlow = ai.defineFlow(
     inputSchema: CreatePixPaymentInputSchema,
     outputSchema: CreatePixPaymentOutputSchema,
   },
-  async ({ amount, email }) => {
+  async ({ amount, email, name }) => {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
     if (!accessToken || accessToken === "YOUR_MERCADOPAGO_ACCESS_TOKEN") {
@@ -48,12 +50,18 @@ const createPixPaymentFlow = ai.defineFlow(
     });
     const payment = new Payment(client);
     
+    const nameParts = name.split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || firstName;
+
     const paymentData = {
       transaction_amount: amount,
       description: 'Assinatura Mensal - Italo Santos',
       payment_method_id: 'pix',
       payer: {
         email: email,
+        first_name: firstName,
+        last_name: lastName,
       },
       notification_url: 'https://seusite.com/api/webhook/mercadopago', // Você precisará criar este endpoint
     };

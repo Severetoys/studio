@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, QrCode, ClipboardCopy } from "lucide-react";
+import { Loader2, QrCode, ClipboardCopy, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { createPixPayment } from '@/ai/flows/mercado-pago-pix-flow';
 import { Alert, AlertTitle, AlertDescription as AlertDesc } from '@/components/ui/alert';
@@ -21,14 +21,16 @@ interface PixPaymentModalProps {
 
 export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymentSuccess }: PixPaymentModalProps) {
     const { toast } = useToast();
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [pixData, setPixData] = useState<{ qrCodeBase64: string; qrCode: string } | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const handleGeneratePix = async () => {
-        if (!email) {
-            toast({ variant: 'destructive', title: 'Email é obrigatório' });
+        if (!email || !name) {
+            toast({ variant: 'destructive', title: 'Nome e Email são obrigatórios.' });
             return;
         }
         setIsLoading(true);
@@ -36,15 +38,13 @@ export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymen
         setPixData(null);
 
         try {
-            const result = await createPixPayment({ amount, email });
+            const result = await createPixPayment({ amount, email, name, phone });
             if (result.error) {
                 throw new Error(result.error);
             }
             if (result.qrCodeBase64 && result.qrCode) {
                 setPixData({ qrCodeBase64: result.qrCodeBase64, qrCode: result.qrCode });
                 localStorage.setItem('customerEmail', email);
-                // In a real scenario, you would poll a webhook to confirm payment.
-                // For this simulation, we'll have a button to confirm.
             } else {
                  throw new Error("Não foi possível obter os dados do PIX.");
             }
@@ -65,7 +65,9 @@ export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymen
         onOpenChange(false);
         // Reset state after a short delay to allow closing animation
         setTimeout(() => {
+            setName('');
             setEmail('');
+            setPhone('');
             setPixData(null);
             setError(null);
             setIsLoading(false);
@@ -90,7 +92,7 @@ export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymen
                         <QrCode /> Pagamento via PIX
                     </DialogTitle>
                     <DialogDescription className="text-center">
-                        {pixData ? `Escaneie o QR Code ou use o código para pagar R$ ${amount.toFixed(2)}.` : 'Insira seu e-mail para gerar o código PIX.'}
+                        {pixData ? `Escaneie o QR Code ou use o código para pagar R$ ${amount.toFixed(2)}.` : 'Insira seus dados para gerar o código PIX.'}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
@@ -104,6 +106,16 @@ export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymen
                     {!pixData ? (
                         <div className="space-y-4">
                             <div className="space-y-2">
+                                <Label htmlFor="name">Nome Completo</Label>
+                                <Input
+                                    id="name"
+                                    placeholder="Seu nome completo"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input
                                     id="email"
@@ -114,7 +126,25 @@ export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymen
                                     disabled={isLoading}
                                 />
                             </div>
-                            <Button onClick={handleGeneratePix} disabled={isLoading || !email} className="w-full h-11">
+                             <div className="space-y-2">
+                                <Label htmlFor="phone">Telefone (Opcional)</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="(21) 99999-8888"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            <Alert variant="default" className="border-primary/30">
+                                <ShieldCheck className="h-4 w-4 text-primary" />
+                                <AlertTitle className="text-primary/90">Aviso de Segurança</AlertTitle>
+                                <AlertDesc className="text-muted-foreground">
+                                    Este pagamento é único e não recorrente. Não armazenamos nenhuma credencial de acesso ou dados de pagamento.
+                                </AlertDesc>
+                            </Alert>
+                            <Button onClick={handleGeneratePix} disabled={isLoading || !email || !name} className="w-full h-11">
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 {isLoading ? 'Gerando...' : 'Gerar QR Code PIX'}
                             </Button>
@@ -153,4 +183,3 @@ export default function PixPaymentModal({ isOpen, onOpenChange, amount, onPaymen
         </Dialog>
     );
 }
-
