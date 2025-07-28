@@ -8,7 +8,6 @@ import FetishModal from '@/components/fetish-modal';
 import type { Fetish } from '@/lib/fetish-data';
 import AdultWarningDialog from '@/components/adult-warning-dialog';
 import MainHeader from './main-header';
-import MainFooter from './main-footer';
 import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
 import { doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
@@ -17,6 +16,7 @@ import SecretChatWidget from '@/components/secret-chat-widget';
 import SecretChatButton from '@/components/secret-chat-button';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import MainFooter from './main-footer';
 
 const DyteMeetingComponent = dynamic(() => import('@/components/dyte-meeting'), {
     ssr: false,
@@ -143,7 +143,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onFetishSelect={handleFetishSelect} 
         />
         <main className="flex-grow">{children}</main>
-        {showMainFooter && <MainFooter />}
         {showSiteFooter && <SiteFooter />}
       </div>
       {showChat && (

@@ -14,6 +14,7 @@ import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
 import Link from 'next/link';
 import PayPalHostedButton from '@/components/paypal-hosted-button';
+import MainFooter from '@/components/layout/main-footer';
 
 export default function Home() {
     const { toast } = useToast();
