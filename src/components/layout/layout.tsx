@@ -99,11 +99,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   const isAdminPanel = pathname.startsWith('/admin');
-  const noMainLayoutRoutes = ['/', '/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
-  const showHeader = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && !isAdminPanel;
-  const showMainHeader = showHeader && pathname === '/';
+  const noHeaderLayoutRoutes = ['/auth', '/old-auth-page', '/dashboard', '/dashboard/videos', '/chat-secreto'];
+  const showHeader = !noHeaderLayoutRoutes.some(route => pathname.startsWith(route)) && !isAdminPanel;
+  
   const showMainFooter = pathname === '/';
-  const showSiteFooter = !noMainLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/' && !isAdminPanel;
+  const showSiteFooter = !noHeaderLayoutRoutes.some(route => pathname.startsWith(route)) && pathname !== '/' && !isAdminPanel;
   const showChat = !isAdminPanel;
 
   if (isAdminPanel) {
@@ -121,7 +121,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onClose={toggleSidebar} 
             onFetishSelect={handleFetishSelect} 
         />
-        {showMainHeader && <MainHeader />}
         <main className="flex-grow">{children}</main>
         {showMainFooter && <MainFooter />}
         {showSiteFooter && <SiteFooter />}
