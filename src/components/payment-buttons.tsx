@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import PixPaymentModal from './pix-payment-modal';
+import { Button } from './ui/button';
 
 interface PaymentButtonsProps {
     onPaymentSuccess: () => void;
@@ -51,7 +52,7 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
 
     return (
         <div className="flex justify-around items-center w-full max-w-sm mt-2">
-            <div className="flex-1 scale-[2.43]">
+            <div className="flex-1 scale-[2.43] flex justify-center">
                 <Wallet
                     initialization={{ preferenceId }}
                     customization={{
@@ -84,7 +85,24 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
                     />
                 </button>
                 <p className="text-xs font-semibold mt-1">PIX</p>
-                <p className="text-[10px] text-muted-foreground whitespace-nowrap">APENAS BRASIL</p>
+            </div>
+
+            <div className="flex-shrink-0 mx-2 flex flex-col items-center">
+                 <Button
+                    variant="ghost"
+                    className="p-0 h-auto transition-transform hover:scale-105"
+                    onClick={() => toast({ title: 'PayPal em breve!', description: 'Esta opção de pagamento será ativada em breve.' })}
+                >
+                    <Image 
+                        src="https://w7.pngwing.com/pngs/398/990/png-transparent-paypal-logo-shopping-ecommerce-client-area-payment-gateway-service-paypal-text-payment-logo.png"
+                        alt="PayPal"
+                        width={28}
+                        height={28}
+                        className="object-contain"
+                        data-ai-hint="paypal logo"
+                    />
+                </Button>
+                 <p className="text-xs font-semibold mt-1">PayPal</p>
             </div>
 
             <PixPaymentModal
@@ -96,4 +114,3 @@ export default function PaymentButtons({ onPaymentSuccess, amount, currency }: P
         </div>
     );
 }
-
