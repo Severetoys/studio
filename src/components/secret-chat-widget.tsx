@@ -80,7 +80,7 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
             } else {
                 try {
                     await signInAnonymouslyAndGetId();
-                    // onAuthStateChanged will handle setting the user
+                    // onAuthStateChanged will be triggered again and handle setting the user
                 } catch (error) {
                     console.error("Erro no login anônimo:", error);
                     toast({ variant: 'destructive', title: 'Falha na Autenticação do Chat' });
@@ -298,14 +298,14 @@ export default function SecretChatWidget({ isOpen }: SecretChatWidgetProps) {
                                 }
                             }}
                             className="flex-1 bg-neutral-800 border-none focus:shadow-neon-red-light min-h-[40px] h-10 max-h-24 resize-none rounded-2xl px-4 text-white placeholder:text-neutral-400"
-                            disabled={isSending || !currentUser}
+                            disabled={isSending || isAuthenticating}
                             rows={1}
                         />
                         <Button 
                             type="submit" 
                             size="icon" 
                             onClick={() => handleSendMessage(newMessage)} 
-                            disabled={isSending || newMessage.trim() === '' || !currentUser}
+                            disabled={isSending || newMessage.trim() === '' || isAuthenticating}
                             className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full w-10 h-10 flex-shrink-0"
                             aria-label="Enviar Mensagem"
                         >

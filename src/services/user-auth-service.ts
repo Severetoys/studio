@@ -119,9 +119,9 @@ export async function savePaymentDetails(paymentDetails: PaymentDetails): Promis
 
 /**
  * Signs in the user anonymously using Firebase Authentication.
- * @returns A Promise that resolves with the user's credentials.
+ * @returns A Promise that resolves with the user's UID.
  */
-export async function signInAnonymouslyAndGetId() {
+export async function signInAnonymouslyAndGetId(): Promise<string> {
   try {
     const userCredential = await signInAnonymously(auth);
     console.log('User signed in anonymously:', userCredential.user.uid);
