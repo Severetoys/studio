@@ -94,4 +94,34 @@
       background-position: 0% 50%;
     }
   }
+
+  .neon-red-glow {
+    box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
+  }
+
+  .animate-neon-blink {
+    animation: neon-blink 1.5s infinite alternate;
+  }
+
+  @keyframes neon-blink {
+    from {
+      text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+    }
+    to {
+      text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
+    }
+  }
+
+  .animate-marquee {
+      animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+  }
 }
