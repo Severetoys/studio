@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview User authentication flow using Firebase Storage, Realtime Database, and AI face comparison.
- * - registerUser: Registers a new user by storing their data and face image.
+ * - registerUser: This function is deprecated. Use google-sheets-auth-flow.ts instead.
  * - verifyUser: Authenticates a user by comparing their face image against all stored images.
  */
 
@@ -10,7 +10,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { saveUser, getAllUsers } from '@/services/user-auth-service';
 
-// Input schema for user registration
+// Input schema for user registration (DEPRECATED)
 const RegisterUserInputSchema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -19,7 +19,7 @@ const RegisterUserInputSchema = z.object({
 });
 export type RegisterUserInput = z.infer<typeof RegisterUserInputSchema>;
 
-// Output schema for registration
+// Output schema for registration (DEPRECATED)
 const RegisterUserOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
@@ -45,8 +45,8 @@ export type VerifyUserOutput = z.infer<typeof VerifyUserOutputSchema>;
 const VIP_URL = "/assinante";
 
 /**
+ * @deprecated This flow is no longer in use. User registration is now handled by google-sheets-auth-flow.ts.
  * Genkit flow to register a new user.
- * It saves the user data without prior face validation.
  */
 const registerUserFlow = ai.defineFlow(
   {
@@ -56,9 +56,7 @@ const registerUserFlow = ai.defineFlow(
   },
   async (userData) => {
     try {
-      // User data is saved directly without face validation step.
       await saveUser(userData);
-      
       console.log(`User ${userData.name} registered successfully.`);
       return { success: true, message: 'Usuário registrado com sucesso!' };
     } catch (e: any) {
@@ -82,7 +80,6 @@ const verifyUserFlow = ai.defineFlow(
     try {
       console.log('Starting user verification flow...');
       
-      // Get all registered users
       const allUsers = await getAllUsers();
 
       if (allUsers.length === 0) {
@@ -92,7 +89,6 @@ const verifyUserFlow = ai.defineFlow(
       
       console.log(`Found ${allUsers.length} users to check. Comparing against the provided image.`);
       
-      // Iterate through each registered user and compare their face.
       for (const user of allUsers) {
         if (!user.imageUrl) {
             console.log(`Skipping user ${user.email} as they have no imageUrl.`);
@@ -127,14 +123,12 @@ const verifyUserFlow = ai.defineFlow(
         const resultText = (output as string || "").trim().toUpperCase();
         console.log(`AI verification result for ${user.email}: "${resultText}"`);
 
-        // If a match is found, immediately return success.
         if (resultText.includes('SIM')) {
             console.log(`User verification successful for ${user.email}.`);
             return { success: true, message: 'Autenticado! Redirecionando...', redirectUrl: VIP_URL };
         }
       }
 
-      // If the loop completes and no match was found.
       console.log('User verification failed: No matching user found after checking all images.');
       return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.', errorCode: 'MATCH_NOT_FOUND' };
 
@@ -145,7 +139,9 @@ const verifyUserFlow = ai.defineFlow(
   }
 );
 
-// Exported functions to be called from the client-side.
+/**
+ * @deprecated This function is no longer in use. Use registerUserWithGoogleSheet from google-sheets-auth-flow.ts.
+ */
 export async function registerUser(input: RegisterUserInput): Promise<RegisterUserOutput> {
   return registerUserFlow(input);
 }

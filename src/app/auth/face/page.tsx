@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from '@/components/ui/card';
-import { registerUser, verifyUser, type RegisterUserOutput } from '@/ai/flows/face-auth-flow';
+import { verifyUser } from '@/ai/flows/face-auth-flow';
+import { registerUserWithGoogleSheet, type RegisterUserOutput } from '@/ai/flows/google-sheets-auth-flow';
 
 const VideoPanel = ({ videoRef, isVerifying, hasCameraPermission }: { 
     videoRef: React.RefObject<HTMLVideoElement>, 
@@ -160,9 +161,9 @@ export default function FaceAuthPage() {
     
     try {
         if (action === 'register') {
-            const result: RegisterUserOutput = await registerUser({ name, email: loginEmail, phone, imageBase64 });
+            const result: RegisterUserOutput = await registerUserWithGoogleSheet({ name, email: loginEmail, phone, imageBase64 });
             if (result.success) {
-                toast({ title: 'Cadastro bem-sucedido!', description: 'Seu rosto e dados foram registrados. Redirecionando...' });
+                toast({ title: 'Cadastro bem-sucedido!', description: result.message || 'Seu rosto e dados foram registrados. Redirecionando...' });
                 localStorage.setItem('isAuthenticated', 'true');
                 router.push('/assinante'); 
             } else {

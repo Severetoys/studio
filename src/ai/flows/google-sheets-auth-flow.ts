@@ -7,7 +7,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { detectFace } from '@/services/vision';
 
 // Input schema for user registration
 const RegisterUserInputSchema = z.object({
@@ -25,7 +24,7 @@ const RegisterUserOutputSchema = z.object({
 });
 export type RegisterUserOutput = z.infer<typeof RegisterUserOutputSchema>;
 
-const GOOGLE_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbz5E25zWU2dCKzePlO2D9RuWmzhU9PGax0cE8HGxpu8zgOqJGiZKxv0ulfNaHFPXoL-4g/exec';
+const GOOGLE_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx-6JXFYiDsB6WSZzIrCGAfQxPICf22I5RHfDRGPTpHWI4PIRErm_po-uIdTec6TfMz/exec';
 
 /**
  * Genkit flow to register a new user by sending their data to a Google Apps Script webhook.
@@ -38,29 +37,19 @@ const registerUserWithGoogleSheetFlow = ai.defineFlow(
   },
   async (userData) => {
     try {
-      // 1. Validate face using Google Vision API (optional, but good practice)
-      const faceValidation = await detectFace(userData.imageBase64);
-      if (!faceValidation.faceDetected) {
-        return { 
-          success: false, 
-          message: faceValidation.error || 'Nenhuma face válida detectada.',
-        };
-      }
-
-      // 2. Prepare data for the webhook
+      // 1. Prepare data for the webhook
       const payload = {
           action: 'register', // Or another action your script expects
           ...userData
       };
 
-      // 3. Send data to Google Apps Script
+      // 2. Send data to Google Apps Script
       const response = await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        // Google Scripts can be slow, so a longer timeout might be needed
       });
       
       // Handle non-200 responses
