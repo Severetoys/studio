@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -73,7 +72,7 @@ export default function AdminUploadsPage() {
 
     useEffect(() => {
         fetchUploadedFiles();
-    }, [toast]);
+    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
