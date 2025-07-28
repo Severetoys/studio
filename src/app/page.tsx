@@ -126,7 +126,7 @@ export default function Home() {
                         </div>
                         <button onClick={handlePaymentSuccess} className="cursor-pointer">
                            <Image
-                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2"
+                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/570bd898-e2ac-4508-8c45-1bc82390a8b3.jpeg?alt=media&token=e595ec34-eb62-4686-9d23-98ea8d3cdfac"
                                 alt="Apple Pay"
                                 width={476}
                                 height={190}
