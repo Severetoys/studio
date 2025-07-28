@@ -25,8 +25,15 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
     const [isSdkReady, setIsSdkReady] = useState(false);
 
     useEffect(() => {
+        const scriptId = 'paypal-sdk';
+        if (document.getElementById(scriptId)) {
+            setIsSdkReady(true);
+            setIsLoading(false);
+            return;
+        }
+
         const script = document.createElement('script');
-        // Usar client-id de sandbox e componentes 'buttons'
+        script.id = scriptId;
         script.src = `https://www.paypal.com/sdk/js?client-id=test&components=buttons&disable-funding=venmo&currency=BRL`;
         script.async = true;
 
@@ -47,13 +54,15 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
         document.body.appendChild(script);
 
         return () => {
-            document.body.removeChild(script);
+            const existingScript = document.getElementById(scriptId);
+            if (existingScript) {
+                // Não remover para evitar recarregamentos desnecessários em navegações
+            }
         };
     }, [toast]);
     
     useEffect(() => {
         if(isSdkReady && window.paypal && buttonContainerRef.current) {
-             // Limpa o contêiner antes de renderizar para evitar botões duplicados
             buttonContainerRef.current.innerHTML = "";
             try {
                 window.paypal.Buttons({
@@ -86,7 +95,6 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
     }, [isSdkReady, hostedButtonId, onPaymentSuccess, toast])
 
 
-    // Use a custom button if children are provided
     if (children) {
         return (
             <div onClick={() => {
@@ -96,14 +104,18 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId, children }: PayP
                 } else {
                     toast({ variant: 'destructive', title: 'Erro', description: 'Botão de pagamento não está pronto.' });
                 }
-            }} className="cursor-pointer">
-                {children}
+            }} className="cursor-pointer relative">
+                {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                )}
+                <div style={{ visibility: isLoading ? 'hidden' : 'visible' }}>{children}</div>
                 <div ref={buttonContainerRef} style={{ display: 'none' }}></div>
             </div>
         );
     }
     
-    // Default visible PayPal button
     return (
         <div className="w-full max-w-xs mx-auto min-h-[40px]">
             {isLoading && (
