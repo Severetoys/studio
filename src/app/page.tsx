@@ -142,7 +142,7 @@ export default function Home() {
                                     alt="Google Pay" 
                                     width={63} 
                                     height={40} 
-                                    className="object-contain scale-[1.75]"
+                                    className="object-contain scale-[1.93]"
                                 />
                             </a>
                         </div>
@@ -171,7 +171,7 @@ export default function Home() {
                                     alt="Apple Pay" 
                                     width={63} 
                                     height={40} 
-                                    className="object-contain scale-[1.75]"
+                                    className="object-contain scale-[1.93]"
                                 />
                             </a>
                         </div>
