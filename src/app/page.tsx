@@ -107,7 +107,7 @@ export default function Home() {
                                 alt="Google Pay"
                                 width={442}
                                 height={177}
-                                className="object-contain cursor-pointer"
+                                className="w-full h-auto object-contain cursor-pointer"
                             />
                         </PayPalHostedButton>
                          <div className="flex flex-col items-center justify-center">
@@ -136,7 +136,7 @@ export default function Home() {
                                 alt="Apple Pay"
                                 width={442}
                                 height={177}
-                                className="object-contain cursor-pointer"
+                                className="w-full h-auto object-contain cursor-pointer"
                             />
                         </PayPalHostedButton>
                     </div>
