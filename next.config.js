@@ -49,3 +49,5 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
+// Forçando o reinício do servidor
