@@ -10,13 +10,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
 import { registerUser, verifyUser, type RegisterUserOutput } from '@/ai/flows/face-auth-flow';
-
-interface AuthModalProps {
-    isOpen: boolean;
-    onOpenChange: (isOpen: boolean) => void;
-}
 
 const VideoPanel = ({ videoRef, isVerifying, hasCameraPermission }: { 
     videoRef: React.RefObject<HTMLVideoElement>, 
@@ -65,9 +60,7 @@ const InputField = ({ id, label, icon, type, value, onChange, placeholder }: {
     </div>
 );
 
-// NOTE: This component is no longer used on the main page,
-// but is kept in the project for potential future use or reference.
-export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
+export default function FaceAuthPage() {
   const { toast } = useToast();
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -76,11 +69,8 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   
-  // State for registration form
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  
-  // State for email/password login
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
@@ -118,15 +108,11 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   }, [toast]);
 
   useEffect(() => {
-    if (isOpen) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
+    startCamera();
     return () => {
         stopCamera();
     };
-  }, [isOpen, startCamera, stopCamera]);
+  }, [startCamera, stopCamera]);
 
 
   const captureImage = (): string | null => {
@@ -215,26 +201,20 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-md shadow-neon-red-strong border-primary/50 bg-card/80 backdrop-blur-xl p-0">
-          <DialogHeader className="text-center pb-2 relative p-6">
+    <main className="flex flex-1 w-full flex-col items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-md shadow-neon-red-strong border-primary/50 bg-card/80 backdrop-blur-xl">
+           <div className="text-center p-6 pb-2 relative">
             <div className="flex justify-center items-center mb-4 pt-8">
                 <ShieldCheck className="h-12 w-12 text-primary text-shadow-neon-red" />
             </div>
-            <DialogTitle className="text-3xl font-bold tracking-tight text-foreground text-shadow-neon-red-light">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground text-shadow-neon-red-light">
                 AuthKit
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground pt-2">
+            </h1>
+            <p className="text-muted-foreground pt-2">
                 Autenticação Segura
-            </DialogDescription>
-            <DialogClose asChild>
-                <Button variant="ghost" size="icon" className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Fechar</span>
-                </Button>
-            </DialogClose>
-          </DialogHeader>
-          <div className="px-6 pb-6">
+            </p>
+          </div>
+          <div className="p-6 pt-2">
             <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 bg-background/50 border border-primary/20">
                     <TabsTrigger value="signin" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light">Face ID</TabsTrigger>
@@ -274,7 +254,7 @@ export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
                 </TabsContent>
             </Tabs>
           </div>
-      </DialogContent>
-    </Dialog>
+        </Card>
+    </main>
   );
 }

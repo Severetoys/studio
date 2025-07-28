@@ -8,17 +8,16 @@ import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
 import AboutSection from '@/components/about-section';
 import { Separator } from '@/components/ui/separator';
-import AuthModal from '@/components/auth-modal';
 import MainFooter from '@/components/layout/main-footer';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
+import Link from 'next/link';
 
 export default function Home() {
     const { toast } = useToast();
     const router = useRouter();
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     
     const [paymentAmount, setPaymentAmount] = useState({ value: '99.00', currency: 'BRL' });
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
@@ -107,12 +106,11 @@ export default function Home() {
             <main className="relative z-10 flex flex-col items-center justify-center flex-1 w-full max-w-4xl mx-auto">
                 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-4 pt-4">
-                    <Button 
-                        onClick={() => setIsAuthModalOpen(true)}
-                        className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow"
-                    >
-                        <Fingerprint className="mr-2 h-6 w-6" />
-                        Face ID
+                     <Button asChild className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow">
+                        <Link href="/auth/face" target="_blank">
+                            <Fingerprint className="mr-2 h-6 w-6" />
+                            Face ID
+                        </Link>
                     </Button>
 
                      <div className="flex justify-center items-center w-full max-w-sm mt-6 gap-x-4">
@@ -167,12 +165,11 @@ export default function Home() {
 
                     <PayPalButton />
 
-                    <Button 
-                        onClick={() => setIsAuthModalOpen(true)}
-                        className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow"
-                    >
-                        <KeyRound className="mr-2 h-6 w-6" />
-                        ENTRAR
+                    <Button asChild className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow">
+                        <Link href="/auth/face" target="_blank">
+                            <KeyRound className="mr-2 h-6 w-6" />
+                            ENTRAR
+                        </Link>
                     </Button>
                 </div>
             </main>
@@ -181,10 +178,6 @@ export default function Home() {
             <AboutSection />
             <MainFooter />
 
-            <AuthModal 
-                isOpen={isAuthModalOpen} 
-                onOpenChange={setIsAuthModalOpen} 
-            />
             <PixPaymentModal
                 isOpen={isPixModalOpen}
                 onOpenChange={setIsPixModalOpen}
