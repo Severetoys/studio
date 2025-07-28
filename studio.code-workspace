@@ -8,5 +8,19 @@
 		"IDX.aI.enableInlineCompletion": true,
 		"IDX.aI.enableCodebaseIndexing": true,
 		"terminal.integrated.sendKeybindingsToShell": true
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"command": "npm start",
+				"name": "Run npm start",
+				"request": "launch",
+				"type": "node-terminal"
+			}
+			
+			
+
+		]
 	}
 }

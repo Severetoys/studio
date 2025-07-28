@@ -1,11 +1,10 @@
-
 'use server';
 /**
  * @fileOverview User authentication and payment service using Firebase Realtime Database and Storage.
  * Handles saving user data, face images, and payment details.
  */
 
-import { adminApp } from '@/lib/firebase-admin';
+import { adminApp } from '../lib/firebase-admin';
 import { getDatabase } from 'firebase-admin/database';
 import { getStorage } from 'firebase-admin/storage';
 import { z } from 'zod';

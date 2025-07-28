@@ -1,0 +1,12 @@
+import { getDatabase, ref, onValue } from "firebase/database";
+
+const db = getDatabase();
+
+function listenMessages(chatId: string, callback: (msgs: any[]) => void) {
+  const messagesRef = ref(db, `chats/${chatId}/messages`);
+  onValue(messagesRef, (snapshot) => {
+    const data = snapshot.val();
+    const msgs = data ? Object.values(data) : [];
+    callback(msgs);
+  });
+}

@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Facial detection service using Google Vision API.
@@ -7,14 +6,13 @@
  */
 
 import { ImageAnnotatorClient } from '@google-cloud/vision';
-import serviceAccount from '../../serviceAccountKey.json';
 
-// Initialize the client once, reusing it for all requests.
 const visionClient = new ImageAnnotatorClient({
-    credentials: {
-        client_email: serviceAccount.client_email,
-        private_key: serviceAccount.private_key,
-    },
+  credentials: {
+    client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+    private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
 });
 
 type FaceDetectionResult = {

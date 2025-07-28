@@ -1,12 +1,16 @@
-
 // src/lib/firebase-admin.ts
 /**
  * @fileOverview Initializes and exports the Firebase Admin SDK instance.
  * This ensures that the SDK is initialized only once across the server-side application.
  */
 
-import { initializeApp, cert, getApps, App, ServiceAccount } from 'firebase-admin/app';
-import serviceAccount from '../../serviceAccountKey.json';
+import { initializeApp, cert, getApps, App } from 'firebase-admin/app';
+
+const serviceAccount = {
+  projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+  privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+};
 
 let adminApp: App;
 
@@ -24,13 +28,9 @@ function initializeFirebaseAdmin(): App {
   }
 
   try {
-    // Cast the imported JSON to the ServiceAccount type
-    const serviceAccountCredential = serviceAccount as ServiceAccount;
-
-    // Initialize the app with the service account credentials and database URL.
+    // Initialize the app with the service account credentials.
     const app = initializeApp({
-      credential: cert(serviceAccountCredential),
-      databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com/"
+      credential: cert(serviceAccount as any),
     });
     console.log(`[Admin SDK] Firebase Admin SDK initialized successfully for project: ${app.options.projectId}`);
     return app;

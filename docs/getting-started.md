@@ -28,34 +28,38 @@ Siga estes passos para configurar e executar o projeto Italo Santos em seu ambie
 
 3. Configure as variáveis de ambiente:
 
-   Crie um arquivo `.env` na raiz do projeto e adicione as seguintes variáveis (substitua pelos seus valores):
+   Crie um arquivo `.env.local` na raiz do projeto e adicione as seguintes variáveis (substitua pelos seus valores):
 
    ```env
    # Firebase Environment Variables
-    NEXT_PUBLIC_FIREBASE_API_KEY="SUA_CHAVE_DE_API"
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="SEU_DOMINIO.firebaseapp.com"
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID="SEU_ID_DE_PROJETO"
+   NEXT_PUBLIC_FIREBASE_API_KEY="SUA_CHAVE_DE_API"
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="SEU_DOMINIO.firebaseapp.com"
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID="SEU_ID_DE_PROJETO"
 
-    # PayPal Environment Variables
-    NEXT_PUBLIC_PAYPAL_CLIENT_ID="SEU_CLIENT_ID_PUBLICO_DO_PAYPAL"
-    PAYPAL_CLIENT_SECRET="SEU_SEGREDO_DO_PAYPAL"
+   # Firebase Admin SDK (Server-Side)
+   # Copie estes valores do seu arquivo serviceAccountKey.json
+   # ATENÇÃO: A private_key deve ser copiada exatamente como está no JSON,
+   # incluindo as quebras de linha (\n).
+   FIREBASE_ADMIN_PROJECT_ID="SEU_PROJECT_ID_DO_ADMIN_SDK"
+   FIREBASE_ADMIN_CLIENT_EMAIL="SEU_CLIENT_EMAIL_DO_ADMIN_SDK"
+   FIREBASE_ADMIN_PRIVATE_KEY="SUA_PRIVATE_KEY_DO_ADMIN_SDK"
 
-    # Mercado Pago Environment Variables
-    NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY="SUA_CHAVE_PUBLICA_DO_MERCADO_PAGO"
-    MERCADOPAGO_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_DO_MERCADO_PAGO"
+   # PayPal Environment Variables
+   # Usado no lado do servidor para autenticação
+   PAYPAL_CLIENT_ID="SEU_CLIENT_ID_DO_PAYPAL"
+   PAYPAL_CLIENT_SECRET="SEU_SEGREDO_DO_PAYPAL"
+   # Usado no lado do cliente para o SDK do PayPal (geralmente o mesmo valor do PAYPAL_CLIENT_ID)
+   NEXT_PUBLIC_PAYPAL_CLIENT_ID="SEU_CLIENT_ID_DO_PAYPAL"
 
-    # Social Media API Tokens (Server-Side)
-    TWITTER_BEARER_TOKEN="SEU_BEARER_TOKEN_DO_TWITTER"
-    INSTAGRAM_FEED_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_PARA_O_FEED"
-    INSTAGRAM_SHOP_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_PARA_A_LOJA"
-    FACEBOOK_PAGE_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_DA_PAGINA"
+   # Mercado Pago Environment Variables
+   # Chave pública para o SDK do Mercado Pago no lado do cliente
+   NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY="SUA_CHAVE_PUBLICA_DO_MERCADO_PAGO"
+   # Token de acesso para operações no lado do servidor
+   MERCADOPAGO_ACCESS_TOKEN="SEU_TOKEN_DE_ACESSO_DO_MERCADO_PAGO"
 
-    # Google AI (Gemini) API Key
-    GEMINI_API_KEY="SUA_API_KEY_DO_GEMINI"
-
+   # Social Media API Tokens (Server-Side)
+   TWITTER_BEARER_TOKEN="SEU_BEARER_TOKEN_DO_TW
    ```
-
-   *Nota: As chaves privadas do Firebase Admin SDK estão no arquivo `serviceAccountKey.json` e devem ser manuseadas com segurança, não expostas publicamente.*
 
 4. Configure o Firebase CLI:
 

@@ -1,0 +1,19 @@
+import { getDatabase, ref, push, set } from "firebase/database";
+import { useAuth } from "firebase/auth"; // ou seu hook de auth
+
+const db = getDatabase();
+const user = useAuth(); // ou como você pega o usuário autenticado
+
+function sendMessage(chatId: string, text: string) {
+  if (!user) {
+    alert("Você precisa estar logado para enviar mensagens.");
+    return;
+  }
+  const messagesRef = ref(db, `chats/${chatId}/messages`);
+  const newMsgRef = push(messagesRef);
+  set(newMsgRef, {
+    text,
+    sender: user.uid,
+    timestamp: Date.now()
+  });
+}

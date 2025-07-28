@@ -1,4 +1,3 @@
-
 {
   "rules": {
     "facialAuth": {
@@ -23,12 +22,12 @@
       ".write": true
     },
     "chats": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null",
+      ".write": "auth != null",
       "$chatId": {
         "messages": {
-          ".read": true,
-          ".write": true
+          ".read": "auth != null",
+          ".write": "auth != null"
         }
       }
     },

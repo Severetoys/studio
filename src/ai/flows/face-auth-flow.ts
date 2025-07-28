@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview User authentication flow using Firebase Storage, Realtime Database, and AI face comparison.
@@ -10,6 +9,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { saveUser, getAllUsers } from '@/services/user-auth-service';
 import { detectFace } from '@/services/vision';
+import { initializeApp, cert, getApps, App } from 'firebase-admin/app';
 
 // Input schema for user registration
 const RegisterUserInputSchema = z.object({
@@ -74,7 +74,12 @@ const registerUserFlow = ai.defineFlow(
       return { success: true, message: 'Usuário registrado com sucesso!' };
     } catch (e: any) {
       console.error('Error during user registration flow:', e);
-      return { success: false, message: e.message || 'An unexpected error occurred during registration.', errorCode: 'SAVE_FAILED' };
+      // Ensure errorCode is always one of the allowed enum values
+      let errorCode: "NO_FACE_DETECTED" | "POOR_IMAGE_QUALITY" | "SAVE_FAILED" | "UNKNOWN" | undefined = 'SAVE_FAILED';
+      if (e?.errorCode && ['NO_FACE_DETECTED', 'POOR_IMAGE_QUALITY', 'SAVE_FAILED', 'UNKNOWN'].includes(e.errorCode)) {
+        errorCode = e.errorCode;
+      }
+      return { success: false, message: e.message || 'An unexpected error occurred during registration.', errorCode };
     }
   }
 );
@@ -99,7 +104,7 @@ const verifyUserFlow = ai.defineFlow(
         return { 
           success: false, 
           message: faceValidation.error || 'Nenhuma face válida detectada na sua imagem.',
-          errorCode: 'NO_FACE_DETECTED',
+          errorCode: 'NO_FACE_DETECTED' as const,
         };
       }
 
@@ -108,7 +113,7 @@ const verifyUserFlow = ai.defineFlow(
 
       if (allUsers.length === 0) {
         console.log('No registered users found.');
-        return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.', errorCode: 'NO_USERS_FOUND' };
+        return { success: false, message: 'Nenhum usuário cadastrado. Por favor, registre-se primeiro.', errorCode: 'NO_USERS_FOUND' as const };
       }
       
       console.log(`Found ${allUsers.length} users to check. Comparing against the provided image.`);
@@ -157,14 +162,39 @@ const verifyUserFlow = ai.defineFlow(
 
       // If the loop completes and no match was found.
       console.log('User verification failed: No matching user found after checking all images.');
-      return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.', errorCode: 'MATCH_NOT_FOUND' };
+      return { success: false, message: 'Rosto não reconhecido. Tente novamente ou cadastre-se.', errorCode: 'MATCH_NOT_FOUND' as const };
 
     } catch (e: any)      {
       console.error('Error during user verification flow:', e);
-      return { success: false, message: e.message || 'Ocorreu um erro inesperado durante a verificação.', errorCode: 'VERIFICATION_FAILED' };
+      // Ensure errorCode is always one of the allowed enum values
+      let errorCode: "NO_FACE_DETECTED" | "UNKNOWN" | "NO_USERS_FOUND" | "MATCH_NOT_FOUND" | "VERIFICATION_FAILED" | undefined = 'VERIFICATION_FAILED';
+      if (
+        e?.errorCode &&
+        ['NO_FACE_DETECTED', 'UNKNOWN', 'NO_USERS_FOUND', 'MATCH_NOT_FOUND', 'VERIFICATION_FAILED'].includes(e.errorCode)
+      ) {
+        errorCode = e.errorCode as "NO_FACE_DETECTED" | "UNKNOWN" | "NO_USERS_FOUND" | "MATCH_NOT_FOUND" | "VERIFICATION_FAILED";
+      }
+      return { success: false, message: e.message || 'Ocorreu um erro inesperado durante a verificação.', errorCode };
     }
   }
 );
+
+// Firebase Admin SDK initialization
+const serviceAccount = {
+  projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+  privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+};
+
+let adminApp: App;
+
+if (!getApps().length) {
+  adminApp = initializeApp({
+    credential: cert(serviceAccount as any),
+  });
+} else {
+  adminApp = getApps()[0];
+}
 
 // Exported functions to be called from the client-side.
 export async function registerUser(input: RegisterUserInput): Promise<RegisterUserOutput> {

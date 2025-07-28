@@ -34,14 +34,23 @@ function VideoPlayer() {
     }
 
     const fetchVideo = async () => {
+      let isCancelled = false;
       setIsLoading(true);
       setError(null);
       try {
         const videoDocRef = doc(db, 'videos', videoId);
         const videoDoc = await getDoc(videoDocRef);
 
+        if (isCancelled) return;
+
         if (videoDoc.exists()) {
-          setVideoData(videoDoc.data() as VideoData);
+          const data = videoDoc.data();
+          // Uma verificação simples para mais segurança que um cast direto
+          if (data.title && data.description && data.videoUrl) {
+            setVideoData(data as VideoData);
+          } else {
+            setError("Os dados do vídeo parecem estar incompletos.");
+          }
         } else {
           setError("Vídeo não encontrado. Pode ter sido removido.");
           toast({
@@ -50,19 +59,27 @@ function VideoPlayer() {
           });
         }
       } catch (e) {
-        console.error("Erro ao buscar vídeo:", e);
-        setError("Ocorreu um erro ao carregar o vídeo.");
-        toast({
-          variant: "destructive",
-          title: "Erro de Conexão",
-          description: "Não foi possível buscar os dados do vídeo.",
-        });
+        if (!isCancelled) {
+          console.error("Erro ao buscar vídeo:", e);
+          setError("Ocorreu um erro ao carregar o vídeo.");
+          toast({
+            variant: "destructive",
+            title: "Erro de Conexão",
+            description: "Não foi possível buscar os dados do vídeo.",
+          });
+        }
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchVideo();
+
+    return () => {
+      // No need to use isCancelled as a local variable; use a ref instead.
+    };
   }, [videoId, toast]);
 
   return (
