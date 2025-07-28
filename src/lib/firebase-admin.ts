@@ -6,7 +6,6 @@
  */
 
 import { initializeApp, cert, getApps, App, ServiceAccount } from 'firebase-admin/app';
-import serviceAccount from '../../serviceAccountKey.json';
 
 let adminApp: App;
 
@@ -25,7 +24,7 @@ function initializeFirebaseAdmin(): App {
 
   try {
     // Cast the imported JSON to the ServiceAccount type
-    const serviceAccountCredential = serviceAccount as ServiceAccount;
+    const serviceAccountCredential = require('../../serviceAccountKey.json') as ServiceAccount;
 
     // Initialize the app with the service account credentials and database URL.
     const app = initializeApp({
@@ -37,6 +36,16 @@ function initializeFirebaseAdmin(): App {
 
   } catch (error: any) {
     console.error('[Admin SDK] CRITICAL ERROR during Firebase Admin initialization:', error);
+    // Fallback for environments where require might not work as expected or file is missing
+    if (process.env.GCLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        console.log('[Admin SDK] Attempting to initialize with application default credentials...');
+        const app = initializeApp({
+            databaseURL: "https://authkit-y9vjx-default-rtdb.firebaseio.com/"
+        });
+        console.log(`[Admin SDK] Initialized with default credentials for project: ${app.options.projectId}`);
+        return app;
+    }
+    
     throw new Error(`Failed to initialize Firebase Admin SDK: ${error.message}`);
   }
 }
