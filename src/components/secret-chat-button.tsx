@@ -1,4 +1,3 @@
-
 "use client";
 
 import { cn } from '@/lib/utils';
@@ -29,13 +28,13 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
                     "relative h-16 w-16 transition-all duration-300 order-2 group"
                 )}
             >
-                {isChatOpen ? 
+                {isChatOpen ? (
                     <div className="flex items-center justify-center h-full w-full bg-card rounded-full border-2 border-primary">
                         <X className="h-9 w-9 text-primary" />
                     </div>
-                    : (
+                ) : (
                     <Image
-                        src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.appspot.com/o/Assunto%203.png?alt=media&token=1f653566-20cd-4934-a754-81548a3e7007"
+                        src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/Assunto%203.png?alt=media&token=1f653566-20cd-4934-a754-81548a3e7007"
                         alt="Chat Secreto"
                         width={64}
                         height={64}
