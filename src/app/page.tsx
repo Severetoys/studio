@@ -107,18 +107,18 @@ export default function Home() {
                         Face ID
                     </Button>
 
-                     <div className="flex justify-around items-center w-full max-w-sm mt-6">
-                        <div className="flex-1 scale-[2.43] flex justify-center">
+                     <div className="flex justify-between items-center w-full max-w-sm mt-6">
+                        <div className="flex-1 flex justify-center">
                              <Image 
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" 
                                 alt="Google Pay" 
                                 width={70} 
                                 height={45} 
-                                className="object-contain"
+                                className="object-contain scale-[2.43]"
                             />
                         </div>
                         
-                        <div className="flex-shrink-0 mx-2 flex flex-col items-center">
+                        <div className="flex-shrink-0 flex flex-col items-center">
                             <button 
                                 className="transition-transform hover:scale-105" 
                                 onClick={() => setIsPixModalOpen(true)}
@@ -134,17 +134,17 @@ export default function Home() {
                             </button>
                         </div>
         
-                        <div className="flex-1 scale-[2.43] flex justify-center">
+                        <div className="flex-1 flex justify-center">
                              <Image 
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" 
                                 alt="Apple Pay" 
                                 width={70} 
                                 height={45} 
-                                className="object-contain"
+                                className="object-contain scale-[2.43]"
                             />
                         </div>
                         
-                        <div className="flex-shrink-0 mx-2 flex flex-col items-center">
+                        <div className="flex-shrink-0 flex flex-col items-center">
                              <Button
                                 variant="ghost"
                                 className="p-0 h-auto transition-transform hover:scale-105"
