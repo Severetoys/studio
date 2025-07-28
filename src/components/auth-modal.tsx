@@ -65,7 +65,8 @@ const InputField = ({ id, label, icon, type, value, onChange, placeholder }: {
     </div>
 );
 
-
+// NOTE: This component is no longer used on the main page,
+// but is kept in the project for potential future use or reference.
 export default function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   const { toast } = useToast();
   const router = useRouter();
