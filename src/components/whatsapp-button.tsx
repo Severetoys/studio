@@ -25,7 +25,7 @@ export default function WhatsAppButton() {
         )}
         aria-label="Fale conosco no WhatsApp"
     >
-         <div className="order-1 text-lg font-bold text-yellow-300 animate-pulse-gold-glow">
+         <div className="order-1 text-lg font-bold text-yellow-300 animate-pulse-gold-glow text-shadow-neon-gold">
             WHATSAPP
         </div>
         <div

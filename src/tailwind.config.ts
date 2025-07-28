@@ -77,7 +77,7 @@ module.exports = {
       textShadow: {
         'neon-red-light': '0 0 5px hsl(var(--primary) / 0.8)',
         'neon-red': '0 0 8px hsl(var(--primary))',
-        'neon-gold': '0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffd700',
+        'neon-gold': '0 0 5px #ffd700, 0 0 10px #fde047, 0 0 15px #fef9c3',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -129,12 +129,12 @@ module.exports = {
         },
         'pulse-gold-glow': {
           '0%, 100%': {
-            textShadow: '0 0 7px #fde047, 0 0 15px #fde047, 0 0 20px #fde047',
+            textShadow: '0 0 7px #fde047, 0 0 15px #fde047, 0 0 20px #fef9c3',
             color: '#fef08a',
             opacity: '1',
           },
           '50%': {
-            textShadow: '0 0 10px #fde047, 0 0 20px #fde047, 0 0 30px #fde047',
+            textShadow: '0 0 10px #fde047, 0 0 20px #fde047, 0 0 30px #fef9c3',
             color: '#fef9c3',
             opacity: '0.9',
           },

@@ -19,7 +19,7 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
                 "fixed bottom-6 left-6 z-[1001] flex flex-col items-center gap-2"
             )}
        >
-            <div className="order-1 text-lg font-bold text-yellow-300 animate-pulse-gold-glow">
+            <div className="order-1 text-lg font-bold text-yellow-300 animate-pulse-gold-glow text-shadow-neon-gold">
                 CHAT SECRETO
             </div>
             <button
