@@ -8,6 +8,7 @@ import AuthModal from '@/components/auth-modal';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
+import AboutSection from '@/components/about-section';
 
 export default function Home() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -76,6 +77,7 @@ export default function Home() {
             </main>
 
             <FeatureMarquee />
+            <AboutSection />
 
             <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
         </div>
