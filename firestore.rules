@@ -1,43 +1,42 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Regra geral: Nega leitura e escrita por padrão para maior segurança.
+
+    // Regra padrão: Nega acesso a todos os documentos por padrão.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Permite leitura pública das fotos, pois são para a galeria do site.
-    // A escrita é bloqueada para o cliente.
+    // Permite leitura pública para fotos da galeria.
     match /photos/{photoId} {
       allow read: if true;
-      allow write: if false; // Apenas o Admin pode escrever via backend
+      allow write: if false; // A escrita deve vir do servidor de administração.
+    }
+
+    // Permite que qualquer um leia apenas as avaliações aprovadas.
+    match /reviews/{reviewId} {
+      allow read: if resource.data.status == 'approved';
+      allow write: if false; // A escrita/moderação deve vir do servidor.
     }
     
-    // Permite que qualquer pessoa leia as avaliações que foram aprovadas.
-    // A escrita (envio) é tratada pela lógica do backend.
-    match /reviews/{reviewId} {
-        allow read: if resource.data.status == 'approved';
-        allow create: if true; // Permite o envio de novas avaliações para moderação
-        allow update, delete: if false; // Apenas o Admin pode atualizar/deletar via backend
+    // Permite que usuários autenticados leiam produtos e vídeos.
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // Permite leitura de produtos apenas para usuários autenticados.
-    // A escrita é bloqueada para o cliente.
     match /products/{productId} {
-      allow read: if request.auth != null;
-      allow write: if false; // Apenas o Admin pode escrever via backend
+      allow read: if isAuthenticated();
+      allow write: if false; // A escrita deve vir do servidor de administração.
     }
 
-    // Permite leitura de vídeos apenas para usuários autenticados.
-    // A escrita é bloqueada para o cliente.
     match /videos/{videoId} {
-      allow read: if request.auth != null;
-      allow write: if false; // Apenas o Admin pode escrever via backend
+      allow read: if isAuthenticated();
+      allow write: if false; // A escrita deve vir do servidor de administração.
     }
-
-    // Permite que usuários autenticados (clientes) e admins leiam e escrevam em seus chats.
+    
+    // Permite que usuários do chat leiam e escrevam mensagens em seus chats.
     match /chats/{chatId}/{message=**} {
         allow read, write: if request.auth != null;
     }

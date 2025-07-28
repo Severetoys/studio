@@ -1,32 +1,62 @@
 
 {
   "rules": {
+    // Regra padrão: Nega leitura e escrita para todos por padrão.
+    // O acesso via Admin SDK (usado no painel de administração) ignora estas regras.
+    ".read": false,
+    ".write": false,
+
     "facialAuth": {
        "users": {
-          // Permite leitura pública dos dados dos usuários para o processo de verificação da IA
-          ".read": true, 
-          // Permite escrita apenas se autenticado (deve ser feito pelo servidor/admin)
-          ".write": "auth != null",
-          ".indexOn": ["email"]
+          // Permite leitura pública dos dados dos usuários, necessário para o processo de verificação da IA.
+          ".read": true,
+           // A escrita aqui também será feita pelo servidor, que já tem acesso de admin.
+          ".write": false
        }
     },
     "admin": {
-      // Apenas o admin pode ler/escrever as configurações e integrações
-      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
-      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+      // Apenas o servidor (Admin SDK) pode ler/escrever as configurações.
+      ".read": false,
+      ".write": false
     },
     "payments": {
-      // Apenas o admin pode ler os detalhes de pagamento
-      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
-      // Permite escrita para qualquer um (feito pelo servidor após o pagamento)
-      ".write": true 
+       // Apenas o servidor (Admin SDK) pode ler/escrever os pagamentos.
+      ".read": false,
+      ".write": false
     },
-    // Define os UIDs que são administradores
-    "admins": {
-      "YOUR_ADMIN_UID": true
+    "reviews": {
+      // Qualquer um pode ler as avaliações.
+      ".read": true,
+      // Apenas o servidor (Admin SDK) pode escrever/moderar as avaliações.
+      ".write": false
     },
-    // Regra padrão: nega leitura e escrita para todos os outros nós
-    ".read": false,
-    ".write": false
+    "products": {
+      // Qualquer um pode ler os produtos.
+      ".read": true,
+      // Apenas o servidor (Admin SDK) pode escrever os produtos.
+      ".write": false
+    },
+    "photos": {
+      // Qualquer um pode ler as fotos.
+      ".read": true,
+      // Apenas o servidor (Admin SDK) pode escrever as fotos.
+      ".write": false
+    },
+    "videos": {
+      // Qualquer um pode ler os vídeos.
+      ".read": true,
+      // Apenas o servidor (Admin SDK) pode escrever os vídeos.
+      ".write": false
+    },
+    "chats": {
+      // Permite que usuários anônimos autenticados leiam e escrevam em seus próprios chats
+      "$chatId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "messages": {
+          ".indexOn": ["timestamp"]
+        }
+      }
+    }
   }
 }
