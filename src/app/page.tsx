@@ -166,7 +166,7 @@ export default function Home() {
                     <PayPalButton />
 
                     <Button asChild className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow">
-                        <Link href="/auth/face" target="_blank">
+                        <Link href="https://login.italosantos.com" target="_blank">
                             <KeyRound className="mr-2 h-6 w-6" />
                             ENTRAR
                         </Link>
