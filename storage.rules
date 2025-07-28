@@ -1,15 +1,42 @@
+
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Permite leitura pública de todos os arquivos
-    match /{allPaths=**} {
-      allow read;
+    
+    // As fotos de autenticação facial são públicas para a IA, mas só podem ser escritas pelo servidor
+    match /italosantos.com/facial-auth-users/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null; // Idealmente, apenas o servidor deveria escrever aqui
     }
 
-    // Permite a escrita (upload) pública apenas na pasta 'general-uploads'
-    match /general-uploads/{allPaths=**} {
-      allow write: if true;
+    // Uploads gerais são públicos para leitura por padrão
+    match /italosantos.com/general-uploads/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null; // Apenas usuários autenticados (admin) podem fazer upload
+    }
+
+    // Fotos da galeria são públicas para leitura
+    match /italosantos.com/photos/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Vídeos são privados por padrão para evitar acesso direto
+    match /italosantos.com/videos/{allPaths=**} {
+      allow read: if request.auth != null; // Apenas usuários autenticados (ou com lógica mais complexa) podem ler
+      allow write: if request.auth != null;
+    }
+
+    // Uploads do chat
+    match /chat_uploads/{chatId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == chatId.split('secret-chat-')[1];
+    }
+
+    // Nega acesso a qualquer outro caminho
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

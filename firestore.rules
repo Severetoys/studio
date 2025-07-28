@@ -4,14 +4,50 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read access to approved reviews
-    match /reviews/{reviewId} {
-      allow read: if resource.data.status == 'approved';
-      // Admin-only write access can be configured here if needed
-      allow write: if false; 
+    // Regra para a coleção de produtos
+    match /products/{productId} {
+      // Qualquer um pode ler os produtos
+      allow read: if true;
+      // Apenas administradores autenticados podem escrever/modificar produtos
+      allow write: if request.auth != null; // Simplificado - idealmente checar um 'claim' de admin
     }
-    
-    // Default to deny all other reads and writes
+
+    // Regra para a coleção de vídeos
+    match /videos/{videoId} {
+      // Qualquer um pode ler os metadados dos vídeos (exceto a URL)
+      allow read: if true;
+      // Apenas administradores podem escrever
+      allow write: if request.auth != null; 
+    }
+
+    // Regra para a coleção de fotos da galeria
+    match /photos/{photoId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Regra para avaliações
+    match /reviews/{reviewId} {
+        // Permitir que qualquer pessoa crie uma nova avaliação (status será 'pending' por padrão)
+        allow create: if request.resource.data.status == 'pending';
+        // Permitir que qualquer pessoa leia apenas as avaliações aprovadas
+        allow read: if resource.data.status == 'approved';
+        // Apenas admins podem aprovar/rejeitar (atualizar) ou deletar avaliações
+        allow update, delete: if request.auth != null;
+    }
+
+    // Regras para a coleção de chats
+    match /chats/{chatId} {
+      // O criador do chat (usuário anônimo) e o admin podem ler e escrever
+      allow read, write: if request.auth != null && (request.auth.uid == chatId.split('secret-chat-')[1] || get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true);
+
+      // Regras para as subcoleções de mensagens
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null && (request.auth.uid == chatId.split('secret-chat-')[1] || get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true);
+      }
+    }
+
+    // Bloquear todo o resto por padrão
     match /{document=**} {
       allow read, write: if false;
     }

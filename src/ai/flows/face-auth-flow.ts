@@ -134,14 +134,14 @@ const verifyUserFlow = ai.defineFlow(
               {{media url=storedImage}}
             `,
             context: {
-              loginImage: { url: imageBase64 }, // Pass the new image as a data URI
-              storedImage: { url: user.imageUrl }, // Pass the stored image as a URL
+              loginImage: { url: `data:image/jpeg;base64,${imageBase64.split(',')[1]}` }, 
+              storedImage: { url: user.imageUrl },
             },
             output: {
               format: 'text'
             },
             config: {
-              temperature: 0, // Be deterministic
+              temperature: 0, 
             }
         });
         

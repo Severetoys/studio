@@ -12,9 +12,12 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json({ error: 'Nenhum arquivo enviado.' }, { status: 400 });
     }
+    
+    // Sanitize filename
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
 
     const bucket = getStorage(adminApp).bucket('authkit-y9vjx.appspot.com');
-    const fileName = `italosantos.com/general-uploads/${Date.now()}_${file.name}`;
+    const fileName = `italosantos.com/general-uploads/${Date.now()}_${sanitizedFileName}`;
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
     const blob = bucket.file(fileName);

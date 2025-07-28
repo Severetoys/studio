@@ -121,7 +121,7 @@ export default function Home() {
                                     alt="Google Pay" 
                                     width={63} 
                                     height={40} 
-                                    className="object-contain scale-[1.93]"
+                                    className="object-contain scale-[1.73]"
                                 />
                             </a>
                         </div>
@@ -137,7 +137,7 @@ export default function Home() {
                                     alt="PIX" 
                                     width={32} 
                                     height={32} 
-                                    className="object-contain scale-115"
+                                    className="object-contain scale-150"
                                 />
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
@@ -150,7 +150,7 @@ export default function Home() {
                                     alt="Apple Pay" 
                                     width={63} 
                                     height={40} 
-                                    className="object-contain scale-[1.93]"
+                                    className="object-contain scale-[1.73]"
                                 />
                             </a>
                         </div>

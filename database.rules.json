@@ -3,19 +3,29 @@
   "rules": {
     "facialAuth": {
        "users": {
+          // Permite leitura pública dos dados dos usuários para o processo de verificação da IA
           ".read": true, 
-          ".indexOn": ["email"],
-          "$userId": {
-            ".write": true
-          }
+          // Permite escrita apenas se autenticado (deve ser feito pelo servidor/admin)
+          ".write": "auth != null",
+          ".indexOn": ["email"]
        }
     },
     "admin": {
-      "integrations": {
-        ".read": "auth != null && auth.uid == 'YOUR_ADMIN_UID'",
-        ".write": "auth != null && auth.uid == 'YOUR_ADMIN_UID'"
-      }
+      // Apenas o admin pode ler/escrever as configurações e integrações
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
     },
+    "payments": {
+      // Apenas o admin pode ler os detalhes de pagamento
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      // Permite escrita para qualquer um (feito pelo servidor após o pagamento)
+      ".write": true 
+    },
+    // Define os UIDs que são administradores
+    "admins": {
+      "YOUR_ADMIN_UID": true
+    },
+    // Regra padrão: nega leitura e escrita para todos os outros nós
     ".read": false,
     ".write": false
   }

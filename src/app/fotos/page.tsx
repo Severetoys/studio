@@ -50,7 +50,34 @@ const FeedEmpty = ({ message }: { message: string }) => (
 );
 
 
-const TwitterPhotos = ({ tweets, isLoading, error }: { tweets: TweetWithMedia[], isLoading: boolean, error: string | null }) => {
+const TwitterPhotos = () => {
+    const { toast } = useToast();
+    const [tweets, setTweets] = useState<TweetWithMedia[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchTwitter = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 100 });
+                setTweets(response.tweets);
+            } catch (e: any) {
+                const errorMessage = e.message || "Ocorreu um erro desconhecido.";
+                setError(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
+                toast({
+                    variant: 'destructive',
+                    title: 'Erro ao Carregar o Feed do Twitter',
+                    description: errorMessage,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchTwitter();
+    }, [toast]);
+    
     const photos = tweets.flatMap(tweet => 
         tweet.media.filter(m => m.type === 'photo' && m.url)
     );
@@ -177,33 +204,6 @@ const UploadsFeed = () => {
 
 
 export default function FotosPage() {
-  const { toast } = useToast();
-  const [twitterTweets, setTwitterTweets] = useState<TweetWithMedia[]>([]);
-  const [isTwitterLoading, setIsTwitterLoading] = useState(true);
-  const [twitterError, setTwitterError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchTwitter = async () => {
-      setIsTwitterLoading(true);
-      setTwitterError(null);
-      try {
-        const response = await fetchTwitterFeed({ username: 'Severepics', maxResults: 100 });
-        setTwitterTweets(response.tweets);
-      } catch (e: any) {
-        const errorMessage = e.message || "Ocorreu um erro desconhecido.";
-        setTwitterError(`Não foi possível carregar o feed do Twitter. Motivo: ${errorMessage}`);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao Carregar o Feed do Twitter',
-          description: errorMessage,
-        });
-      } finally {
-        setIsTwitterLoading(false);
-      }
-    };
-    fetchTwitter();
-  }, [toast]);
-
   return (
     <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
@@ -221,7 +221,7 @@ export default function FotosPage() {
               <TabsTrigger value="uploads" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-neon-red-light"><Upload className="h-4 w-4 mr-2"/>Uploads</TabsTrigger>
             </TabsList>
             <TabsContent value="twitter_fotos" className="pt-6">
-              <TwitterPhotos tweets={twitterTweets} isLoading={isTwitterLoading} error={twitterError} />
+              <TwitterPhotos />
             </TabsContent>
             <TabsContent value="instagram" className="pt-6">
               <InstagramProfileFeed />

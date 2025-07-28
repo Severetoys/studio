@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, X, VideoOff, KeyRound } from 'lucide-react';
+import { Fingerprint, ShieldCheck, UserPlus, Mail, Phone, VideoOff, KeyRound } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -191,9 +191,10 @@ export default function FaceAuthPage() {
   };
 
   const handleEmailPasswordLogin = () => {
+    // Esta é uma lógica de login de fallback/demonstração. Substitua por sua lógica de autenticação real.
     if (loginEmail.toLowerCase() === 'pix@italosantos.com' && loginPassword === 'Severe123@') {
       toast({ title: 'Login bem-sucedido!', description: 'Redirecionando...' });
-      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('isAuthenticated', 'true'); // Define o estado de autenticado
       router.push('/dashboard');
     } else {
       toast({ variant: 'destructive', title: 'Falha na Autenticação', description: 'Email ou senha incorretos.' });
