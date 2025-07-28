@@ -42,6 +42,9 @@ const Sidebar = ({ isOpen, onClose, onFetishSelect }: SidebarProps) => {
           </Button>
         </div>
         <nav className="p-4 overflow-y-auto h-[calc(100%-65px)]">
+          <div className="bg-primary text-primary-foreground text-center text-xs font-bold p-2 uppercase tracking-wider rounded-md mb-4">
+              +18 ADULT WORK
+          </div>
           <ul className="space-y-2">
              <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="fetish-bdsm" className="border-none">
