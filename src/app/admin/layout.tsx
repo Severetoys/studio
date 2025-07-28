@@ -17,16 +17,16 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
 
+  // Este useEffect roda apenas no cliente e é responsável pela lógica de autenticação.
   useEffect(() => {
     const authStatus = localStorage.getItem("adminAuthenticated");
-    setIsAuthenticated(authStatus === "true");
-  }, []);
+    const authenticated = authStatus === "true";
+    setIsAuthenticated(authenticated);
 
-  useEffect(() => {
-    if (isAuthenticated === false && pathname !== "/admin/login") {
+    if (!authenticated && pathname !== "/admin/login") {
       router.replace("/admin/login");
     }
-  }, [isAuthenticated, pathname, router]);
+  }, [pathname, router]);
 
   const handleAuthSuccess = useCallback(() => {
     setIsAuthenticated(true);
@@ -36,28 +36,14 @@ export default function AdminLayout({
   const handleLogout = useCallback(() => {
     localStorage.removeItem("adminAuthenticated");
     setIsAuthenticated(false);
-    router.replace("/admin/login");
-  }, [router]);
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
   
+  // Exibe um estado de carregamento enquanto a autenticação é verificada no cliente.
   if (isAuthenticated === null) {
-    return (
-       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <p className="text-muted-foreground">Carregando...</p>
-      </div>
-    );
-  }
-
-  if (pathname === "/admin/login") {
-    return <AdminLoginPage onAuthSuccess={handleAuthSuccess} />;
-  }
-
-  if (!isAuthenticated) {
-    // This case should be handled by the useEffect redirect,
-    // but it's a good fallback.
     return (
        <div className="flex h-screen w-full items-center justify-center bg-background">
         <p className="text-muted-foreground">Verificando autorização...</p>
@@ -65,7 +51,12 @@ export default function AdminLayout({
     );
   }
 
+  // Se não estiver autenticado, renderiza a página de login.
+  if (!isAuthenticated) {
+    return <AdminLoginPage onAuthSuccess={handleAuthSuccess} />;
+  }
 
+  // Se autenticado, renderiza o layout do painel de administração.
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       {/* Sidebar para Desktop */}
