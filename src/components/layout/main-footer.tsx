@@ -49,24 +49,27 @@ const MainFooter = () => {
 
     const fetchApprovedReviews = async () => {
         setIsLoading(true);
+        setError(null);
         try {
             const reviewsRef = collection(db, 'reviews');
             const q = query(reviewsRef, where('status', '==', 'approved'), orderBy('createdAt', 'desc'));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                // If firestore is empty, populate with initial reviews
+                // If firestore is empty, populate with initial reviews and refetch
+                console.log("No approved reviews found. Populating with initial data...");
                 const batch = [];
                 for (const reviewData of initialReviews) {
                     batch.push(addDoc(collection(db, "reviews"), {
                         ...reviewData,
-                        createdAt: Timestamp.now(),
+                        createdAt: reviewData.reply ? reviewData.reply.createdAt : Timestamp.now(), // Use existing timestamp or now
                         status: 'approved',
                     }));
                 }
                 await Promise.all(batch);
-                // Fetch again after populating
-                fetchApprovedReviews();
+                // After populating, call the function again to fetch the new data
+                // This avoids duplicating state-setting logic.
+                setTimeout(fetchApprovedReviews, 500); 
                 return;
             }
 
@@ -83,7 +86,7 @@ const MainFooter = () => {
 
 
     useEffect(() => {
-        if (window.FB) {
+        if (typeof window !== 'undefined' && window.FB) {
             window.FB.XFBML.parse();
         }
         fetchApprovedReviews();
