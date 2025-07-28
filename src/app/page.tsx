@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,7 @@ export default function Home() {
 
                     <div className="flex justify-center items-center w-full">
                         <button className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.5)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.05)' }}/>
                         </button>
                         <div className="flex-shrink-0 mx-4">
                             <button className="transition-transform hover:scale-105">
@@ -55,7 +56,7 @@ export default function Home() {
                             </button>
                         </div>
                         <button className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.5)' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.05)' }}/>
                         </button>
                     </div>
 
