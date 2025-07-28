@@ -42,7 +42,7 @@ export default function Home() {
                 <div className="absolute inset-0 w-full h-full bg-black bg-opacity-60"></div>
             </div>
 
-             <div className="relative w-full h-[50vh] flex items-center justify-center mb-8">
+             <div className="relative w-full h-[50vh] flex items-center justify-center">
                 <Image
                     src="https://placehold.co/1200x400.png"
                     alt="Background"
@@ -65,9 +65,9 @@ export default function Home() {
             </div>
 
             <main className="relative z-10 flex flex-col items-center justify-center flex-1 w-full max-w-4xl mx-auto">
-                <Separator className="my-8 w-full bg-primary/50" />
+                <Separator className="my-4 w-full bg-primary/50" />
 
-                <div className="w-full max-w-xs flex flex-col items-center gap-y-6">
+                <div className="w-full max-w-xs flex flex-col items-center gap-y-6 pt-8">
                     <Button 
                         onClick={() => openModal(signupUrl, 'Cadastre-se')}
                         className="w-full h-14 text-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transform scale-125 neon-red-glow"
@@ -80,7 +80,7 @@ export default function Home() {
                         <div className="flex-1 transition-transform hover:scale-105">
                            <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(0.98)' }}/>
                         </div>
-                        <div className="flex-shrink-0 mx-2">
+                        <div className="flex-shrink-0 mx-2 px-2">
                             <button className="transition-transform hover:scale-105">
                                  <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(1.4)' }}/>
                             </button>
