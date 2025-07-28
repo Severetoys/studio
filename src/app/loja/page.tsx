@@ -414,3 +414,5 @@ export default function LojaPage() {
     </main>
   );
 }
+
+    
