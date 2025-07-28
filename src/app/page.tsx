@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,6 @@ import FeatureMarquee from '@/components/feature-marquee';
 import Image from 'next/image';
 import AboutSection from '@/components/about-section';
 import { Separator } from '@/components/ui/separator';
-import MainFooter from '@/components/layout/main-footer';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
@@ -155,7 +155,6 @@ export default function Home() {
             
             <FeatureMarquee />
             <AboutSection />
-            <MainFooter />
 
             <PixPaymentModal
                 isOpen={isPixModalOpen}
