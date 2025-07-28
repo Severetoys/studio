@@ -136,13 +136,15 @@ export default function Home() {
 
                      <div className="flex justify-center items-center w-full max-w-sm mt-6 gap-x-4">
                         <div className="flex-1 flex justify-center">
-                             <Image 
-                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" 
-                                alt="Google Pay" 
-                                width={63} 
-                                height={40} 
-                                className="object-contain scale-[1.98]"
-                            />
+                             <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer">
+                                <Image 
+                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" 
+                                    alt="Google Pay" 
+                                    width={63} 
+                                    height={40} 
+                                    className="object-contain scale-[1.75]"
+                                />
+                            </a>
                         </div>
                         
                         <div className="flex-1 flex flex-col items-center justify-center">
@@ -156,20 +158,22 @@ export default function Home() {
                                     alt="PIX" 
                                     width={32} 
                                     height={32} 
-                                    className="object-contain"
+                                    className="object-contain scale-115"
                                 />
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
                         </div>
         
                         <div className="flex-1 flex justify-center">
-                             <Image 
-                                src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" 
-                                alt="Apple Pay" 
-                                width={63} 
-                                height={40} 
-                                className="object-contain scale-[1.98]"
-                            />
+                             <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer">
+                                <Image 
+                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" 
+                                    alt="Apple Pay" 
+                                    width={63} 
+                                    height={40} 
+                                    className="object-contain scale-[1.75]"
+                                />
+                            </a>
                         </div>
                     </div>
 
