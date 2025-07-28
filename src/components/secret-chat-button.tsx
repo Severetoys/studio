@@ -1,3 +1,4 @@
+
 "use client";
 
 import { cn } from '@/lib/utils';
@@ -21,24 +22,27 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
             <div className="bg-card border border-primary/50 text-foreground font-semibold px-4 py-2 rounded-full shadow-lg order-1">
                 Chat Secreto
             </div>
-            <Button
+            <button
                 onClick={onClick}
                 aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
                 className={cn(
-                    "flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 order-2",
-                    "bg-primary hover:bg-primary/90 animate-pulse-red-glow"
+                    "relative h-16 w-16 transition-all duration-300 order-2 group"
                 )}
             >
-                {isChatOpen ? <X className="h-9 w-9" /> : (
+                {isChatOpen ? 
+                    <div className="flex items-center justify-center h-full w-full bg-card rounded-full border-2 border-primary">
+                        <X className="h-9 w-9 text-primary" />
+                    </div>
+                    : (
                     <Image
                         src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.appspot.com/o/Assunto%203.png?alt=media&token=1f653566-20cd-4934-a754-81548a3e7007"
                         alt="Chat Secreto"
-                        width={40}
-                        height={40}
-                        className="object-contain"
+                        width={64}
+                        height={64}
+                        className="object-contain transition-transform duration-300 group-hover:scale-110"
                     />
                 )}
-            </Button>
+            </button>
        </div>
     );
 }
