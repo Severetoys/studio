@@ -4,38 +4,3 @@
     ".write": false
   }
 }
-  ,
-    "admin": {
-      "integrations": {
-        ".read": true,
-        ".write": true
-      },
-      "profileSettings": {
-        ".read": true,
-        ".write": true
-      }
-    },
-    "payments": {
-      ".read": true,
-      ".write": true
-    },
-    "chats": {
-      ".read": "auth != null",
-      ".write": "auth != null",
-      "$chatId": {
-        "messages": {
-          ".read": "auth != null",
-          ".write": "auth != null"
-        }
-      }
-    },
-    "reviews": {
-       ".read": true,
-       ".write": "auth != null",
-       "$reviewId": {
-         ".read": true,
-         ".write": "auth != null"
-       }
-    }
-  }
-}
