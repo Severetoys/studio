@@ -3,42 +3,51 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Regra padrão: Nega acesso a todos os documentos por padrão.
+    
+    // Regra padrão: Nega todo o acesso
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Permite leitura pública para fotos da galeria.
+    // Permite leitura pública de produtos, fotos e vídeos para o site
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Apenas o admin (via servidor) pode escrever
+    }
+    
     match /photos/{photoId} {
       allow read: if true;
-      allow write: if false; // A escrita deve vir do servidor de administração.
-    }
-
-    // Permite que qualquer um leia apenas as avaliações aprovadas.
-    match /reviews/{reviewId} {
-      allow read: if resource.data.status == 'approved';
-      allow write: if false; // A escrita/moderação deve vir do servidor.
+      allow write: if false;
     }
     
-    // Permite que usuários autenticados leiam produtos e vídeos.
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    match /products/{productId} {
-      allow read: if isAuthenticated();
-      allow write: if false; // A escrita deve vir do servidor de administração.
-    }
-
     match /videos/{videoId} {
-      allow read: if isAuthenticated();
-      allow write: if false; // A escrita deve vir do servidor de administração.
+      allow read: if true;
+      allow write: if false;
     }
-    
-    // Permite que usuários do chat leiam e escrevam mensagens em seus chats.
-    match /chats/{chatId}/{message=**} {
-        allow read, write: if request.auth != null;
+
+    // Regras para Avaliações (Reviews)
+    match /reviews/{reviewId} {
+      // Qualquer pessoa pode enviar uma avaliação (status 'pending')
+      allow create: if request.resource.data.status == 'pending';
+      
+      // Apenas avaliações aprovadas são publicamente visíveis
+      allow read: if resource.data.status == 'approved';
+
+      // Ninguém pode atualizar ou deletar do lado do cliente
+      allow update, delete: if false;
+    }
+
+    // Regras para Chat
+    match /chats/{chatId} {
+        // Permite que qualquer usuário autenticado (incluindo anônimo) crie o documento do chat
+        allow create: if request.auth != null;
+
+        // Permite que usuários autenticados leiam as mensagens do chat
+        match /messages/{messageId} {
+            allow read: if request.auth != null;
+            // Permite que o usuário autenticado escreva mensagens se ele for o remetente
+            allow create: if request.auth != null && request.resource.data.senderId == request.auth.uid;
+        }
     }
   }
 }
