@@ -107,7 +107,7 @@ export default function Home() {
                         Face ID
                     </Button>
 
-                     <div className="flex justify-around items-center w-full max-w-sm mt-4">
+                     <div className="flex justify-around items-center w-full max-w-sm mt-2">
                         <div className="flex-1 scale-[2.43] flex justify-center">
                              <Image 
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290" 
