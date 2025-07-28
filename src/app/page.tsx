@@ -67,6 +67,33 @@ export default function Home() {
         localStorage.setItem('hasSubscription', 'true');
         router.push('/dashboard');
     };
+    
+    const PayPalButton = () => (
+        <div className="flex flex-col items-center gap-2">
+            <style jsx>{`
+                .pp-QH7F9FWD9SR8G {
+                    text-align: center;
+                    border: none;
+                    border-radius: 1.5rem;
+                    min-width: 11.625rem;
+                    padding: 0 2rem;
+                    height: 3.125rem;
+                    font-weight: bold;
+                    background-color: #FFD140;
+                    color: #000000;
+                    font-family: "Helvetica Neue", Arial, sans-serif;
+                    font-size: 1.125rem;
+                    line-height: 1.5rem;
+                    cursor: pointer;
+                }
+            `}</style>
+            <form action="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" method="post" target="_blank" style={{ display: 'inline-grid', justifyItems: 'center', alignContent: 'start', gap: '0.5rem' }}>
+                <input className="pp-QH7F9FWD9SR8G" type="submit" value="Comprar agora" />
+                <img src="https://www.paypalobjects.com/images/Debit_Credit.svg" alt="cards" />
+                <section style={{ fontSize: '0.75rem' }}> Com tecnologia <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style={{ height: '0.875rem', verticalAlign: 'middle' }} /></section>
+            </form>
+        </div>
+    );
 
     return (
         <div className="flex flex-col items-center min-h-screen text-center bg-black text-white p-4 overflow-x-hidden">
@@ -107,18 +134,18 @@ export default function Home() {
                         Face ID
                     </Button>
 
-                     <div className="flex justify-between items-center w-full max-w-sm mt-6 gap-x-4">
+                     <div className="flex justify-center items-center w-full max-w-sm mt-6 gap-x-4">
                         <div className="flex-1 flex justify-center">
                              <Image 
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" 
                                 alt="Google Pay" 
                                 width={63} 
                                 height={40} 
-                                className="object-contain scale-[2.2]"
+                                className="object-contain scale-[1.98]"
                             />
                         </div>
                         
-                        <div className="flex-1 flex justify-center">
+                        <div className="flex-1 flex flex-col items-center justify-center">
                             <button 
                                 className="transition-transform hover:scale-105" 
                                 onClick={() => setIsPixModalOpen(true)}
@@ -127,11 +154,12 @@ export default function Home() {
                                 <Image 
                                     src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" 
                                     alt="PIX" 
-                                    width={28} 
-                                    height={28} 
+                                    width={32} 
+                                    height={32} 
                                     className="object-contain"
                                 />
                             </button>
+                            <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
                         </div>
         
                         <div className="flex-1 flex justify-center">
@@ -140,34 +168,19 @@ export default function Home() {
                                 alt="Apple Pay" 
                                 width={63} 
                                 height={40} 
-                                className="object-contain scale-[2.2]"
+                                className="object-contain scale-[1.98]"
                             />
-                        </div>
-                        
-                        <div className="flex-shrink-0 flex flex-col items-center">
-                             <Button
-                                variant="ghost"
-                                className="p-0 h-auto transition-transform hover:scale-105"
-                                onClick={() => toast({ title: 'PayPal em breve!', description: 'Esta opção de pagamento será ativada em breve.' })}
-                            >
-                                <Image 
-                                    src="https://w7.pngwing.com/pngs/398/990/png-transparent-paypal-logo-shopping-ecommerce-client-area-payment-gateway-service-paypal-text-payment-logo.png"
-                                    alt="PayPal"
-                                    width={28}
-                                    height={28}
-                                    className="object-contain"
-                                    data-ai-hint="paypal logo"
-                                />
-                            </Button>
                         </div>
                     </div>
 
-                    <div className="text-center">
+                    <div className="text-center py-4">
                         <p className="text-lg">Assinatura Mensal</p>
                         <p className="text-5xl font-bold text-red-500 animate-neon-blink" style={{ transform: 'scale(1.44)' }}>
                            {paymentAmount.currency === 'BRL' ? `R$${paymentAmount.value.replace('.', ',')}` : `${paymentAmount.value} ${paymentAmount.currency}`}
                         </p>
                     </div>
+
+                    <PayPalButton />
 
                     <Button 
                         onClick={() => openModal(loginUrl, 'Login')}
