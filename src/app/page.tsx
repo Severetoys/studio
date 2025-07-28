@@ -46,14 +46,16 @@ export default function Home() {
                     </Button>
 
                     <div className="flex justify-center items-center w-full">
-                         <button className="flex-1 transition-transform hover:scale-105">
-                            <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.5)', margin: '0 -25%' }}/>
-                        </button>
-                        <button className="flex-shrink-0 transition-transform hover:scale-105 mx-4">
-                             <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(0.7)' }}/>
-                        </button>
                         <button className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.5)', margin: '0 -25%' }}/>
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.5)' }}/>
+                        </button>
+                        <div className="flex-shrink-0 mx-4">
+                            <button className="transition-transform hover:scale-105">
+                                 <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={28} height={14} className="object-contain" style={{ transform: 'scale(0.7)' }}/>
+                            </button>
+                        </div>
+                        <button className="flex-1 transition-transform hover:scale-105">
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.5)' }}/>
                         </button>
                     </div>
 
