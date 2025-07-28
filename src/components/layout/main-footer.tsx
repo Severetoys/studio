@@ -9,8 +9,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { Textarea } from '../ui/textarea';
+import { Input } from '../ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 declare global {
   interface Window {
@@ -33,33 +36,60 @@ interface Review {
 }
 
 const MainFooter = () => {
+    const { toast } = useToast();
     const [reviews, setReviews] = useState<Review[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [newReviewAuthor, setNewReviewAuthor] = useState('');
+    const [newReviewText, setNewReviewText] = useState('');
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    const fetchApprovedReviews = async () => {
+      setIsLoading(true);
+      try {
+        const reviewsRef = collection(db, 'reviews');
+        const q = query(reviewsRef, where('status', '==', 'approved'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const approvedReviews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
+        setReviews(approvedReviews);
+      } catch (e: any) {
+        console.error("Error fetching approved reviews:", e);
+        setError("Não foi possível carregar os comentários.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
 
     useEffect(() => {
         if (window.FB) {
             window.FB.XFBML.parse();
         }
-
-        const fetchApprovedReviews = async () => {
-          setIsLoading(true);
-          try {
-            const reviewsRef = collection(db, 'reviews');
-            const q = query(reviewsRef, where('status', '==', 'approved'), orderBy('createdAt', 'desc'));
-            const querySnapshot = await getDocs(q);
-            const approvedReviews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
-            setReviews(approvedReviews);
-          } catch (e: any) {
-            console.error("Error fetching approved reviews:", e);
-            setError("Não foi possível carregar os comentários.");
-          } finally {
-            setIsLoading(false);
-          }
-        };
-
         fetchApprovedReviews();
     }, []);
+    
+    const handleAddReview = async () => {
+        if (!newReviewAuthor || !newReviewText) {
+            toast({ variant: 'destructive', title: 'Por favor, preencha nome e comentário.' });
+            return;
+        }
+        setIsSubmittingReview(true);
+        try {
+            await addDoc(collection(db, "reviews"), {
+                author: newReviewAuthor,
+                text: newReviewText,
+                status: 'pending',
+                createdAt: new Date(),
+            });
+            toast({ title: 'Comentário enviado para moderação!' });
+            setNewReviewAuthor('');
+            setNewReviewText('');
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erro ao enviar comentário.' });
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    }
 
     const galleryWords = ["ACOMPANHANTE MASCULINO", "SENSUALIDADE", "PRAZER", "BDSM", "FETISH", "FANTASIA", "IS"];
       
@@ -181,6 +211,27 @@ const MainFooter = () => {
             <div className="px-4 md:px-8 py-12 bg-background flex flex-col items-center">
                 <div className="max-w-4xl w-full mx-auto">
                     <h2 className="text-3xl font-bold text-center mb-8 text-shadow-neon-red">O que dizem sobre mim</h2>
+                    
+                    <Card className="w-full max-w-2xl p-6 bg-card/50 backdrop-blur-sm border-primary/20 mb-6">
+                        <h3 className="text-lg font-semibold mb-4">Deixe sua avaliação</h3>
+                        <div className="space-y-4">
+                            <Input 
+                                placeholder="Seu nome"
+                                value={newReviewAuthor}
+                                onChange={(e) => setNewReviewAuthor(e.target.value)}
+                            />
+                            <Textarea 
+                                placeholder="Escreva seu comentário aqui..."
+                                value={newReviewText}
+                                onChange={(e) => setNewReviewText(e.target.value)}
+                            />
+                            <Button onClick={handleAddReview} disabled={isSubmittingReview}>
+                                {isSubmittingReview ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Enviar Comentário
+                            </Button>
+                        </div>
+                    </Card>
+                    
                     <div className="flex flex-col items-center gap-6">
                       {isLoading && (
                         <div className="flex items-center gap-2 text-muted-foreground">
