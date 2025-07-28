@@ -96,47 +96,46 @@ export default function Home() {
                         </Link>
                     </Button>
 
-                     <div className="flex justify-center items-center w-full max-w-sm mt-6 gap-x-4">
-                        <div className="flex-1 flex justify-center">
-                             <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer">
-                                <Image 
-                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" 
-                                    alt="Google Pay" 
-                                    width={63} 
-                                    height={40} 
-                                    className="object-contain scale-[1.73]"
+                     <div className="flex flex-col items-center justify-center w-full max-w-sm mt-6 gap-y-3">
+                        <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer" className="w-full">
+                            <Button className="w-full h-12 bg-black text-white border border-white/50 hover:bg-gray-800">
+                                <Image
+                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/google_pay.png?alt=media&token=c81c6204-6150-48b4-839d-4e945c58c290"
+                                    alt="Google Pay"
+                                    width={48}
+                                    height={20}
+                                    className="object-contain"
                                 />
-                            </a>
-                        </div>
+                            </Button>
+                        </a>
+                        <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer" className="w-full">
+                            <Button className="w-full h-12 bg-white text-black border border-black/50 hover:bg-gray-200">
+                                <Image
+                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/apple_pay.png?alt=media&token=e1c03484-5f56-4c42-839b-890251390f7f"
+                                    alt="Apple Pay"
+                                    width={48}
+                                    height={20}
+                                    className="object-contain"
+                                />
+                             </Button>
+                        </a>
                         
-                        <div className="flex-1 flex flex-col items-center justify-center">
-                            <button 
-                                className="transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" 
+                        <div className="flex flex-col items-center justify-center pt-2">
+                            <button
+                                className="transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={() => setIsPixModalOpen(true)}
                                 aria-label="Pagar com PIX"
                                 disabled={!isBrazil || isLoadingCurrency}
                             >
-                                <Image 
-                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" 
-                                    alt="PIX" 
-                                    width={32} 
-                                    height={32} 
+                                <Image
+                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649"
+                                    alt="PIX"
+                                    width={32}
+                                    height={32}
                                     className="object-contain scale-150"
                                 />
                             </button>
                             <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
-                        </div>
-        
-                        <div className="flex-1 flex justify-center">
-                             <a href="https://www.paypal.com/ncp/payment/QH7F9FWD9SR8G" target="_blank" rel="noopener noreferrer">
-                                <Image 
-                                    src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" 
-                                    alt="Apple Pay" 
-                                    width={63} 
-                                    height={40} 
-                                    className="object-contain scale-[1.73]"
-                                />
-                            </a>
                         </div>
                     </div>
 
