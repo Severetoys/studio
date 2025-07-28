@@ -22,12 +22,15 @@ export default function Home() {
     const [paymentInfo, setPaymentInfo] = useState({ value: '99.00', currency: 'BRL', symbol: 'R$' });
     const [isLoadingCurrency, setIsLoadingCurrency] = useState(true);
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
+    const [isBrazil, setIsBrazil] = useState(true);
 
     useEffect(() => {
         const fetchCurrency = async () => {
             setIsLoadingCurrency(true);
             try {
                 const userLocale = navigator.language || 'pt-BR';
+                setIsBrazil(userLocale.toLowerCase().includes('pt'));
+
                 const result = await convertCurrency({ targetLocale: userLocale });
 
                 if (result.amount && result.currencyCode) {
@@ -108,9 +111,10 @@ export default function Home() {
                         
                         <div className="flex-1 flex flex-col items-center justify-center">
                             <button 
-                                className="transition-transform hover:scale-105" 
+                                className="transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" 
                                 onClick={() => setIsPixModalOpen(true)}
                                 aria-label="Pagar com PIX"
+                                disabled={!isBrazil || isLoadingCurrency}
                             >
                                 <Image 
                                     src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" 
