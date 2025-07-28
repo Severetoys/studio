@@ -97,17 +97,17 @@ export default function Home() {
                         </Link>
                     </Button>
 
-                     <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-8">
-                        <button onClick={handlePaymentSuccess} className="cursor-pointer bg-transparent border-none p-0">
+                     <div className="flex items-center justify-center w-full max-w-sm mt-6 gap-x-2">
+                        <button onClick={handlePaymentSuccess} className="flex-1 cursor-pointer bg-transparent border-none p-0">
                             <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=1a720214-8238-4dfe-9aba-a820a9b883aa"
                                 alt="Payment button"
-                                width={571}
-                                height={228}
+                                width={120}
+                                height={48}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
-                         <div className="flex flex-col items-center justify-center">
+                         <div className="flex flex-col items-center justify-center px-1">
                             <button
                                 className="transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={() => setIsPixModalOpen(true)}
@@ -117,19 +117,19 @@ export default function Home() {
                                 <Image
                                     src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649"
                                     alt="PIX"
-                                    width={32}
-                                    height={32}
+                                    width={28}
+                                    height={28}
                                     className="object-contain"
                                 />
                             </button>
-                            <p className="text-[10px] text-muted-foreground mt-1">PIX apenas Brasil</p>
+                            <p className="text-[10px] text-muted-foreground mt-1 text-nowrap">PIX Brasil</p>
                         </div>
-                        <button onClick={handlePaymentSuccess} className="cursor-pointer bg-transparent border-none p-0">
+                        <button onClick={handlePaymentSuccess} className="flex-1 cursor-pointer bg-transparent border-none p-0">
                            <Image
                                 src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=7a8ad75a-e3d6-4c1f-98ea-0dd5e3ef8bbf"
                                 alt="Apple Pay"
-                                width={571}
-                                height={228}
+                                width={120}
+                                height={48}
                                 className="w-full h-auto object-contain"
                             />
                         </button>
