@@ -1,3 +1,4 @@
+
 const { textShadow } = require('tailwindcss-textshadow');
 
 /** @type {import('tailwindcss').Config} */
