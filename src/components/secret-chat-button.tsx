@@ -1,3 +1,4 @@
+
 "use client";
 
 import { cn } from '@/lib/utils';
@@ -25,7 +26,7 @@ export default function SecretChatButton({ onClick, isChatOpen }: SecretChatButt
                 onClick={onClick}
                 aria-label={isChatOpen ? "Fechar Chat Secreto" : "Abrir Chat Secreto"}
                 className={cn(
-                    "relative h-16 w-16 transition-all duration-300 order-2 group"
+                    "relative h-16 w-16 transition-all duration-300 order-2 group animate-pulse-red-glow"
                 )}
             >
                 {isChatOpen ? (

@@ -30,7 +30,7 @@ export default function WhatsAppButton() {
         </div>
         <div
             className={cn(
-                "relative h-16 w-16 transition-all duration-300 order-2"
+                "relative h-16 w-16 transition-all duration-300 order-2 animate-pulse-green-glow rounded-full"
             )}
         >
             <Image 
