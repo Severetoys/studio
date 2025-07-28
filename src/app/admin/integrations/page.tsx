@@ -51,44 +51,38 @@ export default function AdminIntegrationsPage() {
     mercadopago: false,
   });
   const [isLoading, setIsLoading] = useState<Record<Integration, boolean>>({
-    twitter: false,
-    instagram: false,
-    facebook: false,
-    paypal: false,
-    mercadopago: false,
+    twitter: true,
+    instagram: true,
+    facebook: true,
+    paypal: true,
+    mercadopago: true,
   });
 
   useEffect(() => {
     async function fetchAllStatus() {
         const services: Integration[] = ['twitter', 'instagram', 'facebook', 'paypal', 'mercadopago'];
-        const initialLoadingState = services.reduce((acc, service) => ({...acc, [service]: true }), {} as Record<Integration, boolean>);
-        setIsLoading(initialLoadingState);
-
-        const statuses = await Promise.all(services.map(service => getIntegrationStatus(service)));
         
-        const newIntegrationsState = { ...initialIntegrations };
-        services.forEach((service, index) => {
-            newIntegrationsState[service] = statuses[index];
+        const statuses = await Promise.all(services.map(async (service) => {
+            const status = await getIntegrationStatus(service);
+            return { service, status };
+        }));
+        
+        const newIntegrationsState: Record<Integration, boolean> = { ...integrations };
+        const newLoadingState: Record<Integration, boolean> = { ...isLoading };
+        
+        statuses.forEach(({ service, status }) => {
+            newIntegrationsState[service] = status;
+            newLoadingState[service] = false;
         });
-        setIntegrations(newIntegrationsState);
 
-        const finalLoadingState = services.reduce((acc, service) => ({...acc, [service]: false }), {} as Record<Integration, boolean>);
-        setIsLoading(finalLoadingState);
+        setIntegrations(newIntegrationsState);
+        setIsLoading(newLoadingState);
     }
     fetchAllStatus();
   }, []);
 
-  const initialIntegrations: Record<Integration, boolean> = {
-    twitter: false,
-    instagram: false,
-    facebook: false,
-    paypal: false,
-    mercadopago: false,
-  };
-
-
   const handleToggleIntegration = async (integration: Integration) => {
-    setIsLoading(prev => ({...(prev || initialIntegrations), [integration]: true }));
+    setIsLoading(prev => ({...prev, [integration]: true }));
     const isConnected = integrations[integration];
 
     try {
@@ -120,7 +114,7 @@ export default function AdminIntegrationsPage() {
             description: error.message,
         });
     } finally {
-        setIsLoading(prev => ({...(prev || initialIntegrations), [integration]: false }));
+        setIsLoading(prev => ({...prev, [integration]: false }));
     }
   };
 
@@ -129,21 +123,19 @@ export default function AdminIntegrationsPage() {
     icon: Icon,
     color,
     description,
-    isConnected,
   }: {
     platform: Integration;
     icon: React.ElementType;
     color: string;
     description: string;
-    isConnected: boolean;
   }) => {
 
-    const isCardLoading = isLoading?.[platform] ?? false;
+    const isCardLoading = isLoading[platform];
+    const isConnected = integrations[platform];
 
     const connectButton = (
       <Button 
         variant="default" 
-        onClick={() => handleToggleIntegration(platform)}
         disabled={isCardLoading}
       >
         {isCardLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
@@ -161,13 +153,14 @@ export default function AdminIntegrationsPage() {
                 <p className="text-sm text-muted-foreground">{description}</p>
               </div>
             </div>
-              {isConnected ? (
+              {isCardLoading ? (
+                 <Loader2 className="h-5 w-5 animate-spin" />
+              ) : isConnected ? (
                 <Button 
                     variant="destructive" 
                     onClick={() => handleToggleIntegration(platform)}
-                    disabled={isCardLoading}
                 >
-                    {isCardLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+                    <LogOut className="mr-2 h-4 w-4" />
                      Desconectar
                 </Button>
               ) : (
@@ -179,12 +172,12 @@ export default function AdminIntegrationsPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Conectar ao {platform}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta ação simula a conexão com {platform}. A integração completa com OAuth 2.0 requer configuração de backend adicional.
+                        Para uma conexão real, seria necessário um fluxo seguro (OAuth 2.0) para obter suas credenciais de API. Esta ação irá simular a conexão, permitindo que você controle a exibição do feed no seu site.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleToggleIntegration(platform)}>Continuar</AlertDialogAction>
+                      <AlertDialogAction onClick={() => handleToggleIntegration(platform)}>Continuar e Conectar</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -204,7 +197,7 @@ export default function AdminIntegrationsPage() {
         <CardHeader>
           <CardTitle>Conectar Contas</CardTitle>
           <CardDescription>
-            Gerencie as conexões com redes sociais e serviços de pagamento. O status de conectado/desconectado é salvo no servidor.
+            Gerencie as conexões com redes sociais e serviços de pagamento. O status de conectado/desconectado é salvo no servidor e controla a visibilidade dos feeds no site.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -212,36 +205,31 @@ export default function AdminIntegrationsPage() {
             platform="facebook"
             icon={Facebook}
             color="text-[#1877F2]"
-            description="Conecte sua página para posts e login."
-            isConnected={integrations.facebook}
+            description="Exibir/ocultar catálogo de produtos do Facebook."
           />
            <IntegrationCard
             platform="instagram"
             icon={Instagram}
             color="text-[#E4405F]"
-            description="Importe sua galeria de fotos e login."
-            isConnected={integrations.instagram}
+            description="Exibir/ocultar galeria de fotos do Instagram."
           />
           <IntegrationCard
             platform="twitter"
             icon={Twitter}
             color="text-[#1DA1F2]"
-            description="Sincronize seu feed de vídeos e login."
-            isConnected={integrations.twitter}
+            description="Exibir/ocultar feed de vídeos do X (Twitter)."
           />
            <IntegrationCard
             platform="paypal"
             icon={PayPalIcon}
             color="text-[#0070BA]"
-            description="Conecte para processar pagamentos e login."
-            isConnected={integrations.paypal}
+            description="Habilitar/desabilitar pagamentos com PayPal."
           />
            <IntegrationCard
             platform="mercadopago"
             icon={MercadoPagoIcon}
             color="text-[#00B1EA]"
-            description="Habilite o checkout do Mercado Pago e login."
-            isConnected={integrations.mercadopago}
+            description="Habilitar/desabilitar pagamentos com Mercado Pago."
           />
         </CardContent>
       </Card>
