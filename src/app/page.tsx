@@ -116,7 +116,7 @@ export default function Home() {
                         Cadastre-se com Face ID
                     </Button>
 
-                    <div className="flex justify-center items-center w-full max-w-full mt-2">
+                    <div className="flex justify-center items-center w-full max-w-full mt-8">
                         <div className="flex-1 transition-transform hover:scale-105" style={{ flexBasis: '42.5%'}}>
                            <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58%20(1).jpeg?alt=media&token=00683b6b-59ac-483c-93f4-6c879ab9b86c" alt="Google Pay" width={338} height={135} className="object-contain" style={{ transform: 'scale(1.87)' }}/>
                         </div>
