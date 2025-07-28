@@ -14,6 +14,7 @@ import { fetchInstagramShopFeed, type InstagramMedia } from '@/ai/flows/instagra
 import { fetchFacebookProducts, type FacebookProduct } from '@/ai/flows/facebook-products-flow';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDesc } from '@/components/ui/alert';
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 interface Video {
   id: string;
@@ -24,6 +25,8 @@ interface Video {
   videoUrl: string;
   aiHint?: string;
 }
+
+const PAYPAL_CLIENT_ID = "AZ6S85gBFj5k6V8_pUx1R-nUoJqL-3w4l9n5Z6G8y7o9W7a2Jm-B0E3uV6KsoJAg4fImv_iJqB1t4p_Q";
 
 const InstagramShopFeed = () => {
     const { toast } = useToast();
@@ -174,7 +177,7 @@ const FacebookProductsStore = () => {
 };
 
 
-export default function LojaPage() {
+function LojaPageContent() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -208,17 +211,13 @@ export default function LojaPage() {
   }, [toast]);
 
   return (
-    <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
-      <Script src="https://www.paypal.com/sdk/js?client-id=AZ6S85gBFj5k6V8_pUx1R-nUoJqL-3w4l9n5Z6G8y7o9W7a2Jm-B0E3uV6KsoJAg4fImv_iJqB1t4p_Q&components=cart-buttons" />
       <Card className="w-full max-w-6xl animate-in fade-in-0 zoom-in-95 duration-500 shadow-neon-red-strong border-primary/50 bg-card/90 backdrop-blur-xl">
         <CardHeader className="flex-row items-center justify-between border-b border-primary/20 pb-4">
           <CardTitle className="text-3xl text-primary text-shadow-neon-red-light text-center flex-1">
             Adult Store
           </CardTitle>
-          <div id="paypal-view-cart-button-container">
-            <div className="paypal-cart-button-container">
-                <div id="paypal-view-cart" className="paypal-button" data-paypal-style="color-yellow,size-large,shape-rect,label-cart,layout-horizontal"></div>
-            </div>
+          <div className="w-[150px]">
+             <PayPalButtons style={{ layout: 'horizontal', color: 'gold', shape: 'rect', label: 'cart' }} disabled />
           </div>
         </CardHeader>
         <CardContent className="p-6 space-y-12">
@@ -248,13 +247,26 @@ export default function LojaPage() {
                         </p>
                       </CardContent>
                       <CardFooter className="p-4 mt-auto">
-                        <div id={`paypal-add-to-cart-button-container-${video.id}`}>
-                           <div
-                             id={`paypal-add-to-cart-${video.id}`}
-                             className="paypal-button"
-                             data-paypal-style="color-gold,size-large,shape-rect,label-cart,layout-horizontal"
-                             data-paypal-product="name={{video.title}},price={{video.price.toFixed(2)}},currency=BRL"
-                           ></div>
+                        <div className="w-full">
+                           <PayPalButtons
+                                style={{ layout: 'horizontal', color: 'gold', shape: 'rect', label: 'cart' }}
+                                createOrder={(data, actions) => {
+                                    return actions.order.create({
+                                        purchase_units: [{
+                                            description: video.title,
+                                            amount: {
+                                                value: video.price.toFixed(2),
+                                                currency_code: 'BRL'
+                                            }
+                                        }]
+                                    });
+                                }}
+                                onApprove={(data, actions) => {
+                                   return actions.order!.capture().then(details => {
+                                        toast({ title: "Compra Aprovada!", description: `Obrigado, ${details.payer.name?.given_name}!`});
+                                    });
+                                }}
+                           />
                         </div>
                       </CardFooter>
                     </Card>
@@ -288,6 +300,15 @@ export default function LojaPage() {
             </div>
         </CardContent>
       </Card>
-    </main>
   );
+}
+
+export default function LojaPage() {
+    return (
+        <PayPalScriptProvider options={{ "clientId": PAYPAL_CLIENT_ID, components: 'buttons', currency: 'BRL' }}>
+            <main className="flex flex-1 w-full flex-col items-center p-4 bg-background">
+                <LojaPageContent />
+            </main>
+        </PayPalScriptProvider>
+    );
 }
