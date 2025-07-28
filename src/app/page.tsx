@@ -36,7 +36,7 @@ export default function Home() {
                     </h1>
                 </div>
 
-                <Separator className="my-8 w-full max-w-xs bg-primary/50" />
+                <Separator className="my-8 w-full bg-primary/50" />
 
                 <div className="w-full max-w-xs flex flex-col items-center gap-y-6">
                     <Button 
@@ -48,13 +48,13 @@ export default function Home() {
 
                     <div className="flex justify-around items-center w-full px-2">
                          <button className="flex-1 transition-transform hover:scale-105">
-                            <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={100} height={40} className="object-contain" />
+                            <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Apple Pay" width={150} height={60} className="object-contain" />
                         </button>
                         <button className="flex-1 transition-transform hover:scale-105">
-                             <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={80} height={40} className="object-contain" />
+                             <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-25%20at%2021.41.37.jpeg?alt=media&token=4cfc8616-1e75-4eb2-8936-fbae3f2bc649" alt="PIX" width={56} height={28} className="object-contain" />
                         </button>
                         <button className="flex-1 transition-transform hover:scale-105">
-                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Google Pay" width={100} height={40} className="object-contain" />
+                           <Image src="https://firebasestorage.googleapis.com/v0/b/authkit-y9vjx.firebasestorage.app/o/WhatsApp%20Image%202025-07-26%20at%2002.02.58.jpeg?alt=media&token=3a91ba87-6df8-41db-a3bd-64f720e7feb2" alt="Google Pay" width={150} height={60} className="object-contain" />
                         </button>
                     </div>
 
