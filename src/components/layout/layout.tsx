@@ -11,7 +11,7 @@ import MainHeader from './main-header';
 import MainFooter from './main-footer';
 import SiteFooter from './site-footer';
 import { usePathname } from 'next/navigation';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import SecretChatWidget from '@/components/secret-chat-widget';
 import SecretChatButton from '@/components/secret-chat-button';
@@ -55,6 +55,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     const trackVisitor = async () => {
         if (pathname.startsWith('/admin')) return;
 
+        // Track chat visitor
         const chatId = getOrCreateChatId();
         if (chatId) {
             const chatDocRef = doc(db, 'chats', chatId);
@@ -64,6 +65,26 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 }, { merge: true });
             } catch (error) {
                 console.error("Error creating/updating visitor tracking document:", error);
+            }
+        }
+        
+        // Track page view
+        if (pathname) {
+            // Sanitize path to use as a document ID in Firestore
+            const docId = pathname === '/' ? 'home' : pathname.replace(/\//g, '_');
+            const pageViewRef = doc(db, 'pageViews', docId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const pageViewDoc = await transaction.get(pageViewRef);
+                    if (!pageViewDoc.exists()) {
+                        transaction.set(pageViewRef, { path: pathname, count: 1, lastViewed: serverTimestamp() });
+                    } else {
+                        const newCount = pageViewDoc.data().count + 1;
+                        transaction.update(pageViewRef, { count: newCount, lastViewed: serverTimestamp() });
+                    }
+                });
+            } catch (error) {
+                console.error("Error updating page view count:", error);
             }
         }
     };

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { DollarSign, Users, CreditCard, Activity, MessageSquare, Star, Package } from "lucide-react";
+import { DollarSign, Users, CreditCard, Activity, MessageSquare, Star, Package, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDashboardStats } from './actions';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getDashboardStats, getTopPages } from './actions';
 
 interface DashboardStats {
   totalSubscribers: number;
@@ -12,24 +13,35 @@ interface DashboardStats {
   pendingReviews: number;
 }
 
+interface TopPage {
+  id: string;
+  path: string;
+  count: number;
+}
+
+
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [topPages, setTopPages] = useState<TopPage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
+    async function fetchAllData() {
       setIsLoading(true);
       try {
-        const dashboardStats = await getDashboardStats();
+        const [dashboardStats, topPagesData] = await Promise.all([
+            getDashboardStats(),
+            getTopPages()
+        ]);
         setStats(dashboardStats);
+        setTopPages(topPagesData);
       } catch (error) {
-        console.error("Failed to fetch dashboard stats", error);
-        // Handle error display if necessary
+        console.error("Failed to fetch dashboard data", error);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchStats();
+    fetchAllData();
   }, []);
 
   const StatCard = ({ title, value, icon, description }: { title: string, value: string | number, icon: React.ReactNode, description: string }) => (
@@ -82,18 +94,38 @@ export default function AdminDashboardPage() {
           description="Comentários aguardando moderação"
         />
       </div>
-       <div
-        className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm mt-6"
-      >
-        <div className="flex flex-col items-center gap-1 text-center p-8">
-           <Activity className="h-12 w-12 text-muted-foreground" />
-          <h3 className="text-2xl font-bold tracking-tight mt-4">
-            Análise Avançada em Breve
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Em breve, você poderá ver análises detalhadas sobre os visitantes do seu site, incluindo país, região e as páginas mais acessadas.
-          </p>
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
+        <Card>
+            <CardHeader>
+                <CardTitle>Páginas Mais Acessadas</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <div className="h-24 bg-muted rounded animate-pulse" />
+                ) : topPages.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Página</TableHead>
+                                <TableHead className="text-right">Visualizações</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {topPages.map(page => (
+                                <TableRow key={page.id}>
+                                    <TableCell className="font-medium">{page.path}</TableCell>
+                                    <TableCell className="text-right">{page.count}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <div className="text-center text-muted-foreground py-4">
+                        <p>Nenhum dado de visualização de página ainda.</p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
       </div>
     </>
   );

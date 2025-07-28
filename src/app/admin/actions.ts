@@ -6,7 +6,7 @@
 
 import { adminApp } from '@/lib/firebase-admin';
 import { getDatabase } from 'firebase-admin/database';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, query, collection, orderBy, limit, getDocs } from 'firebase-admin/firestore';
 
 const db = getDatabase(adminApp);
 const firestore = getFirestore(adminApp);
@@ -16,6 +16,12 @@ interface DashboardStats {
   totalConversations: number;
   totalProducts: number;
   pendingReviews: number;
+}
+
+interface TopPage {
+  id: string;
+  path: string;
+  count: number;
 }
 
 /**
@@ -58,4 +64,29 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       pendingReviews: 0,
     };
   }
+}
+
+/**
+ * Retrieves the top 3 most accessed pages from the 'pageViews' collection.
+ * @returns A promise that resolves with an array of top pages.
+ */
+export async function getTopPages(): Promise<TopPage[]> {
+    try {
+        const pageViewsRef = collection(firestore, 'pageViews');
+        const q = query(pageViewsRef, orderBy('count', 'desc'), limit(3));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return [];
+        }
+
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            path: doc.data().path,
+            count: doc.data().count
+        }));
+    } catch (error) {
+        console.error("Error fetching top pages:", error);
+        return [];
+    }
 }
