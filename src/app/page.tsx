@@ -14,6 +14,7 @@ import { convertCurrency } from '@/ai/flows/currency-conversion-flow';
 import PixPaymentModal from '@/components/pix-payment-modal';
 import Link from 'next/link';
 import PayPalHostedButton from '@/components/paypal-hosted-button';
+import AccessTypeModal from '@/components/access-type-modal';
 
 const PayPalIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
@@ -31,6 +32,7 @@ export default function Home() {
     const [paymentInfo, setPaymentInfo] = useState({ value: '99.00', currency: 'BRL', symbol: 'R$' });
     const [isLoadingCurrency, setIsLoadingCurrency] = useState(true);
     const [isPixModalOpen, setIsPixModalOpen] = useState(false);
+    const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
     const [isBrazil, setIsBrazil] = useState(true);
 
     useEffect(() => {
@@ -168,11 +170,12 @@ export default function Home() {
                             </div>
                         </div>
                         
-                         <Button asChild className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow">
-                            <Link href="https://login.italosantos.com" target="_blank">
-                                <KeyRound className="mr-2 h-6 w-6" />
-                                ENTRAR
-                            </Link>
+                         <Button 
+                            className="w-full h-14 text-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center neon-red-glow"
+                            onClick={() => setIsAccessModalOpen(true)}
+                         >
+                            <KeyRound className="mr-2 h-6 w-6" />
+                            ENTRAR
                         </Button>
                     </div>
                 </div>
@@ -186,6 +189,11 @@ export default function Home() {
                 onOpenChange={setIsPixModalOpen}
                 amount={parseFloat(paymentInfo.value)}
                 onPaymentSuccess={handlePaymentSuccess}
+            />
+
+            <AccessTypeModal 
+                isOpen={isAccessModalOpen}
+                onOpenChange={setIsAccessModalOpen}
             />
         </>
     );
