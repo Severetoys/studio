@@ -4,10 +4,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import Header from '@/components/layout/header';
-import Sidebar from '@/components/layout/sidebar';
-import type { Fetish } from '@/lib/fetish-data';
-import MainFooter from '@/components/layout/main-footer';
 import { Loader2 } from 'lucide-react';
 
 export default function AssinanteLayout({
@@ -64,3 +60,5 @@ export default function AssinanteLayout({
     </>
   );
 }
+
+    
