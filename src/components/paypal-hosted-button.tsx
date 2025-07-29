@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,11 @@ interface PayPalHostedButtonProps {
     hostedButtonId: string;
 }
 
-const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId }: PayPalHostedButtonProps) => {
+interface PayPalHostedButtonRef {
+    triggerPayment: () => void;
+}
+
+const PayPalHostedButton = forwardRef<PayPalHostedButtonRef, PayPalHostedButtonProps>(({ onPaymentSuccess, hostedButtonId }, ref) => {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const buttonContainerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +37,6 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId }: PayPalHostedBu
 
         const script = document.createElement('script');
         script.id = scriptId;
-        // Use a generic client-id for the SDK, as the hosted button has its own auth.
         script.src = `https://www.paypal.com/sdk/js?client-id=test&components=buttons&disable-funding=venmo&currency=BRL`;
         script.async = true;
 
@@ -55,8 +58,28 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId }: PayPalHostedBu
 
     }, [toast]);
     
-    useEffect(() => {
-        if (isSdkReady && window.paypal?.Buttons && buttonContainerRef.current) {
+    useImperativeHandle(ref, () => ({
+        triggerPayment: () => {
+            if (buttonContainerRef.current) {
+                const paypalButton = buttonContainerRef.current.querySelector('iframe');
+                 if (paypalButton) {
+                    (paypalButton.contentWindow?.document.querySelector('[role="button"]') as HTMLElement)?.click();
+                } else {
+                     // Fallback in case the iframe isn't ready, re-render
+                     renderButton();
+                     setTimeout(() => {
+                         const paypalButton = buttonContainerRef.current?.querySelector('iframe');
+                         if(paypalButton) {
+                             (paypalButton.contentWindow?.document.querySelector('[role="button"]') as HTMLElement)?.click();
+                         }
+                     }, 1000);
+                }
+            }
+        }
+    }));
+    
+    const renderButton = () => {
+         if (isSdkReady && window.paypal?.Buttons && buttonContainerRef.current) {
             buttonContainerRef.current.innerHTML = "";
             try {
                 window.paypal.Buttons({
@@ -85,7 +108,10 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId }: PayPalHostedBu
                 console.error("Exceção ao renderizar botão do PayPal: ", error);
             }
         }
+    }
 
+    useEffect(() => {
+        renderButton();
     }, [isSdkReady, hostedButtonId, onPaymentSuccess, toast])
     
     return (
@@ -98,6 +124,8 @@ const PayPalHostedButton = ({ onPaymentSuccess, hostedButtonId }: PayPalHostedBu
             <div ref={buttonContainerRef} className={cn("transition-opacity duration-500", isLoading ? 'opacity-0' : 'opacity-100')} />
         </div>
     );
-}
+});
+
+PayPalHostedButton.displayName = "PayPalHostedButton";
 
 export default PayPalHostedButton;
